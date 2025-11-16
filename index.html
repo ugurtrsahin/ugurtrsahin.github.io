@@ -3,86 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HPLC Projelerim</title>
+    <title>Uğur Şahin - Teknoloji Meraklısı</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            color: #333;
         }
         header {
             background-color: #333;
             color: white;
             text-align: center;
+            padding: 40px 20px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        header h2 {
+            margin: 10px 0;
+            font-size: 1.5em;
+            font-weight: normal;
+        }
+        .intro {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .projects {
+            max-width: 800px;
+            margin: 20px auto;
             padding: 20px;
         }
-        .tabs {
-            display: flex;
-            justify-content: center;
-            background-color: #ddd;
-        }
-        .tab-button {
-            background-color: inherit;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            padding: 14px 16px;
-            transition: 0.3s;
-        }
-        .tab-button:hover {
-            background-color: #bbb;
-        }
-        .tab-button.active {
-            background-color: #ccc;
-        }
-        .tab-content {
-            display: none;
+        .project {
+            background-color: white;
+            margin: 20px 0;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
         }
-        .tab-content.active {
-            display: block;
+        .project:hover {
+            transform: translateY(-5px);
         }
-        iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
+        .project h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .project a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .project a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+        }
+        footer a {
+            color: white;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>HPLC Projelerim</h1>
-        <p>Bu sitede HPLC (Yüksek Performanslı Sıvı Kromatografisi) ile ilgili iki projemi paylaşıyorum. İlk proje genel HPLC kılavuzları ve validasyon rehberlerini içeriyor. İkinci proje ise derin öğrenme kullanarak HPLC kolon seçiminde verimliliği artırma üzerine.</p>
+        <h1>Uğur Şahin</h1>
+        <h2>Teknoloji Meraklısı & Yazılım Geliştirici</h2>
     </header>
 
-    <div class="tabs">
-        <button class="tab-button active" onclick="openTab(event, 'kilavuz')">HPLC Kılavuzu</button>
-        <button class="tab-button" onclick="openTab(event, 'kolon')">HPLC Kolon Seçimi</button>
+    <div class="intro">
+        <p>Merhaba. Bu siteyi GitHub Pages kullanarak sıfırdan oluşturdum. Teknoloji, açık kaynak kodlu yazılımlar ve yeni şeyler öğrenmekle ilgileniyorum.</p>
     </div>
 
-    <div id="kilavuz" class="tab-content active">
-        <iframe src="HPLC Kılavuzu 118b6792444f80f4a5c7f74bcaf6e5ed.html"></iframe>
+    <div class="projects">
+        <h2>Projelerim ve Makalelerim</h2>
+        
+        <div class="project">
+            <h3>HPLC Kolon Seçiminde Derin Öğrenme</h3>
+            <p>HPLC kolon seçiminde derin öğrenme kullanarak verimliliği artırma projesi.</p>
+            <a href="HPLC Kolon Seçiminde Derin Öğrenme Verimliliği Art 111b6792444f807facc9c4b82de81d94.html">Projeyi Görüntüle</a>
+        </div>
+
+        <div class="project">
+            <h3>GH in X</h3>
+            <p>GitHub ile ilgili bir proje veya makale.</p>
+            <a href="#">Yakında Gelecek</a>
+        </div>
     </div>
 
-    <div id="kolon" class="tab-content">
-        <iframe src="HPLC Kolon Seçiminde Derin Öğrenme Verimliliği Art 111b6792444f807facc9c4b82de81d94.html"></iframe>
-    </div>
-
-    <script>
-        function openTab(evt, tabName) {
-            var i, tabcontent, tabbuttons;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            tabbuttons = document.getElementsByClassName("tab-button");
-            for (i = 0; i < tabbuttons.length; i++) {
-                tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
-            }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-    </script>
+    <footer>
+        <p>Repository: <a href="https://github.com/ugurtrsahin/ugurtrsahin.github.io">https://github.com/ugurtrsahin/ugurtrsahin.github.io</a></p>
+    </footer>
 </body>
 </html>
