@@ -1,198 +1,182 @@
 (function () {
-    const readyStates = ["interactive", "complete"];
-    if (readyStates.includes(document.readyState)) {
-        enhance();
+    const navLinks = [
+        { label: "Ana Sayfa", href: "index.html" },
+        { label: "HPLC Kılavuzu", href: "hplc-guide.html" },
+        { label: "Kolon Seçimi", href: "hplc-column-selection.html" },
+        { label: "Validasyon", href: "hplc-guide/validation/acceptance-criteria.html" }
+    ];
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
     } else {
-        document.addEventListener("DOMContentLoaded", enhance);
+        init();
     }
 
-    function enhance() {
-        const body = document.body;
-        if (!body || body.dataset.themeSkip === "true" || body.classList.contains("site-theme-ready")) {
-            return;
-        }
-
-        body.classList.add("site-theme-ready");
-
-        const shell = document.createElement("div");
-        shell.className = "page-shell";
-
-        const main = document.createElement("main");
-        main.className = "page-content";
-        main.setAttribute("role", "main");
-
-        const existingNodes = Array.from(body.childNodes);
-        existingNodes.forEach(function (node) {
-            main.appendChild(node);
-        });
-
-        const readingTime = estimateReadingTime(main.textContent || "");
-        const banner = buildBanner(main, readingTime);
-
-        shell.appendChild(banner);
-        shell.appendChild(main);
-
-        body.appendChild(shell);
+    function init() {
+        addNavigation();
+        addTableOfContents();
+        loadCodeHighlighting();
     }
 
-    function buildBanner(main, readingTime) {
-        const header = document.createElement("header");
-        header.className = "site-banner";
-
+    function addNavigation() {
         const nav = document.createElement("nav");
-        nav.className = "site-nav";
-        nav.appendChild(buildBrand());
-        nav.appendChild(buildNavLinks());
+        const basePath = getBasePath();
+        const currentPath = normalizePath(window.location.pathname);
 
-        const bannerGrid = document.createElement("div");
-        bannerGrid.className = "banner-grid";
+        navLinks.forEach(function (link) {
+            const a = document.createElement("a");
+            a.href = resolveLink(basePath, link.href);
+            a.textContent = link.label;
 
-        const hero = document.createElement("div");
-        hero.className = "banner-text";
-        hero.innerHTML = "" +
-            "<p class=\"site-eyebrow\">" + sanitize(getEyebrow()) + "</p>" +
-            "<h1>" + sanitize(getHeroTitle(main)) + "</h1>" +
-            "<p class=\"site-summary\">" + sanitize(getDescriptor()) + "</p>";
-
-        const metaBox = document.createElement("div");
-        metaBox.className = "banner-meta";
-        metaBox.innerHTML = buildMeta(readingTime);
-
-        bannerGrid.appendChild(hero);
-        bannerGrid.appendChild(metaBox);
-
-        header.appendChild(nav);
-        header.appendChild(bannerGrid);
-
-        return header;
-    }
-
-    function buildBrand() {
-        const wrapper = document.createElement("div");
-        wrapper.className = "nav-brand";
-        wrapper.innerHTML = "" +
-            "<span class=\"brand-title\">HPLC Bilgi Merkezi</span>" +
-            "<span class=\"brand-subtitle\">Metot geliştirme, validasyon ve analiz içerikleri</span>";
-        return wrapper;
-    }
-
-    function buildNavLinks() {
-        const wrapper = document.createElement("div");
-        wrapper.className = "nav-links";
-
-        const links = [
-            { label: "Ana Sayfa", href: "/index.html" },
-            { label: "HPLC Kılavuzu", href: "/hplc-guide.html" },
-            { label: "Kolon Seçimi", href: "/hplc-column-selection.html" },
-            { label: "Validasyon", href: "/hplc-guide/validation/acceptance-criteria.html" }
-        ];
-
-        const currentPath = normalizePath(window.location.pathname || "");
-
-        links.forEach(function (link) {
-            const anchor = document.createElement("a");
-            anchor.href = link.href;
-            anchor.textContent = link.label;
-            if (currentPath === normalizePath(link.href)) {
-                anchor.classList.add("is-active");
+            const linkPath = normalizePath(new URL(a.href, window.location.origin).pathname);
+            if (linkPath === currentPath) {
+                a.classList.add("is-active");
             }
-            wrapper.appendChild(anchor);
+
+            nav.appendChild(a);
         });
 
-        return wrapper;
+        document.body.insertBefore(nav, document.body.firstChild);
     }
 
-    function buildMeta(readingTime) {
-        const sectionLabel = getSectionLabel();
-        const meta = [
-            { label: "Kategori", value: sectionLabel },
-            { label: "Okuma", value: readingTime },
-            { label: "Durum", value: "Güncel içerik" }
-        ];
+    function addTableOfContents() {
+        const headings = Array.from(document.querySelectorAll("h2, h3"));
+        if (headings.length < 3) return;
 
-        return "<ul class=\"meta-grid\">" +
-            meta.map(function (item) {
-                return "<li><span class=\"meta-label\">" + sanitize(item.label) + "</span><span class=\"meta-value\">" + sanitize(item.value) + "</span></li>";
-            }).join("") +
-            "</ul>";
-    }
+        const toc = document.createElement("div");
+        toc.className = "toc-panel";
 
-    function estimateReadingTime(text) {
-        if (!text) {
-            return "2 dk";
-        }
-        const words = text.trim().split(/\s+/).length;
-        const minutes = Math.max(2, Math.round(words / 225));
-        return minutes + " dk";
-    }
+        const title = document.createElement("h4");
+        title.textContent = "İçindekiler";
+        toc.appendChild(title);
 
-    function getHeroTitle(scope) {
-        const root = scope || document;
-        const prioritySelectors = [".page-title", "h1", "h2"];
-        for (let i = 0; i < prioritySelectors.length; i += 1) {
-            const node = root.querySelector(prioritySelectors[i]);
-            if (node && node.textContent.trim()) {
-                return node.textContent.trim();
+        const list = document.createElement("ul");
+        list.className = "toc-list";
+
+        headings.forEach(function (heading) {
+            if (!heading.id) {
+                heading.id = slugify(heading.textContent);
             }
+
+            const item = document.createElement("li");
+            const link = document.createElement("a");
+            link.href = "#" + heading.id;
+            link.textContent = heading.textContent;
+            item.appendChild(link);
+            list.appendChild(item);
+        });
+
+        toc.appendChild(list);
+
+        const firstHeading = document.querySelector("h1, h2");
+        if (firstHeading && firstHeading.nextElementSibling) {
+            firstHeading.parentNode.insertBefore(toc, firstHeading.nextElementSibling);
         }
-        return document.title.replace(/Uğur\s+Şahin\s*-\s*/i, "").trim() || "HPLC Kaynakları";
     }
 
-    function getDescriptor() {
-        const section = getSectionLabel();
-        const map = {
-            "Validasyon": "Planlama, raporlama ve SOP belgeleri için pratik rehber notları.",
-            "Kolon Seçimi": "Kolon seçimini hızlandıran veri odaklı yöntemler ve kontrol listeleri.",
-            "Detektörler": "Farklı dedektör türleri ve kullanım stratejileri hakkında kısa notlar.",
-            "Yazılım": "Shimadzu yazılımları ve veri işleme adımlarını kolaylaştıran yönergeler."
-        };
-        return map[section] || "HPLC metod geliştirme, validasyon ve sorun giderme başlıklarını tek yerde topladım.";
+    function loadCodeHighlighting() {
+        const codeBlocks = document.querySelectorAll("pre code");
+        if (!codeBlocks.length) return;
+
+        const hasMermaid = Array.from(codeBlocks).some(function (block) {
+            return /language-mermaid/i.test(block.className);
+        });
+
+        const hasRegularCode = Array.from(codeBlocks).some(function (block) {
+            return !/language-mermaid/i.test(block.className);
+        });
+
+        const basePath = getBasePath();
+
+        if (hasRegularCode) {
+            loadStyle(resolveLink(basePath, "assets/vendor/prism.min.css"));
+            loadScript(resolveLink(basePath, "assets/vendor/prism.min.js")).then(function () {
+                if (window.Prism && window.Prism.highlightAll) {
+                    window.Prism.highlightAll();
+                }
+            });
+        }
+
+        if (hasMermaid) {
+            const mermaidBlocks = Array.from(codeBlocks).filter(function (block) {
+                return /language-mermaid/i.test(block.className);
+            });
+
+            mermaidBlocks.forEach(function (block) {
+                const wrapper = document.createElement("div");
+                wrapper.className = "mermaid mermaid-diagram";
+                wrapper.textContent = block.textContent;
+                const pre = block.closest("pre");
+                if (pre && pre.parentNode) {
+                    pre.parentNode.replaceChild(wrapper, pre);
+                }
+            });
+
+            loadScript(resolveLink(basePath, "assets/vendor/mermaid.min.js")).then(function () {
+                if (window.mermaid) {
+                    window.mermaid.initialize({ startOnLoad: true });
+                }
+            });
+        }
     }
 
-    function getSectionLabel() {
-        const path = window.location.pathname || "";
-        if (/validation|sop/i.test(path)) {
-            return "Validasyon";
-        }
-        if (/column/i.test(path)) {
-            return "Kolon Seçimi";
-        }
-        if (/detector/i.test(path)) {
-            return "Detektörler";
-        }
-        if (/shimadzu|software/i.test(path)) {
-            return "Yazılım";
-        }
-        if (/guide/i.test(path)) {
-            return "HPLC Kılavuzu";
-        }
-        return "Genel";
+    function getBasePath() {
+        const meta = document.querySelector('meta[name="site-base"]');
+        const bodyBase = document.body.dataset.base;
+        let base = (meta && meta.content) || bodyBase || "/";
+
+        if (!base.startsWith("/")) base = "/" + base;
+        if (!base.endsWith("/")) base += "/";
+
+        return base;
     }
 
-    function getEyebrow() {
-        const section = getSectionLabel();
-        if (section === "Genel") {
-            return "HPLC Kaynak Merkezi";
-        }
-        return section + " İçeriği";
-    }
-
-    function sanitize(value) {
-        return (value || "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#39;");
+    function resolveLink(base, target) {
+        const cleaned = target.replace(/^\/+/, "");
+        return (base + cleaned).replace(/\/+/g, "/");
     }
 
     function normalizePath(path) {
-        if (!path) {
-            return "/";
-        }
-        if (!path.startsWith("/")) {
-            return "/" + path;
-        }
-        return path.replace(/index\.html$/, "/");
+        if (!path) return "/";
+        let normalized = path;
+        if (!normalized.startsWith("/")) normalized = "/" + normalized;
+        normalized = normalized.replace(/index\.html$/, "/");
+        return normalized;
+    }
+
+    function slugify(text) {
+        return text
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9çğıöşü\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-") || "section";
+    }
+
+    function loadScript(src) {
+        return new Promise(function (resolve, reject) {
+            const existing = document.querySelector('script[src="' + src + '"]');
+            if (existing) {
+                resolve();
+                return;
+            }
+
+            const script = document.createElement("script");
+            script.src = src;
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    function loadStyle(href) {
+        const existing = document.querySelector('link[href="' + href + '"]');
+        if (existing) return;
+
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = href;
+        document.head.appendChild(link);
     }
 })();
