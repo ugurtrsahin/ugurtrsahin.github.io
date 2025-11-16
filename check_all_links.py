@@ -18,7 +18,7 @@ class LinkChecker:
     def scan_html_files(self):
         """Find all HTML files in the workspace."""
         self.html_files = set(self.root.rglob("*.html"))
-        print(f"📁 Found {len(self.html_files)} HTML files\n")
+        print(f"Found {len(self.html_files)} HTML files\n")
         
     def extract_links(self, html_file):
         """Extract all href links from an HTML file."""
@@ -26,7 +26,7 @@ class LinkChecker:
             with open(html_file, 'r', encoding='utf-8') as f:
                 content = f.read()
         except Exception as e:
-            print(f"❌ Error reading {html_file}: {e}")
+            print(f"Error reading {html_file}: {e}")
             return []
         
         # Find all href links (excluding external URLs)
@@ -76,7 +76,7 @@ class LinkChecker:
     
     def check_all_links(self):
         """Check all links in all HTML files."""
-        print("🔍 Checking all links...\n")
+        print("Checking all links...\n")
         
         for html_file in sorted(self.html_files):
             rel_path = html_file.relative_to(self.root)
@@ -100,17 +100,18 @@ class LinkChecker:
     def generate_report(self):
         """Generate a comprehensive report."""
         print("=" * 80)
-        print("📊 LINK CHECK REPORT")
+        print("LINK CHECK REPORT")
         print("=" * 80)
         print()
         
         if not self.broken_links:
-            print("✅ SUCCESS! All links are valid!")
+            print("SUCCESS! All links are valid!")
             print(f"\nTotal HTML files: {len(self.html_files)}")
-            print(f"Total links checked: {sum(len(links) for links in self.all_links.values())}")
+            total_links = sum(len(links) for links in self.all_links.values())
+            print(f"Total links checked: {total_links}")
             return
         
-        print(f"❌ Found {len(self.broken_links)} broken link(s):\n")
+        print(f"Found {len(self.broken_links)} broken link(s):\n")
         
         # Group by source file
         by_file = defaultdict(list)
@@ -128,15 +129,16 @@ class LinkChecker:
                 print()
         
         print("=" * 80)
-        print(f"\n❌ Total broken links: {len(self.broken_links)}")
-        print(f"📁 Files with issues: {len(by_file)}")
-        print(f"✓ Total files checked: {len(self.html_files)}")
-        print(f"✓ Total links checked: {sum(len(links) for links in self.all_links.values())}")
+        print(f"\nTotal broken links: {len(self.broken_links)}")
+        print(f"Files with issues: {len(by_file)}")
+        print(f"Total files checked: {len(self.html_files)}")
+        total_links = sum(len(links) for links in self.all_links.values())
+        print(f"Total links checked: {total_links}")
         
     def check_url_encoded_links(self):
         """Find links that still have URL encoding (Turkish chars, spaces, etc)."""
         print("\n" + "=" * 80)
-        print("🔤 CHECKING FOR URL-ENCODED LINKS")
+        print("CHECKING FOR URL-ENCODED LINKS")
         print("=" * 80)
         print()
         
@@ -157,17 +159,17 @@ class LinkChecker:
                     })
         
         if not encoded_found:
-            print("✅ No URL-encoded internal links found!")
+            print("No URL-encoded internal links found!")
             return
         
-        print(f"⚠️  Found {len(encoded_found)} URL-encoded link(s):\n")
+        print(f"Found {len(encoded_found)} URL-encoded link(s):\n")
         
         by_file = defaultdict(list)
         for item in encoded_found:
             by_file[item['file']].append(item)
         
         for file_path, issues in sorted(by_file.items()):
-            print(f"\n📄 {file_path}")
+            print(f"\n{file_path}")
             print("-" * 80)
             for issue in issues:
                 print(f"  Line {issue['line']:4d}:")
@@ -178,7 +180,7 @@ class LinkChecker:
 def main():
     workspace = Path(r"c:\Users\ugurtrsahin\Desktop\sitem")
     
-    print("🚀 Starting comprehensive link check...\n")
+    print("Starting comprehensive link check...\n")
     
     checker = LinkChecker(workspace)
     checker.scan_html_files()
@@ -187,7 +189,7 @@ def main():
     checker.check_url_encoded_links()
     
     print("\n" + "=" * 80)
-    print("✨ Link check completed!")
+    print("Link check completed!")
     print("=" * 80)
 
 if __name__ == "__main__":
