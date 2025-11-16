@@ -1,0 +1,706 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title> Doğruluk (Accuracy)</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="08fabc1e-3403-4634-aeea-e35f0f56b356" class="page sans"><header><h1 class="page-title"> Doğruluk (Accuracy)</h1><p class="page-description"></p></header><div class="page-body"><h1 id="7a65d2ba-4c39-45fd-b55f-719ca8867d5c" class="">HPLC Yöntem Validasyonu: Doğruluk (Accuracy) SOP</h1><h2 id="32e139fa-114d-41e0-9a88-6e2b35f9ff77" class="">1. Amaç</h2><p id="2652751e-8c9b-4ea0-8127-c99f5c10d87a" class="">Bu SOP, HPLC yönteminin doğruluğunu değerlendirmek için gerekli adımları tanımlar. Doğruluk testi, analitik prosedürün gerçek değere ne kadar yakın sonuçlar verdiğini belirlemeyi amaçlar.</p><h2 id="13d6b2c9-55bc-425d-99a4-c46bf547e5cc" class="">2. Kapsam</h2><p id="0b553f0a-dfc2-4415-8e4a-72d9f293c608" class="">Bu prosedür, farmasötik ürünlerin ve etkin maddelerin HPLC analizinde kullanılan tüm kantitatif yöntemlerin doğruluk testini kapsar.</p><h2 id="455b2c8c-2323-4e68-a018-47415e845ec8" class="">3. Sorumluluklar</h2><ul id="271ec946-56c2-4e7d-a85b-ff29966c3bab" class="bulleted-list"><li style="list-style-type:disc">Analitik Kimyager: Doğruluk testlerini gerçekleştirmek</li></ul><ul id="03d3b106-04e2-46c5-8902-47d19860b1c1" class="bulleted-list"><li style="list-style-type:disc">Laboratuvar Şefi: Sonuçları gözden geçirmek ve onaylamak</li></ul><ul id="75804ba3-f957-4f03-9267-ddfc27d534e9" class="bulleted-list"><li style="list-style-type:disc">Kalite Güvence: Prosedürün uygunluğunu denetlemek</li></ul><h2 id="5d3ce972-0038-4135-a846-e0ec221fdcdf" class="">4. Tanımlar</h2><ul id="fc36ea7a-c04f-4a3f-9b2a-d0a9ad6089d0" class="bulleted-list"><li style="list-style-type:disc">Doğruluk: Ölçülen değerin gerçek değere yakınlığı</li></ul><ul id="4483bd6d-ab64-4ee8-81d3-1e48ab51c9ed" class="bulleted-list"><li style="list-style-type:disc">Geri Kazanım: Analiz edilen numuneye eklenen bilinen miktardaki analitin yüzde olarak geri kazanılması</li></ul><ul id="13c97d7f-083b-4952-bc2d-4da837f39e2c" class="bulleted-list"><li style="list-style-type:disc">Bias: Ölçülen değer ile gerçek değer arasındaki sistematik fark</li></ul><h2 id="c215ad5c-533a-40de-8831-187c375e66bb" class="">5. Prosedür</h2><h3 id="c002eea0-47ca-44c0-8c28-83228f0627d4" class="">5.1. Ön Hazırlık</h3><ol type="1" id="1c4081a6-2690-4e27-91ef-ed179c74c8d3" class="numbered-list" start="1"><li>Analitik standardın saflığını kontrol edin.</li></ol><ol type="1" id="94b30b63-dbcb-4cc2-af11-7eff18baa41c" class="numbered-list" start="2"><li>Çalışma aralığını belirleyin (genellikle %80-120 nominal konsantrasyon).</li></ol><ol type="1" id="87d90c20-7da8-4aaa-93a6-bdcd21760292" class="numbered-list" start="3"><li>Uygun bir plasebo veya matriks hazırlayın (bitmiş ürün analizleri için).</li></ol><h3 id="b735408f-df74-49bb-b88b-faf8f19ab872" class="">5.2. Numune Hazırlama</h3><h3 id="bbe9c729-0700-4be5-af38-8d9453bf91bd" class="">5.2.1. İlaç Maddesi için:</h3><ol type="1" id="dc61e617-b991-4fd2-9606-20a7a4e1dc68" class="numbered-list" start="1"><li>Bilinen saflıktaki referans standardı kullanın.</li></ol><ol type="1" id="213b54a9-bc3c-497e-93b6-454c54556fe7" class="numbered-list" start="2"><li>En az 3 konsantrasyon seviyesinde (%80, %100, %120) çözeltiler hazırlayın.</li></ol><ol type="1" id="09226631-b220-4b61-ae9b-a392434a5ba4" class="numbered-list" start="3"><li>Her seviye için en az 3 tekrar hazırlayın.</li></ol><h3 id="f1b972c8-5df3-4058-b94a-148ac2c4e4ad" class="">5.2.2. Bitmiş Ürün için:</h3><ol type="1" id="da2cdf24-f38b-4647-b3b1-a61f144631d7" class="numbered-list" start="1"><li>Plasebo veya matriks içine bilinen miktarlarda analit ekleyin (spiking).</li></ol><ol type="1" id="481c3d1f-c882-4cef-9f55-b51f9b481609" class="numbered-list" start="2"><li>En az 3 konsantrasyon seviyesinde (%80, %100, %120) numuneler hazırlayın.</li></ol><ol type="1" id="88d32a25-8b70-4450-bd41-dc4a9df26249" class="numbered-list" start="3"><li>Her seviye için en az 3 tekrar hazırlayın.</li></ol><h3 id="c14e5927-7654-49ad-8082-bd59c7d1a553" class="">5.2.3. Safsızlıklar için:</h3><ol type="1" id="2fc9a2eb-857a-4731-8eee-6b0e7cfd9572" class="numbered-list" start="1"><li>İlaç maddesi veya bitmiş ürüne bilinen miktarlarda safsızlık ekleyin.</li></ol><ol type="1" id="14d14a76-b9da-4353-aee6-86436582e329" class="numbered-list" start="2"><li>En az 3 konsantrasyon seviyesinde (LOQ, %100 spesifikasyon limiti, %120 spesifikasyon limiti) numuneler hazırlayın.</li></ol><ol type="1" id="5e06fd0c-5007-4f61-bfb8-9d3e48963471" class="numbered-list" start="3"><li>Her seviye için en az 3 tekrar hazırlayın.</li></ol><h3 id="f8cfce04-9272-4f9d-b4b3-4650393b7a38" class="">5.3. HPLC Analizi</h3><ol type="1" id="69f6368b-7e4f-4ea5-9b57-38a9ac42c3f5" class="numbered-list" start="1"><li>HPLC sistemini yöntem parametrelerine göre hazırlayın ve dengeye gelmesini bekleyin.</li></ol><ol type="1" id="ee71b55e-3b82-438c-a775-f22a03af0265" class="numbered-list" start="2"><li>Sistem uygunluk testini gerçekleştirin.</li></ol><ol type="1" id="6a04d4a7-05d6-423e-af1e-2dcb6750a1af" class="numbered-list" start="3"><li>Hazırlanan numuneleri analiz edin.</li></ol><ol type="1" id="2ff57c9a-32be-4ee0-8fd7-1b7a38716ed3" class="numbered-list" start="4"><li>Standart çözeltileri de analiz ederek kalibrasyon eğrisi oluşturun.</li></ol><h3 id="a45caa43-c314-43ba-bd12-2f197d8c6a1e" class="">5.4. Veri Analizi</h3><ol type="1" id="ccdf23e1-fef7-408b-9e18-ab6e076de54b" class="numbered-list" start="1"><li>Her numune için geri kazanımı hesaplayın:<br/>% Geri Kazanım = (Bulunan Miktar / Eklenen Miktar) x 100</li></ol><ol type="1" id="fa756dc8-2951-4bee-a553-6bf55fde42c3" class="numbered-list" start="2"><li>Her konsantrasyon seviyesi için:<ul id="afa2b31a-9fc7-48c6-bc13-65edb3b54322" class="bulleted-list"><li style="list-style-type:disc">Ortalama geri kazanımı hesaplayın</li></ul><ul id="4da465b0-ba13-4792-95dd-1e33216b3399" class="bulleted-list"><li style="list-style-type:disc">Standart sapmayı (SD) hesaplayın</li></ul><ul id="962af3e8-b887-4297-a040-a91b5cc463e9" class="bulleted-list"><li style="list-style-type:disc">Bağıl standart sapmayı (%RSD) hesaplayın</li></ul></li></ol><ol type="1" id="65350f7c-09dd-4d14-a71c-253b601ba964" class="numbered-list" start="3"><li>Tüm konsantrasyon seviyeleri için genel ortalama geri kazanımı hesaplayın.</li></ol><ol type="1" id="1345c3a3-86bc-40f0-8051-ac0d7f8490d3" class="numbered-list" start="4"><li>İstatistiksel analiz yapın:<ul id="89fcd319-5a8a-42aa-954b-c0dcd51430d2" class="bulleted-list"><li style="list-style-type:disc">Her seviye için %95 güven aralığını hesaplayın</li></ul><ul id="d1efb8ec-e942-4704-9de2-d7ae41c0d741" class="bulleted-list"><li style="list-style-type:disc">t-testi uygulayarak ortalama geri kazanımın %100&#x27;den anlamlı bir farkı olup olmadığını kontrol edin</li></ul></li></ol><h2 id="d2aa4917-503d-4838-b44b-133dff4aa61b" class="">6. Kabul Kriterleri</h2><ul id="de9a2195-ad96-49e6-b46d-87f3292c6bd7" class="bulleted-list"><li style="list-style-type:disc">Ortalama geri kazanım: %98-102 (ilaç maddesi ve bitmiş ürün için)</li></ul><ul id="0a3a45b6-5561-4867-a3e1-e815738685d6" class="bulleted-list"><li style="list-style-type:disc">Ortalama geri kazanım: %80-120 (düşük konsantrasyonlu safsızlıklar için)</li></ul><ul id="b1593df1-7394-4635-9510-04045a6dc9a8" class="bulleted-list"><li style="list-style-type:disc">%RSD ≤ 2% (her konsantrasyon seviyesi için)</li></ul><ul id="4ef06a05-7187-4ae1-9efb-52773de22f23" class="bulleted-list"><li style="list-style-type:disc">t-testi sonucu: Hesaplanan t değeri, tablo t değerinden küçük olmalı (α=0.05)</li></ul><h2 id="d889e827-a916-42f5-88ef-afe0fc2201c4" class="">7. Sonuçların Raporlanması</h2><p id="9b60d8a3-1f50-4cad-88a3-0ef5df8c3381" class="">Doğruluk test raporu aşağıdaki bilgileri içermelidir:</p><ul id="be7bfaff-bfa1-4a96-8930-44fd9d9083cc" class="bulleted-list"><li style="list-style-type:disc">Her numune için geri kazanım değerleri</li></ul><ul id="34ee43ac-3f64-43e3-a5f0-1e1326226b46" class="bulleted-list"><li style="list-style-type:disc">Her konsantrasyon seviyesi için ortalama geri kazanım, SD ve %RSD</li></ul><ul id="a5a68490-1b6a-457d-9066-19a29590a124" class="bulleted-list"><li style="list-style-type:disc">Genel ortalama geri kazanım ve %RSD</li></ul><ul id="99865c03-a0aa-4d44-8d57-c4b091e3d4d6" class="bulleted-list"><li style="list-style-type:disc">İstatistiksel analiz sonuçları (güven aralıkları, t-testi sonuçları)</li></ul><ul id="de07d957-15f3-4487-9e89-ea4821c4e5df" class="bulleted-list"><li style="list-style-type:disc">Kabul kriterlerinin karşılanıp karşılanmadığına dair değerlendirme</li></ul><ul id="847c2cf4-a58c-49d4-bbe9-3ec033b0f0e0" class="bulleted-list"><li style="list-style-type:disc">Varsa, sapmalar ve açıklamaları</li></ul><h2 id="e8a4842b-5c71-426a-9e00-0985e00a4732" class="">8. Olası Sorunlar ve Çözüm Önerileri</h2><ol type="1" id="096e3823-dcc8-4476-872a-e5b108b71fc0" class="numbered-list" start="1"><li>Problem: Düşük geri kazanım<br/>Çözüm: Ekstraksiyon işlemini optimize edin, analit kaybı olup olmadığını kontrol edin</li></ol><ol type="1" id="2eb80478-3d9d-40bb-91e2-c98cf725273f" class="numbered-list" start="2"><li>Problem: Yüksek geri kazanım<br/>Çözüm: Girişim yapan maddeler olup olmadığını kontrol edin, seçiciliği artırın</li></ol><ol type="1" id="15b8a557-1036-496c-9bf8-b9ccda86a0e4" class="numbered-list" start="3"><li>Problem: Yüksek %RSD<br/>Çözüm: Numune hazırlama prosedürünü gözden geçirin, homojenizasyon işlemini iyileştirin</li></ol><h2 id="2715c5d0-2168-4f6b-b291-af715c92c47e" class="">9. Pratik Öneriler</h2><ul id="666e0b4f-452a-4c47-bc0e-f374db80a2a2" class="bulleted-list"><li style="list-style-type:disc">Doğruluk testini, yöntemin çalışma aralığı boyunca gerçekleştirin.</li></ul><ul id="92d3543a-74ff-464f-b16e-d70e303c1d5f" class="bulleted-list"><li style="list-style-type:disc">Mümkünse, sertifikalı referans malzemeler kullanın.</li></ul><ul id="13d20cfb-19ca-4348-9cc8-7dbf0e9f1fe2" class="bulleted-list"><li style="list-style-type:disc">Matriksin etkisini değerlendirmek için, standart ekleme yöntemini kullanmayı düşünün.</li></ul><ul id="65c19393-8adf-42b5-b8e9-249624b787c0" class="bulleted-list"><li style="list-style-type:disc">Düşük konsantrasyonlarda (LOQ civarında) daha geniş kabul kriterleri kullanılabilir.</li></ul><ul id="42f02eef-4805-4214-bccb-258d2175f64d" class="bulleted-list"><li style="list-style-type:disc">Biyolojik numuneler için, geri kazanım çalışmalarına ek olarak matris etkisi değerlendirmesi yapın.</li></ul><h2 id="672a2b90-46ea-4dcc-9e0e-013e71e1910d" class="">10. İstatistiksel Analiz Rehberi</h2><ol type="1" id="25df7d5c-9248-4eba-a51a-bb8812180dbc" class="numbered-list" start="1"><li>Güven Aralığı Hesaplama:<br/>95% CI = Ortalama ± (t * SD / √n)<br/>Burada, t: serbestlik derecesi (n-1) için %95 güven düzeyindeki t değeri</li></ol><ol type="1" id="20afa51a-88fa-487e-b993-472a3612746d" class="numbered-list" start="2"><li>t-testi:<br/>t = |100 - Ortalama Geri Kazanım| / (SD / √n)<br/>Hesaplanan t değerini, serbestlik derecesi (n-1) için tablo t değeri ile karşılaştırın</li></ol><ol type="1" id="8c9004d5-6d59-4328-8d9a-af640cd75c2f" class="numbered-list" start="3"><li>ANOVA:<br/>Farklı konsantrasyon seviyelerindeki geri kazanımlar arasında anlamlı bir fark olup olmadığını değerlendirmek için tek yönlü ANOVA kullanın</li></ol><h2 id="9cb95729-4684-43df-8154-113115df96ae" class="">11. Referanslar</h2><ul id="522ca7fa-148e-4586-adcb-a77f5dcb3b24" class="bulleted-list"><li style="list-style-type:disc">ICH Q2(R1): Validation of Analytical Procedures: Text and Methodology</li></ul><ul id="089f3123-ec72-4c12-9af5-e8115dc0f8ad" class="bulleted-list"><li style="list-style-type:disc">USP &lt;1225&gt;: Validation of Compendial Procedures</li></ul><ul id="e45c89d5-33db-4a77-99ac-aa5a7cb5ce29" class="bulleted-list"><li style="list-style-type:disc">FDA Guidance for Industry: Analytical Procedures and Methods Validation for Drugs and Biologics</li></ul><h2 id="346ade4e-a9e8-4187-8634-c82a8b565e5f" class="">12. Ek Bilgiler</h2><ul id="ea3fce5d-59aa-4468-81f5-5350ce0d745e" class="bulleted-list"><li style="list-style-type:disc">Doğruluk, sistematik hataları (bias) değerlendirir ve kesinlikten (precision) farklıdır.</li></ul><ul id="cfd02d33-7b44-4b5a-88a5-43d2b02e8127" class="bulleted-list"><li style="list-style-type:disc">Bazı durumlarda, doğruluğu doğrudan değerlendirmek mümkün olmayabilir. Bu durumda, kesinlik, seçicilik ve doğrusallık verilerinden doğruluk çıkarımı yapılabilir.</li></ul><ul id="fb44301b-468b-41ae-91f4-e351cec99e9e" class="bulleted-list"><li style="list-style-type:disc">Biyoanalitik yöntemlerde, matris etkisi nedeniyle doğruluk değerlendirmesi daha karmaşık olabilir ve ek çalışmalar gerektirebilir.</li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

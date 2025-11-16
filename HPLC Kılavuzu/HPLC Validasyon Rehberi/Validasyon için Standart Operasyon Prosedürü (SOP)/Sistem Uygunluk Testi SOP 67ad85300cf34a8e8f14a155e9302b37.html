@@ -1,0 +1,706 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Sistem Uygunluk Testi SOP</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="67ad8530-0cf3-4a8e-8f14-a155e9302b37" class="page sans"><header><h1 class="page-title">Sistem Uygunluk Testi SOP</h1><p class="page-description"></p></header><div class="page-body"><h1 id="6babb9e6-3b9d-4cfc-a4c6-857dbcc8fe79" class="">HPLC Yöntem Validasyonu: Sistem Uygunluk Testi SOP</h1><h2 id="d93454b0-9c23-44d3-8d47-6f06a63500e0" class="">1. Amaç</h2><p id="4fded745-184c-4d72-96c1-89988749606c" class="">Bu SOP, HPLC analizlerinde sistem uygunluk testinin nasıl gerçekleştirileceğini tanımlar. Sistem uygunluk testi, analiz başlamadan önce HPLC sisteminin, yöntemin ve kolonun belirtilen performans kriterlerini karşıladığını doğrulamayı amaçlar.</p><h2 id="b46f5a9c-1449-4ebb-ae23-bda78cfb4796" class="">2. Kapsam</h2><p id="31a53d1e-504a-45ed-9778-9e75f4a8adc9" class="">Bu prosedür, farmasötik ürünlerin ve etkin maddelerin HPLC analizinde kullanılan tüm yöntemler için sistem uygunluk testini kapsar.</p><h2 id="7cfb5e30-e06f-4937-91a3-593a15c7dfc1" class="">3. Sorumluluklar</h2><ul id="a7c2b414-ec33-484f-8735-17a43eebcaa7" class="bulleted-list"><li style="list-style-type:disc">Analitik Kimyager: Sistem uygunluk testlerini gerçekleştirmek</li></ul><ul id="18483803-9e8e-471d-8637-1b0d65b846f8" class="bulleted-list"><li style="list-style-type:disc">Laboratuvar Şefi: Sonuçları gözden geçirmek ve onaylamak</li></ul><ul id="d28dcfe7-e441-4798-a5b3-8de71e837fb9" class="bulleted-list"><li style="list-style-type:disc">Kalite Güvence: Prosedürün uygunluğunu denetlemek</li></ul><h2 id="26643aff-209d-4802-9c2f-60d59aacde0a" class="">4. Tanımlar</h2><ul id="1d6e0fd6-54b1-479d-b444-ee3738e21274" class="bulleted-list"><li style="list-style-type:disc">Sistem Uygunluk Testi: HPLC sisteminin, yöntemin ve kolonun belirtilen performans kriterlerini karşıladığını doğrulayan test</li></ul><ul id="8148cc27-7f89-4488-a1a7-51fefff88f69" class="bulleted-list"><li style="list-style-type:disc">Teorik Plaka Sayısı (N): Kolonun ayırma etkinliğini gösteren parametre</li></ul><ul id="ddc69310-4ffe-4929-b252-53f8c80bdf47" class="bulleted-list"><li style="list-style-type:disc">Kuyruklanma Faktörü (T): Pik simetrisini değerlendiren parametre</li></ul><ul id="d25ed07c-aa54-4ffa-90da-d653d7c37ade" class="bulleted-list"><li style="list-style-type:disc">Kapasite Faktörü (k&#x27;): Analitin kolonda tutulma derecesini gösteren parametre</li></ul><ul id="0634eecd-6664-42e7-854a-0d9b60141375" class="bulleted-list"><li style="list-style-type:disc">Çözünürlük (Rs): İki pik arasındaki ayrımı ölçen parametre</li></ul><h2 id="04354dc2-410f-45ae-925d-3ade9d8beb2c" class="">5. Prosedür</h2><h3 id="74dde536-e3c6-40b5-8976-0de4f56a6693" class="">5.1. Test Edilecek Parametreler</h3><p id="b9035a8f-a93e-499a-a3fd-319a428713ed" class="">Aşağıdaki parametreler genellikle sistem uygunluk testinde değerlendirilir:</p><ol type="1" id="7f6058d5-9991-4c6c-a4d4-24f652b57677" class="numbered-list" start="1"><li>Teorik Plaka Sayısı (N)</li></ol><ol type="1" id="a97ee610-bc16-4d3b-aef6-e9714baf9e02" class="numbered-list" start="2"><li>Kuyruklanma Faktörü (T)</li></ol><ol type="1" id="72fd8a85-8b79-43ce-816d-48a6fa447225" class="numbered-list" start="3"><li>Kapasite Faktörü (k&#x27;)</li></ol><ol type="1" id="90640fba-a9a9-4929-82cc-5c08e54ef890" class="numbered-list" start="4"><li>Çözünürlük (Rs)</li></ol><ol type="1" id="52f114b1-3c21-4db9-8b1d-af0e654f15d4" class="numbered-list" start="5"><li>Bağıl Standart Sapma (RSD) - tekrarlanabilirlik için</li></ol><ol type="1" id="ea3b4840-c08a-44f3-a77f-37e780fa4de6" class="numbered-list" start="6"><li>Sinyal/Gürültü Oranı (S/N)</li></ol><h3 id="94e21078-8420-4223-833f-1757ae6ee0ad" class="">5.2. Sistem Uygunluk Çözeltisinin Hazırlanması</h3><ol type="1" id="a76ed19f-7219-419f-ad0c-ff25bdfca6ac" class="numbered-list" start="1"><li>Standart çözelti: Analit(ler)in nominal konsantrasyonunu içeren çözelti hazırlayın.</li></ol><ol type="1" id="56493e8c-b5f5-4d75-802b-95a818b280e8" class="numbered-list" start="2"><li>Çözünürlük çözeltisi: Gerekiyorsa, analit ve yakın elüe olan bileşenleri içeren çözelti hazırlayın.</li></ol><ol type="1" id="83eda667-46b1-4cd4-9118-85b1bda4c582" class="numbered-list" start="3"><li>Hassasiyet çözeltisi: Gerekiyorsa, düşük konsantrasyonda analit içeren çözelti hazırlayın.</li></ol><h3 id="2d03ba71-3971-4933-aa20-41407b450cd5" class="">5.3. HPLC Analizi</h3><ol type="1" id="cfd22aea-4511-421f-8918-2fd4520c4005" class="numbered-list" start="1"><li>HPLC sistemini yöntem parametrelerine göre hazırlayın.</li></ol><ol type="1" id="64ee8a56-71bc-4d74-93d2-8f0bfbc01039" class="numbered-list" start="2"><li>Kolonu dengeye getirin.</li></ol><ol type="1" id="7fe80d3f-391d-408b-b4ea-938f82cbd9cc" class="numbered-list" start="3"><li>Sistem uygunluk çözeltisini en az 5 kez enjekte edin.</li></ol><ol type="1" id="9ae2d432-7a9e-4061-89e1-4c33a787349e" class="numbered-list" start="4"><li>Gerekiyorsa, çözünürlük ve hassasiyet çözeltilerini enjekte edin.</li></ol><h3 id="fd8b2818-4e05-468b-ad51-007982a2d54c" class="">5.4. Hesaplamalar</h3><ol type="1" id="3cb2f817-342b-4f4c-a999-fab3c40cf79e" class="numbered-list" start="1"><li>Teorik Plaka Sayısı (N): N = 16(tR/W)²<br/>tR: Alıkonma zamanı, W: Pik genişliği</li></ol><ol type="1" id="05045eee-0ae5-4a6c-8ac3-6f1811c9fdb5" class="numbered-list" start="2"><li>Kuyruklanma Faktörü (T): T = W0.05/2f<br/>W0.05: Pik yüksekliğinin %5&#x27;indeki pik genişliği, f: Pik ön yarısının genişliği</li></ol><ol type="1" id="728519cb-6c58-4912-945c-1119fadfdc50" class="numbered-list" start="3"><li>Kapasite Faktörü (k&#x27;): k&#x27; = (tR - t0) / t0<br/>t0: Tutulmayan bileşenin alıkonma zamanı</li></ol><ol type="1" id="c874500f-5a4a-4522-828c-051bed56e6d3" class="numbered-list" start="4"><li>Çözünürlük (Rs): Rs = 2(tR2 - tR1) / (W1 + W2)<br/>tR1 ve tR2: İki pikin alıkonma zamanları, W1 ve W2: İki pikin taban genişlikleri</li></ol><ol type="1" id="a57f542b-8f9d-4e2c-9ac9-c40687446f50" class="numbered-list" start="5"><li>Bağıl Standart Sapma (RSD): RSD = (Standart Sapma / Ortalama) * 100</li></ol><ol type="1" id="b3aa1a92-8e80-4859-8d18-747202087378" class="numbered-list" start="6"><li>Sinyal/Gürültü Oranı (S/N): S/N = 2H/h<br/>H: Pik yüksekliği, h: Gürültü genliği</li></ol><h2 id="3a817e37-9634-4e66-9357-c6173e0689b0" class="">6. Kabul Kriterleri</h2><p id="6c706abe-8ea7-4b2b-ac48-5eecd844e0d0" class="">Genel kabul kriterleri aşağıdaki gibidir, ancak spesifik yöntem gereksinimlerine göre değişebilir:</p><ul id="4c0e4561-a546-406a-968d-5bb5986a2042" class="bulleted-list"><li style="list-style-type:disc">Teorik Plaka Sayısı (N): &gt; 2000</li></ul><ul id="42e757e7-7bfc-429f-8fe5-b42f31fd15eb" class="bulleted-list"><li style="list-style-type:disc">Kuyruklanma Faktörü (T): 0.8 - 1.5</li></ul><ul id="2cc2d94e-af73-42b6-b957-419e63f0c16c" class="bulleted-list"><li style="list-style-type:disc">Kapasite Faktörü (k&#x27;): &gt; 2.0</li></ul><ul id="ddb0c7b3-0b86-4672-b373-5041c4bf14bf" class="bulleted-list"><li style="list-style-type:disc">Çözünürlük (Rs): &gt; 2.0 (kritik pikler için)</li></ul><ul id="1c0ed946-f1b9-437a-902b-8966be00dfba" class="bulleted-list"><li style="list-style-type:disc">Bağıl Standart Sapma (RSD): ≤ 2.0% (n ≥ 5)</li></ul><ul id="73d259c1-2295-46af-afcc-5413d08eb2a6" class="bulleted-list"><li style="list-style-type:disc">Sinyal/Gürültü Oranı (S/N): &gt; 10 (kantitatif analizler için)</li></ul><h2 id="e18dc74d-0d4f-4d65-b702-ce6ce7976b07" class="">7. Sonuçların Raporlanması</h2><p id="8b494de1-2ba7-48a7-be80-b409903fd4f1" class="">Sistem uygunluk test raporu aşağıdaki bilgileri içermelidir:</p><ul id="7462f4f5-c187-494f-93aa-cf211e89a8bb" class="bulleted-list"><li style="list-style-type:disc">Test edilen tüm parametreler ve sonuçları</li></ul><ul id="bb5a9c56-643c-4dd5-b1fb-615e6099b381" class="bulleted-list"><li style="list-style-type:disc">Kromatogramlar</li></ul><ul id="7703208b-cb07-4afe-80e2-27df1451af8c" class="bulleted-list"><li style="list-style-type:disc">Hesaplamalar</li></ul><ul id="6b07dac0-8b53-431a-835d-9e785b06c2c0" class="bulleted-list"><li style="list-style-type:disc">Kabul kriterlerinin karşılanıp karşılanmadığına dair değerlendirme</li></ul><ul id="924ee8a9-8083-4387-9114-54e90dc7123d" class="bulleted-list"><li style="list-style-type:disc">Varsa, sapmalar ve açıklamaları</li></ul><h2 id="7a8a9e1e-7261-4c64-99f2-0ffea9e89d9e" class="">8. Olası Sorunlar ve Çözüm Önerileri</h2><ol type="1" id="031254fa-b939-4494-b05f-49655f0b6dbe" class="numbered-list" start="1"><li>Problem: Düşük teorik plaka sayısı<br/>Çözüm:<ul id="72d5918d-391a-4f2a-ace2-e11c457e1e88" class="bulleted-list"><li style="list-style-type:disc">Kolonu yenisiyle değiştirin</li></ul><ul id="91c7b33d-e10c-474b-aa56-d41e8ec46774" class="bulleted-list"><li style="list-style-type:disc">Akış hızını optimize edin</li></ul><ul id="eb6e5110-3447-49b2-8863-324d7af73eda" class="bulleted-list"><li style="list-style-type:disc">Enjeksiyon hacmini azaltın</li></ul></li></ol><ol type="1" id="8727b01b-a509-4c64-b85c-850eb28e33d6" class="numbered-list" start="2"><li>Problem: Yüksek kuyruklanma faktörü<br/>Çözüm:<ul id="fdebf108-abf8-4b60-8f4b-21f401df91f9" class="bulleted-list"><li style="list-style-type:disc">Mobil faz pH&#x27;ını ayarlayın</li></ul><ul id="b8aa19e7-20b0-4edd-b3ef-e6b67c56cade" class="bulleted-list"><li style="list-style-type:disc">Kolon sıcaklığını değiştirin</li></ul><ul id="e9789bca-e905-4872-a94d-7a89ef27d8a1" class="bulleted-list"><li style="list-style-type:disc">Farklı bir kolon tipi deneyin</li></ul></li></ol><ol type="1" id="63417a01-32f8-4c5f-8d23-b0fec3011508" class="numbered-list" start="3"><li>Problem: Düşük çözünürlük<br/>Çözüm:<ul id="488b6749-a85f-4982-92d1-0545dd6b904f" class="bulleted-list"><li style="list-style-type:disc">Mobil faz bileşimini optimize edin</li></ul><ul id="fc589849-05d1-45f7-b553-041f4fa1f9f8" class="bulleted-list"><li style="list-style-type:disc">Gradiyent programını değiştirin</li></ul><ul id="8a6d0681-9e72-4868-bb6b-723e14aa6d34" class="bulleted-list"><li style="list-style-type:disc">Daha uzun bir kolon kullanın</li></ul></li></ol><ol type="1" id="5702ace8-1faa-4384-9d55-e001c48a9c8e" class="numbered-list" start="4"><li>Problem: Yüksek RSD<br/>Çözüm:<ul id="ab057d7b-7d2e-4cff-9020-894a5637ec36" class="bulleted-list"><li style="list-style-type:disc">Enjeksiyon sistemini kontrol edin</li></ul><ul id="428ca919-766c-4a32-af51-d3021dcbbd0c" class="bulleted-list"><li style="list-style-type:disc">Numune çözeltisinin stabilitesini kontrol edin</li></ul><ul id="0da325f0-230c-493c-a743-15330a4fa5a3" class="bulleted-list"><li style="list-style-type:disc">Dedektör ayarlarını optimize edin</li></ul></li></ol><h2 id="fc8c83bb-fedf-4bde-9bca-59bfa6189751" class="">9. Pratik Öneriler</h2><ul id="c5492dbc-2fb7-4cdf-960a-b4522af268a8" class="bulleted-list"><li style="list-style-type:disc">Sistem uygunluk testini her analiz serisinin başında gerçekleştirin.</li></ul><ul id="b8f8ab87-9d1b-428d-9881-9abda52b1daa" class="bulleted-list"><li style="list-style-type:disc">Uzun analiz serilerinde, belirli aralıklarla sistem uygunluk testini tekrarlayın.</li></ul><ul id="f39487de-fc32-4966-86f8-553808df4af0" class="bulleted-list"><li style="list-style-type:disc">Sistem uygunluk parametrelerini trend analizi için kullanın ve zamanla değişimleri izleyin.</li></ul><ul id="a4ecd370-915a-45b4-b655-59064476c7df" class="bulleted-list"><li style="list-style-type:disc">Kabul kriterlerini belirlerken yöntemin amacını ve gereksinimlerini göz önünde bulundurun.</li></ul><ul id="ef5c07a9-a8bc-4093-9167-0fa33f1acfa1" class="bulleted-list"><li style="list-style-type:disc">Sistem uygunluk testi sonuçlarını laboratuvar defterine veya elektronik kayıt sistemine kaydedin.</li></ul><ul id="66f23c1c-7222-4a4c-a80b-231a6afaffeb" class="bulleted-list"><li style="list-style-type:disc">Sorun giderme işlemlerini ve yapılan değişiklikleri detaylı bir şekilde belgelendirin.</li></ul><h2 id="a1056054-b03e-4d8c-9c93-ee86fad02aaf" class="">10. Spesifik HPLC Uygulamaları için Öneriler</h2><h3 id="ef8728f3-ca84-4179-ad51-f6bdbd18864b" class="">10.1. İçerik Tayini</h3><ul id="e0049fce-2d6a-4847-8a33-98d78d8d8695" class="bulleted-list"><li style="list-style-type:disc">Analit pikinin alıkonma zamanı ve alanının tekrarlanabilirliğine odaklanın.</li></ul><ul id="5de85123-193f-4dd6-a1e0-d884542e0dbf" class="bulleted-list"><li style="list-style-type:disc">Standart çözeltinin konsantrasyonunu dikkatli bir şekilde hazırlayın.</li></ul><h3 id="2f4cc74c-9a20-41f1-bb2a-0e852d3af56a" class="">10.2. Safsızlık Analizi</h3><ul id="749486aa-b163-4c40-9908-49bd99c68aaf" class="bulleted-list"><li style="list-style-type:disc">Düşük konsantrasyonlarda hassasiyeti ve tekrarlanabilirliği kontrol edin.</li></ul><ul id="6956a9de-8ecd-47aa-9285-085add5db357" class="bulleted-list"><li style="list-style-type:disc">Analit ve bilinen safsızlıklar arasındaki çözünürlüğü değerlendirin.</li></ul><h3 id="70ee7162-6ed4-4eef-93ae-c7667b575557" class="">10.3. Çözünme Testi</h3><ul id="c6ca7737-1e17-4665-9683-e475fad203d0" class="bulleted-list"><li style="list-style-type:disc">Geniş bir konsantrasyon aralığında doğrusallığı kontrol edin.</li></ul><ul id="f80b4496-60b9-4363-9ab2-a671f6397b5a" class="bulleted-list"><li style="list-style-type:disc">Numune matrisinin etkisini değerlendirin.</li></ul><h3 id="93d3f96f-c8b6-4fdc-9d73-c2aad36ef039" class="">10.4. Stabilite Gösterici Yöntemler</h3><ul id="3d6ab0fa-20e5-46d7-898b-69f72800e5fb" class="bulleted-list"><li style="list-style-type:disc">Bozunma ürünleri ile analit arasındaki çözünürlüğe özellikle dikkat edin.</li></ul><ul id="5a6c48d7-d295-4fc5-a0db-303685f20e3d" class="bulleted-list"><li style="list-style-type:disc">Pik saflığını kontrol edin (mümkünse DAD veya MS kullanarak).</li></ul><h2 id="3201aed8-cd8a-4a3e-b752-8bf0089ff295" class="">11. Referanslar</h2><ul id="5539d025-ad69-4ca1-9a54-75694e5e16f3" class="bulleted-list"><li style="list-style-type:disc">ICH Q2(R1): Validation of Analytical Procedures: Text and Methodology</li></ul><ul id="ea9e4154-a7ce-4e4d-b70a-5b8c2d782b6e" class="bulleted-list"><li style="list-style-type:disc">USP &lt;621&gt;: Chromatography</li></ul><ul id="26cf0253-0cb7-4e29-bef6-b9a71fb8c3bc" class="bulleted-list"><li style="list-style-type:disc">FDA Guidance for Industry: Analytical Procedures and Methods Validation for Drugs and Biologics</li></ul><ul id="ab74335d-9d3d-4c94-ba69-2793e82ff86e" class="bulleted-list"><li style="list-style-type:disc">EP 2.2.46: Chromatographic Separation Techniques</li></ul><h2 id="4968a5ff-8cf1-4fcd-81a8-2045e045b3c6" class="">12. Ek Bilgiler</h2><ul id="ad652db6-578b-4053-bc2e-3a3ae4e9fb7c" class="bulleted-list"><li style="list-style-type:disc">Sistem uygunluk testi, analizin güvenilirliğini sağlamak için kritik öneme sahiptir.</li></ul><ul id="381dd761-c770-474a-9cad-68df82defe26" class="bulleted-list"><li style="list-style-type:disc">Bu test, HPLC sisteminin, kolonun ve yöntemin bir bütün olarak performansını değerlendirir.</li></ul><ul id="ee9deff2-9735-4f80-9178-c06da43941d3" class="bulleted-list"><li style="list-style-type:disc">Sistem uygunluk parametreleri, yöntem geliştirme ve validasyon aşamalarında belirlenir.</li></ul><ul id="1de3c662-8e66-4bac-8306-df97875863c6" class="bulleted-list"><li style="list-style-type:disc">Düzenli sistem uygunluk testleri, yöntemin sürekli performansını izlemek ve potansiyel sorunları erken tespit etmek için kullanılabilir.</li></ul><ul id="5af2c043-1e14-423d-a30e-3ed174f3b4b6" class="bulleted-list"><li style="list-style-type:disc">Sistem uygunluk testi sonuçları, laboratuvarın kalite kontrol programının önemli bir parçasıdır.</li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

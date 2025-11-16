@@ -1,0 +1,706 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Sağlamlık (Robustness) SOP</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="b1610c60-bb59-4777-a9fc-b1da1b8f4ff1" class="page sans"><header><h1 class="page-title">Sağlamlık (Robustness) SOP</h1><p class="page-description"></p></header><div class="page-body"><h1 id="68d6fd6c-fcb1-41ee-9210-68b2d7188c7a" class="">HPLC Yöntem Validasyonu: Sağlamlık (Robustness) SOP</h1><h2 id="171f6467-60fc-4585-802c-762c20a8cf05" class="">1. Amaç</h2><p id="a3e809f3-cfcd-4831-a14c-0a9bd5713fcd" class="">Bu SOP, HPLC yönteminin sağlamlığını değerlendirmek için gerekli adımları tanımlar. Sağlamlık testi, yöntem parametrelerinde küçük, kasıtlı değişiklikler yapıldığında analitik prosedürün güvenilirliğini değerlendirmeyi amaçlar.</p><h2 id="53f397f7-e0a8-4418-97b5-c6b0a0f99537" class="">2. Kapsam</h2><p id="9ec6a6ea-1bc9-4670-a9e3-32d48d114955" class="">Bu prosedür, farmasötik ürünlerin ve etkin maddelerin HPLC analizinde kullanılan tüm kantitatif yöntemlerin sağlamlık testini kapsar.</p><h2 id="be1783fd-36db-4327-85c1-fd029301f92c" class="">3. Sorumluluklar</h2><ul id="0e55c346-2119-44bc-841f-b23a03e90906" class="bulleted-list"><li style="list-style-type:disc">Analitik Kimyager: Sağlamlık testlerini gerçekleştirmek</li></ul><ul id="f5466afd-455d-4602-a49d-412051b3d303" class="bulleted-list"><li style="list-style-type:disc">Laboratuvar Şefi: Sonuçları gözden geçirmek ve onaylamak</li></ul><ul id="15d856b9-83c4-43e5-92e3-1dad6e8b74c1" class="bulleted-list"><li style="list-style-type:disc">Kalite Güvence: Prosedürün uygunluğunu denetlemek</li></ul><h2 id="863e4d10-b5e9-4394-a0a8-a500c8752e17" class="">4. Tanımlar</h2><ul id="03dbc363-4503-40e2-bd24-c36518be179c" class="bulleted-list"><li style="list-style-type:disc">Sağlamlık: Analitik prosedürün, yöntem parametrelerinde küçük değişiklikler yapıldığında etkilenmeme kapasitesi</li></ul><ul id="fd90846b-3c54-4ff5-ae98-d06eb84b233d" class="bulleted-list"><li style="list-style-type:disc">Faktöriyel Tasarım: Birden fazla faktörün etkisini aynı anda incelemek için kullanılan deneysel tasarım yöntemi</li></ul><h2 id="a56a0d43-b9a8-4521-a7ea-55e8d08f7ad1" class="">5. Prosedür</h2><h3 id="6c5f3114-100e-4073-ab01-11f2d5bfa74b" class="">5.1. Test Edilecek Parametrelerin Belirlenmesi</h3><p id="9cbfb303-997b-4cc8-aed0-d0797fe4f283" class="">Aşağıdaki parametreler genellikle HPLC yöntemlerinin sağlamlık testinde değerlendirilir:</p><ol type="1" id="ae1b7bf7-19a7-4ed7-8f84-cb29b0238e9c" class="numbered-list" start="1"><li>Mobil faz bileşimi (±2-5%)</li></ol><ol type="1" id="49465f47-1a1f-4f65-818d-393c8a0e74fc" class="numbered-list" start="2"><li>Mobil faz pH&#x27;ı (±0.1-0.2 birim)</li></ol><ol type="1" id="9a57f633-7c83-49ba-88d2-64f68c386f2c" class="numbered-list" start="3"><li>Kolon sıcaklığı (±3-5°C)</li></ol><ol type="1" id="2f0bab52-7b1e-46cb-9499-65ea7b4d26de" class="numbered-list" start="4"><li>Akış hızı (±0.1-0.2 mL/min)</li></ol><ol type="1" id="58ebc64d-5ba4-4bc0-8d17-9b0d53825165" class="numbered-list" start="5"><li>Enjeksiyon hacmi (±1-2%)</li></ol><ol type="1" id="b1fe174e-d90b-4cb2-b9f3-963a6c30b2f8" class="numbered-list" start="6"><li>Dalga boyu (±2-3 nm)</li></ol><ol type="1" id="5b667d5c-b136-41ab-8b5c-0ffe1a9700b8" class="numbered-list" start="7"><li>Kolon partisi (farklı lot veya marka)</li></ol><h3 id="1e269c77-bdf9-4e01-b500-df7b8c572e07" class="">5.2. Deney Tasarımı</h3><ol type="1" id="fa6e5b29-77a1-41b8-b156-3f13325081c1" class="numbered-list" start="1"><li>Tam faktöriyel tasarım veya kısmi faktöriyel tasarım kullanın.</li></ol><ol type="1" id="1498e048-95c9-4076-b004-8eac8b47b7fb" class="numbered-list" start="2"><li>Plackett-Burman tasarımı gibi tarama tasarımları da kullanılabilir.</li></ol><ol type="1" id="4a04c306-f0a0-41d3-8f30-8531640da528" class="numbered-list" start="3"><li>Her parametre için normal değer ve değiştirilmiş değer belirleyin.</li></ol><h3 id="04c7c171-22f3-4ba9-ae6c-abac95e48ad6" class="">5.3. Numune Hazırlama</h3><ol type="1" id="b60a7c69-5a1a-4688-bf4a-7cad45565efc" class="numbered-list" start="1"><li>Standart çözelti: Nominal konsantrasyonda analit içeren çözelti hazırlayın.</li></ol><ol type="1" id="b177db10-914c-4a4c-ab58-d1d375dae165" class="numbered-list" start="2"><li>Örnek çözelti: Ürün numunesinden nominal konsantrasyonda çözelti hazırlayın.</li></ol><ol type="1" id="866628b7-7811-4675-be4a-3d38a860da45" class="numbered-list" start="3"><li>Sistem uygunluk çözeltisi: Yöntem gereksinimlerine göre hazırlayın.</li></ol><h3 id="80184f77-a704-4b09-adec-5faef546580e" class="">5.4. HPLC Analizi</h3><ol type="1" id="4c5762f1-4b67-4f7f-958e-4e376cc9ab33" class="numbered-list" start="1"><li>Deney tasarımına göre her koşul için analizleri gerçekleştirin.</li></ol><ol type="1" id="7477924f-fc34-4aac-a566-0ec2be24ea98" class="numbered-list" start="2"><li>Her koşul için en az üç tekrar yapın.</li></ol><ol type="1" id="8f31a6ba-4f3c-4204-9447-80c79ea79bef" class="numbered-list" start="3"><li>Sistem uygunluk testini her koşul değişikliğinde tekrarlayın.</li></ol><h3 id="7c41ff4c-63aa-48d5-acc0-a9e0956b25a9" class="">5.5. İzlenecek Yanıtlar</h3><p id="c1ab7d87-3538-40e5-90a2-d0c49bd8a049" class="">Aşağıdaki parametreleri her koşul için kaydedin:</p><ol type="1" id="89d795e7-5d5f-410f-8785-d0ae29d0d3e1" class="numbered-list" start="1"><li>Alıkonma zamanı</li></ol><ol type="1" id="7c86a121-f51d-4d1a-ad0a-c15168979c4a" class="numbered-list" start="2"><li>Pik alanı veya yüksekliği</li></ol><ol type="1" id="4c02d2c4-eda0-43a6-8bfd-972e21c1211b" class="numbered-list" start="3"><li>Teorik plaka sayısı</li></ol><ol type="1" id="c412548e-b26e-40c8-b58e-05a1cb0731c8" class="numbered-list" start="4"><li>Kuyruklanma faktörü</li></ol><ol type="1" id="70c52d34-a94d-4fcb-8e8c-1f0636d3b1ef" class="numbered-list" start="5"><li>Çözünürlük (yakın elüe olan pikler için)</li></ol><ol type="1" id="c3f0c0bb-735c-4300-b527-ed436c82ecf0" class="numbered-list" start="6"><li>Sistem uygunluk parametreleri</li></ol><h2 id="5cc675c2-9d52-40ba-8ac4-d6df106932ba" class="">6. Veri Analizi</h2><ol type="1" id="6eb1282f-36f4-495c-a642-cc13dfb30817" class="numbered-list" start="1"><li>Her parametre için ortalama, standart sapma ve % RSD hesaplayın.</li></ol><ol type="1" id="649e1b3e-c8b5-4981-9a25-56651fd85b33" class="numbered-list" start="2"><li>Ana etki grafikleri ve etkileşim grafikleri çizin.</li></ol><ol type="1" id="1b296e92-fc00-4a73-9d7f-3579f2cd201a" class="numbered-list" start="3"><li>İstatistiksel analiz yapın (ANOVA veya t-testi).</li></ol><ol type="1" id="9e6af9f3-2c7e-470a-8afc-8dd8714eb508" class="numbered-list" start="4"><li>Pareto grafiği oluşturarak önemli etkileri belirleyin.</li></ol><h2 id="1de87610-84e8-44b8-84dd-1dfa87d9c076" class="">7. Kabul Kriterleri</h2><ul id="c0333887-18f9-40ff-83e9-9abc876d54fc" class="bulleted-list"><li style="list-style-type:disc">Sistem uygunluk kriterleri tüm koşullarda karşılanmalıdır.</li></ul><ul id="b3436f68-c3e3-40f6-b400-dc571858f770" class="bulleted-list"><li style="list-style-type:disc">Analitik sonuçlardaki değişim (örn. miktar tayini) ±2% içinde olmalıdır.</li></ul><ul id="d5043de9-cc18-4cee-87b2-0725564e7baf" class="bulleted-list"><li style="list-style-type:disc">Alıkonma zamanındaki değişim ±2% içinde olmalıdır.</li></ul><ul id="6820da8c-f32f-4155-b294-57d3c045ddf7" class="bulleted-list"><li style="list-style-type:disc">Çözünürlük kritik pikler için &gt;2.0 olmalıdır.</li></ul><p id="3f285019-3986-4714-b57c-68549342823f" class="">Not: Kabul kriterleri, analiz edilen maddenin türüne ve yöntemin amacına göre değişebilir.</p><h2 id="10ddf309-26cf-4538-926e-2dc709657717" class="">8. Sonuçların Raporlanması</h2><p id="e01f6d5d-9e7c-432c-854f-ab01028b9a6e" class="">Sağlamlık test raporu aşağıdaki bilgileri içermelidir:</p><ul id="459c8bd0-5289-4a70-852a-8c376357421d" class="bulleted-list"><li style="list-style-type:disc">Test edilen parametreler ve değişim aralıkları</li></ul><ul id="ebdc2bab-19bd-4eb5-83ba-a8ea65d3910a" class="bulleted-list"><li style="list-style-type:disc">Deney tasarımı detayları</li></ul><ul id="3081af11-d8a1-4ac8-af4a-12066ca21632" class="bulleted-list"><li style="list-style-type:disc">Tüm ham veriler ve hesaplamalar</li></ul><ul id="adc5976c-1623-4c7f-a3f4-39b73a23fa32" class="bulleted-list"><li style="list-style-type:disc">İstatistiksel analiz sonuçları</li></ul><ul id="ff25fa57-4757-44af-990c-0cb1684a5ebc" class="bulleted-list"><li style="list-style-type:disc">Grafikleri (ana etki, etkileşim, Pareto)</li></ul><ul id="fa47c065-ef94-4dff-8216-59a6e93d09f8" class="bulleted-list"><li style="list-style-type:disc">Kritik parametrelerin belirlenmesi</li></ul><ul id="39c7226c-a136-42bc-a5c3-06d2d473d806" class="bulleted-list"><li style="list-style-type:disc">Kabul kriterlerinin karşılanıp karşılanmadığına dair değerlendirme</li></ul><ul id="eeeec5f5-5c79-4f53-88c6-f145e436f753" class="bulleted-list"><li style="list-style-type:disc">Varsa, sapmalar ve açıklamaları</li></ul><h2 id="cb9bca3a-2824-4b3c-b64b-2efc4c1fb996" class="">9. Olası Sorunlar ve Çözüm Önerileri</h2><ol type="1" id="56a1753a-e53e-4e25-bffa-37056c801c84" class="numbered-list" start="1"><li>Problem: Bazı koşullarda sistem uygunluk kriterleri karşılanmıyor<br/>Çözüm:<ul id="a5f5dde4-2428-45b8-b5b7-e1f42b8e539a" class="bulleted-list"><li style="list-style-type:disc">İlgili parametrenin çalışma aralığını daraltın</li></ul><ul id="e2d81a06-9d3c-47d2-9658-fd084c2fc4d3" class="bulleted-list"><li style="list-style-type:disc">Sistem uygunluk kriterlerini gözden geçirin</li></ul></li></ol><ol type="1" id="407d7137-b54b-4ad1-9f88-cd7779d5b3df" class="numbered-list" start="2"><li>Problem: Büyük değişkenlik gösteren bir parametre<br/>Çözüm:<ul id="eacc1a2f-8e58-47c8-8096-c7ac398b46fc" class="bulleted-list"><li style="list-style-type:disc">Parametre kontrolünü iyileştirin (örn. daha hassas pH metre kullanımı)</li></ul><ul id="1d056c79-1bf5-47e9-9a61-8dc15e2010a9" class="bulleted-list"><li style="list-style-type:disc">Yöntem prosedüründe daha sıkı limitler belirleyin</li></ul></li></ol><ol type="1" id="26a7855c-60c4-42ff-82f6-d9f9d8ac350f" class="numbered-list" start="3"><li>Problem: Beklenmeyen etkileşimler<br/>Çözüm:<ul id="8699799c-b058-4525-8697-4d85a90d1369" class="bulleted-list"><li style="list-style-type:disc">Etkileşimlerin nedenini araştırın</li></ul><ul id="3bc0f19f-8103-486a-a936-15dfa1fccb05" class="bulleted-list"><li style="list-style-type:disc">Gerekirse ek deneyler yapın</li></ul></li></ol><h2 id="1115266e-f680-48df-9f6f-20dfb91eac61" class="">10. Pratik Öneriler</h2><ul id="d3c364cb-0893-464c-934c-d698b3e24266" class="bulleted-list"><li style="list-style-type:disc">Sağlamlık testini yöntem geliştirme aşamasının sonunda yapın.</li></ul><ul id="49d196e8-cf43-4301-9d1c-db0267faa6ad" class="bulleted-list"><li style="list-style-type:disc">Test edilecek parametreleri ve aralıkları belirlerken gerçekçi olun.</li></ul><ul id="1599992e-e9f3-4ea7-9617-3237103d23c3" class="bulleted-list"><li style="list-style-type:disc">Deney sayısını optimize etmek için uygun bir deney tasarımı seçin.</li></ul><ul id="cea7e835-373e-4f3d-a37d-6ada94f64bda" class="bulleted-list"><li style="list-style-type:disc">Sonuçları yorumlarken pratik anlamlılığı istatistiksel anlamlılıktan ayırt edin.</li></ul><ul id="53d3f582-4283-4171-838d-0b507d457559" class="bulleted-list"><li style="list-style-type:disc">Kritik parametreleri belirledikten sonra, bunları yöntem prosedüründe vurgulayın.</li></ul><ul id="43f975dd-4f8e-4115-887f-7e30df9b665a" class="bulleted-list"><li style="list-style-type:disc">Sağlamlık testi sonuçlarını sistem uygunluk testi parametrelerini belirlemek için kullanın.</li></ul><h2 id="e77d6fef-d01e-45b6-952a-2308168e85e6" class="">11. İstatistiksel Analiz Rehberi</h2><ol type="1" id="64a9863d-b3d0-4001-ad04-ea45eb6fc5a1" class="numbered-list" start="1"><li>ANOVA (Varyans Analizi):<ul id="f1b902ae-2eca-488d-91ac-fa423860bcb0" class="bulleted-list"><li style="list-style-type:disc">Faktörlerin ve etkileşimlerin anlamlılığını değerlendirmek için kullanın</li></ul><ul id="c4753cc0-ab53-4125-b3ef-3c64a998ad3b" class="bulleted-list"><li style="list-style-type:disc">p-değeri &lt; 0.05 olan faktörler genellikle anlamlı kabul edilir</li></ul></li></ol><ol type="1" id="9c9d9b8d-a104-4691-98f4-8bfc398409bb" class="numbered-list" start="2"><li>t-testi:<ul id="70c3349a-cfa3-4ca8-9a2d-9df580080f06" class="bulleted-list"><li style="list-style-type:disc">İki koşul arasındaki farkın anlamlılığını değerlendirmek için kullanın</li></ul></li></ol><ol type="1" id="f62379ab-072b-4e89-a9ef-43be3a185c56" class="numbered-list" start="3"><li>Ana Etki Grafiği:<ul id="daf59ac9-11f3-4621-8606-cbca664bd794" class="bulleted-list"><li style="list-style-type:disc">Her faktörün yanıt üzerindeki bireysel etkisini gösterir</li></ul></li></ol><ol type="1" id="482dde8e-ae3d-4641-a214-161b8f5d3dd0" class="numbered-list" start="4"><li>Etkileşim Grafiği:<ul id="54acfdcf-803d-4661-9382-9f2a1b2428a6" class="bulleted-list"><li style="list-style-type:disc">Faktörler arasındaki etkileşimleri görselleştirir</li></ul></li></ol><ol type="1" id="d4a4fffd-c35c-4748-bc95-75eac129d2b4" class="numbered-list" start="5"><li>Pareto Grafiği:<ul id="0776d3f3-d14a-4bba-9e0c-7ed28123c438" class="bulleted-list"><li style="list-style-type:disc">Faktörlerin etkilerini büyüklük sırasına göre gösterir</li></ul></li></ol><h2 id="0685fbe8-eb22-4d6a-8792-8ed68467c302" class="">12. Referanslar</h2><ul id="12959282-853c-4cb1-8384-cdf64f089145" class="bulleted-list"><li style="list-style-type:disc">ICH Q2(R1): Validation of Analytical Procedures: Text and Methodology</li></ul><ul id="47f61a43-6e40-43cb-ad62-4bc291e6d687" class="bulleted-list"><li style="list-style-type:disc">USP &lt;1225&gt;: Validation of Compendial Procedures</li></ul><ul id="c632a204-fd82-496d-96bb-5e8d88874484" class="bulleted-list"><li style="list-style-type:disc">FDA Guidance for Industry: Analytical Procedures and Methods Validation for Drugs and Biologics</li></ul><h2 id="94ebfe9e-b80d-4512-a2ab-3f543059dc60" class="">13. Ek Bilgiler</h2><ul id="d8091296-ee7c-4260-9c2c-c75bfcf48e3a" class="bulleted-list"><li style="list-style-type:disc">Sağlamlık testi, yöntemin rutin kullanımda karşılaşabileceği küçük değişikliklere karşı dayanıklılığını gösterir.</li></ul><ul id="77f6bd1c-6756-4f93-be06-833134d57b60" class="bulleted-list"><li style="list-style-type:disc">Bu test, yöntemin transfer edilebilirliği hakkında da fikir verir.</li></ul><ul id="dacbe7ff-5763-4b8c-bae6-839f8879062b" class="bulleted-list"><li style="list-style-type:disc">Sağlamlık testi sonuçları, yöntem prosedüründe kritik parametrelerin nasıl kontrol edileceğini belirlemede yardımcı olur.</li></ul><ul id="c55bccdc-7a19-4116-8787-71c37c3c41e1" class="bulleted-list"><li style="list-style-type:disc">Çok hassas yöntemler her zaman en iyi seçenek olmayabilir; sağlam bir yöntem genellikle daha tercih edilebilir.</li></ul><ul id="bde884b6-639b-401c-98fd-755cbf3e75e8" class="bulleted-list"><li style="list-style-type:disc">Sağlamlık testi, yöntemin yaşam döngüsü boyunca sürekli iyileştirme için bir temel sağlar.</li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

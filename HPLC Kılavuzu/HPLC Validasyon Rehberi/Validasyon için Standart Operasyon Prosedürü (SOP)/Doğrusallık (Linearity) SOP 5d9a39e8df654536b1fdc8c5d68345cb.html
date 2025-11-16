@@ -1,0 +1,706 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Doğrusallık (Linearity) SOP</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="5d9a39e8-df65-4536-b1fd-c8c5d68345cb" class="page sans"><header><h1 class="page-title">Doğrusallık (Linearity) SOP</h1><p class="page-description"></p></header><div class="page-body"><h1 id="f1d3dd5c-745e-4c8a-ac12-a00616a5b6d7" class="">HPLC Yöntem Validasyonu: Doğrusallık (Linearity) SOP</h1><h2 id="802526a4-e62c-4b83-b74a-67a55c67f3ba" class="">1. Amaç</h2><p id="ea89d800-336a-4689-8be7-c0bcdf214097" class="">Bu SOP, HPLC yönteminin doğrusallığını değerlendirmek için gerekli adımları tanımlar. Doğrusallık testi, analiz edilen maddenin konsantrasyonu ile elde edilen yanıt (sinyal) arasındaki ilişkinin doğrusal olduğunu ve yöntemin belirli bir konsantrasyon aralığında güvenilir sonuçlar verdiğini göstermeyi amaçlar.</p><h2 id="5f6cb02f-c335-4912-bf20-d428304c6153" class="">2. Kapsam</h2><p id="05c6d6db-62a1-4e9b-a226-a4b099597a30" class="">Bu prosedür, farmasötik ürünlerin ve etkin maddelerin HPLC analizinde kullanılan tüm kantitatif yöntemlerin doğrusallık testini kapsar.</p><h2 id="f0c6ff2b-b6fa-4589-9e46-bdb1d3f7ccf2" class="">3. Sorumluluklar</h2><ul id="b8f3cdc9-01de-43e4-9913-3452e87ab43c" class="bulleted-list"><li style="list-style-type:disc">Analitik Kimyager: Doğrusallık testlerini gerçekleştirmek</li></ul><ul id="ef39a486-fe8b-4168-8a7b-daad1acfde17" class="bulleted-list"><li style="list-style-type:disc">Laboratuvar Şefi: Sonuçları gözden geçirmek ve onaylamak</li></ul><ul id="48c6a880-ac64-4e62-893d-7a17e865b0e0" class="bulleted-list"><li style="list-style-type:disc">Kalite Güvence: Prosedürün uygunluğunu denetlemek</li></ul><h2 id="6f8dab4b-10ac-4f33-a347-3049be490770" class="">4. Tanımlar</h2><ul id="17cfea21-f649-4006-ba4c-4953b10fcdcf" class="bulleted-list"><li style="list-style-type:disc">Doğrusallık: Analitik prosedürün, numune içindeki analiz edilecek maddenin konsantrasyonu (miktarı) ile orantılı test sonuçları elde etme kabiliyeti</li></ul><ul id="3498aec1-48cd-4400-a2cd-fae39bb19d4a" class="bulleted-list"><li style="list-style-type:disc">Kalibrasyon eğrisi: Konsantrasyona karşı elde edilen yanıtın grafiği</li></ul><ul id="414e382d-724b-40d1-8053-6e96861fb765" class="bulleted-list"><li style="list-style-type:disc">Korelasyon katsayısı (r): İki değişken arasındaki ilişkinin gücünü gösteren istatistiksel ölçü</li></ul><ul id="cd35741a-36be-4bfc-9307-24bb3e704ce0" class="bulleted-list"><li style="list-style-type:disc">Belirtme katsayısı (r²): Bağımlı değişkendeki varyansın ne kadarının bağımsız değişken tarafından açıklandığını gösteren istatistiksel ölçü</li></ul><h2 id="39bab617-2a89-43a3-a74f-694c67d3baa8" class="">5. Prosedür</h2><h3 id="e08843cd-c090-45a5-8382-34e3c464d322" class="">5.1. Ön Hazırlık</h3><ol type="1" id="54f228c0-644f-4575-9976-00561c2ffd30" class="numbered-list" start="1"><li>Analitik standart maddenin saflığını kontrol edin.</li></ol><ol type="1" id="0bc3010b-8e4f-4c26-926c-a86d4d5c38be" class="numbered-list" start="2"><li>Stok çözelti hazırlayın: Analitik standardı uygun bir çözücüde çözün (örn. 1 mg/mL).</li></ol><h3 id="a4e0c29d-c535-4674-a76c-06b74295480f" class="">5.2. Kalibrasyon Standartlarının Hazırlanması</h3><ol type="1" id="a225978b-feb8-4552-b189-0171e549f581" class="numbered-list" start="1"><li>Çalışma aralığını belirleyin (genellikle %50 - %150 arasında).</li></ol><ol type="1" id="cb0c2735-0f40-4fdc-a8b2-9490d227e77b" class="numbered-list" start="2"><li>En az 5 farklı konsantrasyon seviyesinde kalibrasyon standardı hazırlayın:<ul id="103ba7b3-8c85-4591-95b5-9b9507ef3218" class="bulleted-list"><li style="list-style-type:disc">%50, %75, %100, %125, %150 (nominal konsantrasyona göre)</li></ul></li></ol><ol type="1" id="99d0b26f-81b9-427a-83b5-1116ab8944a6" class="numbered-list" start="3"><li>Her konsantrasyon için en az 3 bağımsız çözelti hazırlayın.</li></ol><h3 id="edb0cef7-0db6-4240-8861-22ce1021f53f" class="">5.3. HPLC Analizi</h3><ol type="1" id="cba2d2f5-21f6-42ff-9fbb-d94b7bf384a0" class="numbered-list" start="1"><li>HPLC sistemini yöntem parametrelerine göre hazırlayın ve dengeye gelmesini bekleyin.</li></ol><ol type="1" id="46a8038f-b0d1-4b5d-8dc8-203c36b4ef4f" class="numbered-list" start="2"><li>Sistem uygunluk testini gerçekleştirin.</li></ol><ol type="1" id="8ddd6293-59ae-4552-9fa2-bc167e5ab466" class="numbered-list" start="3"><li>Kalibrasyon standartlarını artan konsantrasyon sırasına göre enjekte edin.</li></ol><ol type="1" id="2f051a94-c182-4456-aace-124cbcdccd9b" class="numbered-list" start="4"><li>Her bir konsantrasyon seviyesi için en az 3 enjeksiyon yapın.</li></ol><h3 id="fc565531-1f44-49af-ba55-0fa14e8164cb" class="">5.4. Veri Analizi</h3><ol type="1" id="10d698e9-c4c0-4f82-b27a-80df4ef33f34" class="numbered-list" start="1"><li>Her konsantrasyon için ortalama pik alanını veya yüksekliğini hesaplayın.</li></ol><ol type="1" id="dc2076ba-3fc7-40b7-8bf1-d886bf5f9530" class="numbered-list" start="2"><li>Konsantrasyona karşı ortalama yanıtın grafiğini çizin.</li></ol><ol type="1" id="2eab7369-44d8-4545-a9cc-03a7ac0869c2" class="numbered-list" start="3"><li>En küçük kareler yöntemi ile doğrusal regresyon analizi yapın.</li></ol><ol type="1" id="ba101e0a-a2ec-4990-9861-26f72798ca40" class="numbered-list" start="4"><li>Aşağıdaki parametreleri hesaplayın:<ul id="de1f8721-59fe-4a45-8801-3e14b0355db5" class="bulleted-list"><li style="list-style-type:disc">Eğim (slope)</li></ul><ul id="ae0d9182-e58e-4dea-9ad7-8e317fb75280" class="bulleted-list"><li style="list-style-type:disc">Y-ekseni kesişimi (y-intercept)</li></ul><ul id="5b6e544b-63c5-40e7-83f2-def2ffcd269d" class="bulleted-list"><li style="list-style-type:disc">Korelasyon katsayısı (r)</li></ul><ul id="833a4218-e91e-4d1a-94ad-ec90e7d7ff2d" class="bulleted-list"><li style="list-style-type:disc">Belirtme katsayısı (r²)</li></ul></li></ol><ol type="1" id="42fdf94a-b6c6-466a-90a9-aa7f7ca8e1af" class="numbered-list" start="5"><li>Artık analizi yapın:<ul id="23a51324-2989-413b-a4a3-706287db6456" class="bulleted-list"><li style="list-style-type:disc">Her nokta için artık değerleri hesaplayın</li></ul><ul id="5d703413-021f-473d-92c1-aef6591c7395" class="bulleted-list"><li style="list-style-type:disc">Artıkların grafiğini çizin</li></ul></li></ol><h2 id="a03c5808-3ef9-4133-af1c-ce3cdfb30ef0" class="">6. Kabul Kriterleri</h2><ul id="5308ee2a-7c45-423d-a4ef-3aaa06c7ba47" class="bulleted-list"><li style="list-style-type:disc">Korelasyon katsayısı (r) ≥ 0.999</li></ul><ul id="28fc42e5-cc0e-433a-aec0-8a446e0872bd" class="bulleted-list"><li style="list-style-type:disc">Belirtme katsayısı (r²) ≥ 0.998</li></ul><ul id="35941fe7-03a7-4e15-8c69-aacdf758af08" class="bulleted-list"><li style="list-style-type:disc">Y-ekseni kesişimi, nominal konsantrasyonun ±2%&#x27;sinden küçük olmalı</li></ul><ul id="64c2f383-2dfe-418b-be04-97d846d3c582" class="bulleted-list"><li style="list-style-type:disc">Artıklar rastgele dağılmalı ve belirli bir trend göstermemeli</li></ul><ul id="ad0f9409-7cc5-4f42-88c5-c319b300c67d" class="bulleted-list"><li style="list-style-type:disc">Her konsantrasyon seviyesi için RSD ≤ 2% olmalı</li></ul><h2 id="7f29d613-1253-408d-a889-011483d6d4a7" class="">7. Sonuçların Raporlanması</h2><p id="cb9ef933-c084-4fe8-be15-1fbd581fcd19" class="">Doğrusallık test raporu aşağıdaki bilgileri içermelidir:</p><ul id="08711d73-ceb0-426a-a486-48aeed38afff" class="bulleted-list"><li style="list-style-type:disc">Kalibrasyon eğrisi grafiği</li></ul><ul id="10602701-50dc-4f1f-85cd-8302b3abecc6" class="bulleted-list"><li style="list-style-type:disc">Regresyon denklemi</li></ul><ul id="f19b00d4-01df-4961-a60f-0a2d83947d1e" class="bulleted-list"><li style="list-style-type:disc">Korelasyon katsayısı (r) ve belirtme katsayısı (r²)</li></ul><ul id="df0cdca9-b031-4539-b307-c80fe920be27" class="bulleted-list"><li style="list-style-type:disc">Eğim ve y-ekseni kesişimi (güven aralıkları ile birlikte)</li></ul><ul id="20358fe8-070f-4788-a4d5-ca1fd19fd159" class="bulleted-list"><li style="list-style-type:disc">Artık grafiği</li></ul><ul id="f88c9a0a-b32f-4e18-8c6c-ba0867305778" class="bulleted-list"><li style="list-style-type:disc">Her konsantrasyon seviyesi için ortalama, standart sapma ve RSD değerleri</li></ul><ul id="59e81564-e913-4223-ab77-44b83a2165e3" class="bulleted-list"><li style="list-style-type:disc">Kabul kriterlerinin karşılanıp karşılanmadığına dair değerlendirme</li></ul><h2 id="0b990cb7-1906-41b3-90b7-882b37ba4bad" class="">8. Olası Sorunlar ve Çözüm Önerileri</h2><ol type="1" id="bf744490-7fc1-42e8-a675-d1c199f9678f" class="numbered-list" start="1"><li>Problem: Düşük korelasyon katsayısı<br/>Çözüm: Konsantrasyon aralığını daraltın veya yöntemi optimize edin</li></ol><ol type="1" id="13c5146a-9746-4538-a7ed-55be11f0f790" class="numbered-list" start="2"><li>Problem: Yüksek y-ekseni kesişimi<br/>Çözüm: Düşük konsantrasyonlardaki hassasiyeti artırın veya blank düzeltmesi yapın</li></ol><ol type="1" id="5a651cdd-a79d-4a9b-bb80-0b0f3c2b23f5" class="numbered-list" start="3"><li>Problem: Artıklarda belirgin bir trend<br/>Çözüm: Doğrusal olmayan bir model kullanmayı düşünün veya çalışma aralığını yeniden değerlendirin</li></ol><h2 id="f4f427b1-2fd7-4cb5-8882-5548358ffbbd" class="">9. Veri Yorumlama Rehberi</h2><ul id="097bdccb-6c44-4766-806a-b457f95651c1" class="bulleted-list"><li style="list-style-type:disc">Görsel inceleme: Kalibrasyon eğrisini ve artık grafiğini dikkatlice inceleyin. Belirgin sapmalar veya trendler olup olmadığını kontrol edin.</li></ul><ul id="6476407a-7338-4f2e-ae1c-50f3aaa66b91" class="bulleted-list"><li style="list-style-type:disc">İstatistiksel analiz: Korelasyon katsayısı ve belirtme katsayısı yüksek olsa bile, bu her zaman mükemmel bir doğrusallık anlamına gelmez. Artık analizini mutlaka yapın.</li></ul><ul id="f1f1ad8e-c585-48af-b46b-e0c5fdf128ee" class="bulleted-list"><li style="list-style-type:disc">Çalışma aralığı: Doğrusallığın gösterildiği aralık, yöntemin amaçlanan kullanımı için uygun olmalıdır. Gerekirse, aralığı daraltın veya genişletin.</li></ul><ul id="7dc0503f-db12-4056-815f-3289357892fb" class="bulleted-list"><li style="list-style-type:disc">Ağırlıklı regresyon: Geniş bir konsantrasyon aralığında çalışıyorsanız, ağırlıklı en küçük kareler yöntemini kullanmayı düşünün.</li></ul><h2 id="27f3ba33-a109-478a-9e61-8020b4795cc5" class="">10. Referanslar</h2><ul id="9af28b69-4a15-4df0-bb49-07213d0f765e" class="bulleted-list"><li style="list-style-type:disc">ICH Q2(R1): Validation of Analytical Procedures: Text and Methodology</li></ul><ul id="2e6cfd79-dfbf-403b-9136-5294d95028cc" class="bulleted-list"><li style="list-style-type:disc">USP &lt;1225&gt;: Validation of Compendial Procedures</li></ul><ul id="61b443d7-e03e-4afb-974b-1e844e01baf7" class="bulleted-list"><li style="list-style-type:disc">FDA Guidance for Industry: Analytical Procedures and Methods Validation for Drugs and Biologics</li></ul><h2 id="be286a8a-3799-45ba-8f35-a968fb324126" class="">11. Ek Bilgiler</h2><ul id="4a743078-187b-417a-8e4d-f380b6c0c082" class="bulleted-list"><li style="list-style-type:disc">Doğrusallık testi, yöntemin çalışma aralığını belirlemek için de kullanılır.</li></ul><ul id="c76d5c58-2ed3-4cc4-aa73-93a8b8d3084c" class="bulleted-list"><li style="list-style-type:disc">Bazı durumlarda, doğrusal olmayan kalibrasyon modelleri de kullanılabilir. Bu durumda, modelin uygunluğu istatistiksel olarak doğrulanmalıdır.</li></ul><ul id="3b2b9a3a-321c-465c-9357-a4e46ac57e71" class="bulleted-list"><li style="list-style-type:disc">Biyoanalitik yöntemlerde, genellikle daha geniş bir konsantrasyon aralığı kullanılır ve logaritmik dönüşüm yapılabilir.</li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

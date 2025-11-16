@@ -1,0 +1,706 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Kayıtlar SOP</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="1a37f570-0468-4b47-938e-d1fba79ae817" class="page sans"><header><h1 class="page-title">Kayıtlar SOP</h1><p class="page-description"></p></header><div class="page-body"><h1 id="ac644e49-75f7-4dbb-9df5-b853f301de61" class="">HPLC Yöntem Validasyonu: Kayıtlar SOP</h1><h2 id="6edbe139-6aa8-4f97-bfe6-a889d5b5ddfa" class="">1. Amaç</h2><p id="000f8058-022e-4554-b83e-42590a7f5d09" class="">Bu SOP, HPLC yöntem validasyonu sırasında oluşturulan tüm kayıtların yönetimi, saklanması ve korunması için gerekli adımları tanımlar. Amacı, veri bütünlüğünü sağlamak, düzenleyici gereksinimlere uymak ve validasyon sürecinin tam ve doğru bir şekilde belgelendirilmesini garanti altına almaktır.</p><h2 id="5eda47ef-0255-4a1a-8d75-37488a78ad2c" class="">2. Kapsam</h2><p id="9db830ca-5ea1-4141-8640-ef0e4453d973" class="">Bu prosedür, farmasötik ürünlerin ve etkin maddelerin HPLC analizinde kullanılan tüm validasyon çalışmalarına ait kayıtları kapsar.</p><h2 id="3f144af0-a962-45de-9300-fa4f87647300" class="">3. Sorumluluklar</h2><ul id="bf9d603a-b845-4c4e-a1d5-97cc3a08a578" class="bulleted-list"><li style="list-style-type:disc">Analitik Kimyager: Kayıtları oluşturmak ve düzenlemek</li></ul><ul id="ccea151c-5a5a-4721-bbe4-1dd71ed64e63" class="bulleted-list"><li style="list-style-type:disc">Laboratuvar Şefi: Kayıtları gözden geçirmek ve onaylamak</li></ul><ul id="9a0207f5-0e7a-410f-8b8a-31e4144c4924" class="bulleted-list"><li style="list-style-type:disc">Kalite Güvence: Kayıt yönetimi sistemini denetlemek</li></ul><ul id="7465fc5f-c6a0-4b77-ada8-70f9ed89080b" class="bulleted-list"><li style="list-style-type:disc">IT Departmanı: Elektronik kayıtların güvenliğini ve yedeklenmesini sağlamak</li></ul><h2 id="88058d6c-7f8b-4fc3-bebf-a6382bd9a069" class="">4. Kayıt Türleri</h2><p id="a4dac2d7-7550-49b3-9dcf-3c26c2c17f64" class="">Validasyon sürecinde aşağıdaki kayıt türleri oluşturulur ve yönetilir:</p><ol type="1" id="a0ea674a-34c7-429c-9edd-7bbf5ed3d8e9" class="numbered-list" start="1"><li>Ham veriler (kromatogramlar, entegrasyon raporları)</li></ol><ol type="1" id="48ecb31f-6ab6-4c04-9216-7fe3eb00c5d0" class="numbered-list" start="2"><li>Laboratuvar defterleri</li></ol><ol type="1" id="e3a2cc77-05ab-4e3b-b82b-6c9d9fddc763" class="numbered-list" start="3"><li>Standart Çalışma Prosedürleri (SOP&#x27;ler)</li></ol><ol type="1" id="01072a8e-0fc3-4ada-bb09-b5a85bebbd39" class="numbered-list" start="4"><li>Validasyon protokolü</li></ol><ol type="1" id="2a9db2b3-0755-46f1-927a-8c314e223131" class="numbered-list" start="5"><li>Ekipman kayıtları (bakım, kalibrasyon)</li></ol><ol type="1" id="32eaf868-f6fd-4269-ab5c-0fc0dafc02ba" class="numbered-list" start="6"><li>Reagent ve standart madde kayıtları</li></ol><ol type="1" id="46877735-eefd-46ee-80eb-9d848073ad3a" class="numbered-list" start="7"><li>Hesaplamalar ve veri analizi dosyaları</li></ol><ol type="1" id="6e4801ca-374a-4c69-8ac4-b16a185cfbfe" class="numbered-list" start="8"><li>Validasyon raporu</li></ol><ol type="1" id="30ba4425-cdb9-4df5-8183-4d087e418637" class="numbered-list" start="9"><li>Eğitim kayıtları</li></ol><h2 id="2f10e989-5c6a-40b7-aecd-3b127733a535" class="">5. Kayıt Yönetimi Prosedürü</h2><h3 id="e055f981-5139-44ae-bd2c-a1998bb73812" class="">5.1. Kayıt Oluşturma</h3><ol type="1" id="0ed51494-04c2-493f-ab7c-84a167e709c3" class="numbered-list" start="1"><li>Tüm kayıtlar okunaklı, kalıcı ve tam olmalıdır.</li></ol><ol type="1" id="27767e19-0638-4016-b186-f5b11893741c" class="numbered-list" start="2"><li>Kayıtlar tarih ve saat içermeli ve kayıt oluşturan kişi tarafından imzalanmalıdır.</li></ol><ol type="1" id="81ebac3f-9538-4966-b5f2-06ab3061507e" class="numbered-list" start="3"><li>Elektronik kayıtlar için, 21 CFR Part 11 gereksinimlerine uygun sistemler kullanılmalıdır.</li></ol><h3 id="6803a5d8-e832-45ab-90cd-48587fae7685" class="">5.2. Kayıt Düzeltme</h3><ol type="1" id="b6472f48-453c-47b7-92c9-5574fc40676b" class="numbered-list" start="1"><li>Hatalı kayıtlar üzeri çizilerek düzeltilmeli, asla silinmemelidir.</li></ol><ol type="1" id="24d93c23-d2ee-4e41-8bd6-8696596851eb" class="numbered-list" start="2"><li>Düzeltmeler tarih ve paraf içermelidir.</li></ol><ol type="1" id="d6f74060-0abe-4586-8931-35d07e8b50dd" class="numbered-list" start="3"><li>Elektronik kayıtlardaki değişiklikler için audit trail oluşturulmalıdır.</li></ol><h3 id="585f417a-543c-45a9-94ca-c24a810c300a" class="">5.3. Kayıt Saklama</h3><ol type="1" id="c88701f5-a838-49e2-baba-0499f3d1fafa" class="numbered-list" start="1"><li>Tüm kayıtlar güvenli ve kontrollü bir ortamda saklanmalıdır.</li></ol><ol type="1" id="7ce265ae-155b-4004-bf65-efa3e96a1eee" class="numbered-list" start="2"><li>Fiziksel kayıtlar kilitli dolaplarda veya arşiv odasında tutulmalıdır.</li></ol><ol type="1" id="ef415f96-c1b3-4080-a434-56b7954dc440" class="numbered-list" start="3"><li>Elektronik kayıtlar düzenli olarak yedeklenmeli ve erişim kontrollü olmalıdır.</li></ol><ol type="1" id="93258515-3572-4ded-9e66-121d70f9b282" class="numbered-list" start="4"><li>Saklama süresi, düzenleyici gereksinimlere göre belirlenmelidir (genellikle ürün ömrü + 1 yıl).</li></ol><h3 id="6c13c7ae-ef2f-413e-b012-e2823bad266b" class="">5.4. Kayıt Erişimi</h3><ol type="1" id="8f64640d-912d-4232-acaa-6bd3b38f70ee" class="numbered-list" start="1"><li>Kayıtlara erişim yetkili personelle sınırlandırılmalıdır.</li></ol><ol type="1" id="5189efbe-a807-48e4-b2f5-bc4f37d57fd9" class="numbered-list" start="2"><li>Erişim yetkileri düzenli olarak gözden geçirilmeli ve güncellenmelidir.</li></ol><ol type="1" id="01c232f3-54c2-47be-86f2-ab2c13adaf5c" class="numbered-list" start="3"><li>Kayıt erişim logları tutulmalıdır.</li></ol><h3 id="1231d031-e8eb-4a2d-a364-b65e18f3c6a6" class="">5.5. Kayıt İmhası</h3><ol type="1" id="7dfa18f1-8d62-49d9-bcd3-33bea4d1357b" class="numbered-list" start="1"><li>Saklama süresi dolan kayıtlar, onaylı bir prosedüre göre imha edilmelidir.</li></ol><ol type="1" id="3cfaac80-7677-486f-8520-0db59dd8bb6a" class="numbered-list" start="2"><li>İmha işlemi belgelendirilmeli ve onaylanmalıdır.</li></ol><h2 id="32c16e62-f1b5-4af1-816f-fb141bfe3698" class="">6. Veri Bütünlüğü</h2><p id="8b545c9d-6b66-4cdd-90fe-7c024fd95e2d" class="">Veri bütünlüğünü sağlamak için ALCOA+ prensipleri uygulanmalıdır:</p><ul id="304a7268-7127-4e65-a06a-4497cf612a7c" class="bulleted-list"><li style="list-style-type:disc">Attributable (Atfedilebilir): Veri kim tarafından, ne zaman oluşturuldu?</li></ul><ul id="95043142-1d02-4b41-873c-93d70ad6ca4b" class="bulleted-list"><li style="list-style-type:disc">Legible (Okunaklı): Veri açık ve anlaşılır mı?</li></ul><ul id="898c39f4-85dc-428d-8ecf-8332588ecda4" class="bulleted-list"><li style="list-style-type:disc">Contemporaneous (Eşzamanlı): Veri oluşturulduğu anda kaydedildi mi?</li></ul><ul id="915aaf06-ec5d-4150-b415-459c0ca8ff5c" class="bulleted-list"><li style="list-style-type:disc">Original (Orijinal): Bu orijinal kayıt mı yoksa doğrulanmış bir kopya mı?</li></ul><ul id="5e1a24f2-4ba7-4c4b-8e3f-627ffa5f75a9" class="bulleted-list"><li style="list-style-type:disc">Accurate (Doğru): Veri hatasız ve tam mı?</li></ul><ul id="5518fe40-a59f-4d10-9a46-416c0001fc1a" class="bulleted-list"><li style="list-style-type:disc">Complete (Eksiksiz): Tüm gerekli bilgiler mevcut mu?</li></ul><ul id="bd97c503-af07-4ed1-9e7f-6dd9e9eb3bd3" class="bulleted-list"><li style="list-style-type:disc">Consistent (Tutarlı): Veriler birbiriyle ve ilgili kayıtlarla tutarlı mı?</li></ul><ul id="727e32c4-34c2-4e3b-931f-6de86d0f4ad1" class="bulleted-list"><li style="list-style-type:disc">Enduring (Kalıcı): Veri, gerekli süre boyunca korunabilecek mi?</li></ul><ul id="fca6e5e7-b00f-4ba4-a7fc-7d501a9ee753" class="bulleted-list"><li style="list-style-type:disc">Available (Erişilebilir): Veri gerektiğinde kolayca erişilebilir mi?</li></ul><h2 id="92f2e980-8e3c-42e3-9ff0-243bf55b1bdf" class="">7. Elektronik Kayıt Yönetimi</h2><ol type="1" id="f62eb3a7-ff5c-484a-a359-92585ecbd98a" class="numbered-list" start="1"><li>Elektronik kayıt sistemleri 21 CFR Part 11 gereksinimlerini karşılamalıdır.</li></ol><ol type="1" id="92979baa-5fc5-41d0-8c5e-e873580be4ff" class="numbered-list" start="2"><li>Elektronik imzalar kullanılıyorsa, bunlar elle atılan imzalarla eşdeğer olmalıdır.</li></ol><ol type="1" id="33e44a91-42f6-4adc-b4b2-d71227965773" class="numbered-list" start="3"><li>Sistem erişimi için güçlü parola politikaları uygulanmalıdır.</li></ol><ol type="1" id="3a25c475-b420-44c2-a9bf-39e36f8d3914" class="numbered-list" start="4"><li>Tüm sistem aktiviteleri için audit trail tutulmalıdır.</li></ol><ol type="1" id="9bab22c4-bf50-44b8-ba49-d2d4f7c5450c" class="numbered-list" start="5"><li>Düzenli sistem yedeklemeleri yapılmalıdır.</li></ol><h2 id="8f9f0522-828d-4e61-8009-da6e9550d18a" class="">8. Eğitim</h2><ol type="1" id="fb41314d-fb56-4c09-9325-e30ff5af936d" class="numbered-list" start="1"><li>Tüm ilgili personel, kayıt yönetimi prosedürleri konusunda eğitilmelidir.</li></ol><ol type="1" id="9d8e839d-4ff4-412c-96f9-231582ec9e45" class="numbered-list" start="2"><li>Eğitimler belgelendirilmeli ve kayıtları saklanmalıdır.</li></ol><ol type="1" id="e1880c6f-1a6d-4604-bb6e-d6bd16904b25" class="numbered-list" start="3"><li>Eğitimler düzenli olarak tekrarlanmalı ve güncellenmelidir.</li></ol><h2 id="05eaa432-32a2-4823-9631-a731c1e9fa04" class="">9. Denetim ve Gözden Geçirme</h2><ol type="1" id="0030226d-7ddb-42d8-8e09-32c4ad12883e" class="numbered-list" start="1"><li>Kayıt yönetimi sistemi düzenli olarak iç denetimlere tabi tutulmalıdır.</li></ol><ol type="1" id="8a4a8c70-30ee-48f7-aad6-69dbdc2f2302" class="numbered-list" start="2"><li>Denetim bulguları belgelendirilmeli ve gerekli düzeltici önlemler alınmalıdır.</li></ol><ol type="1" id="f5218db1-013f-47ce-872a-26df1095aa52" class="numbered-list" start="3"><li>Kayıt yönetimi prosedürleri yıllık olarak gözden geçirilmeli ve gerektiğinde güncellenmelidir.</li></ol><h2 id="ca74c754-edc3-468d-9105-4e3975d28fe9" class="">10. Düzenleyici Hususlar</h2><ol type="1" id="882cfc8c-797b-450c-acb2-b342e5ed472b" class="numbered-list" start="1"><li>Kayıt yönetimi sistemi, ilgili GMP ve GLP gereksinimlerini karşılamalıdır.</li></ol><ol type="1" id="a274b183-12ca-47b9-bce7-3a3361e143a4" class="numbered-list" start="2"><li>Düzenleyici otoritelerin teftişleri sırasında kayıtlar hızlı bir şekilde erişilebilir olmalıdır.</li></ol><ol type="1" id="666ac822-ade3-476e-85f3-020a9cbc71f9" class="numbered-list" start="3"><li>Kayıt saklama süreleri, en katı düzenleyici gereksinimlere göre belirlenmelidir.</li></ol><h2 id="98e44632-e113-44b2-aef5-c3eaf387cd4a" class="">11. Pratik Öneriler</h2><ul id="7ac024b6-7940-42ea-9189-aa5dc63d0891" class="bulleted-list"><li style="list-style-type:disc">Kayıt oluşturma ve yönetme konusunda personeli düzenli olarak eğitin.</li></ul><ul id="812070c3-141f-46e7-9b6a-7d2f0a10b816" class="bulleted-list"><li style="list-style-type:disc">Elektronik ve fiziksel kayıtların düzenli envanter kontrolünü yapın.</li></ul><ul id="53e41960-c7d2-4b0e-916b-4240f56c2628" class="bulleted-list"><li style="list-style-type:disc">Veri bütünlüğü için periyodik risk değerlendirmeleri yapın.</li></ul><ul id="fb8d5065-df31-487d-8874-e571f4b4887e" class="bulleted-list"><li style="list-style-type:disc">Kayıt yönetimi sistemini sürekli iyileştirme fırsatları için gözden geçirin.</li></ul><ul id="30c007cc-6cf7-44d3-a54a-c11857106df4" class="bulleted-list"><li style="list-style-type:disc">Düzenleyici gereksinimlerdeki değişiklikleri yakından takip edin.</li></ul><h2 id="e229e7c3-8e29-4dc8-89e9-453a8498396f" class="">12. Referanslar</h2><ul id="81902e3a-c235-47a8-b44e-b6eadbae79fc" class="bulleted-list"><li style="list-style-type:disc">ICH Q7: Good Manufacturing Practice Guide for Active Pharmaceutical Ingredients</li></ul><ul id="f2658b16-93e3-4a25-9a06-5948caf1ffb0" class="bulleted-list"><li style="list-style-type:disc">21 CFR Part 11: Electronic Records; Electronic Signatures</li></ul><ul id="491e365a-8ef8-4ac5-bdcd-db7346a20623" class="bulleted-list"><li style="list-style-type:disc">EudraLex Volume 4 Annex 11: Computerised Systems</li></ul><ul id="6efd6e1b-2960-44a6-8957-54294986340f" class="bulleted-list"><li style="list-style-type:disc">WHO Good Records Practice Guideline</li></ul><ul id="54a45397-f41a-4951-9bee-4427c0207900" class="bulleted-list"><li style="list-style-type:disc">MHRA GxP Data Integrity Guidance and Definitions</li></ul><h2 id="6abf8111-ded6-4c74-a271-0a432a5dbaf0" class="">13. Ek Bilgiler</h2><ul id="c9bdbcda-eb74-4576-bc74-38a61d0edce3" class="bulleted-list"><li style="list-style-type:disc">İyi kayıt yönetimi, validasyon sürecinin güvenilirliğini ve izlenebilirliğini sağlar.</li></ul><ul id="962126c8-3b81-461f-8fe7-dc2a6c49ceb3" class="bulleted-list"><li style="list-style-type:disc">Düzgün yönetilen kayıtlar, düzenleyici incelemeleri kolaylaştırır ve uyumsuzluk riskini azaltır.</li></ul><ul id="a6e0138e-c8bb-4aa9-acd1-e4f0660b729d" class="bulleted-list"><li style="list-style-type:disc">Veri bütünlüğü, ilaç güvenliği ve kalitesi için kritik öneme sahiptir.</li></ul><ul id="28814634-ee38-45a1-8b20-9704e35e86ab" class="bulleted-list"><li style="list-style-type:disc">Kayıt yönetimi sisteminin etkinliği, validasyon çalışmasının genel kalitesini yansıtır.</li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
