@@ -2,154 +2,42 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uğur Şahin - Teknoloji Meraklısı</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        header {
-            text-align: center;
-            padding: 60px 20px;
-            color: white;
-        }
-        header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        header h2 {
-            font-size: 1.5em;
-            font-weight: 300;
-            margin-bottom: 20px;
-        }
-        .intro {
-            background: rgba(255, 255, 255, 0.95);
-            margin: 40px auto;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            max-width: 800px;
-        }
-        .projects {
-            margin: 40px 0;
-        }
-        .projects h2 {
-            text-align: center;
-            color: white;
-            font-size: 2.5em;
-            margin-bottom: 40px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-        }
-        .project {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .project:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-        .project h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-        }
-        .project p {
-            margin-bottom: 20px;
-            color: #666;
-        }
-        .project a {
-            display: inline-block;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 25px;
-            transition: background 0.3s ease;
-        }
-        .project a:hover {
-            background: linear-gradient(45deg, #764ba2, #667eea);
-        }
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            color: white;
-            background: rgba(0,0,0,0.3);
-            margin-top: 60px;
-        }
-        footer a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2.5em;
-            }
-            .project-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="site-base" content="/">
+    <meta name="description" content="HPLC metod geliştirme, validasyon ve kolon seçimi içerikleri">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="canonical" href="https://ugurtrsahin.github.io/">
+    <meta property="og:title" content="HPLC Bilgi Merkezi">
+    <meta property="og:description" content="HPLC metod geliştirme, validasyon ve kolon seçimi konularında pratik rehberler.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ugurtrsahin.github.io/">
+    <meta property="og:site_name" content="HPLC Bilgi Merkezi">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="HPLC Bilgi Merkezi">
+    <meta name="twitter:description" content="HPLC metod geliştirme, validasyon ve kolon seçimi konularında pratik rehberler.">
+    <link rel="stylesheet" href="/assets/theme.css">
+    <script defer src="/assets/theme.js"></script>
+    <title>HPLC Bilgi Merkezi</title>
 </head>
-<body>
-    <header>
-        <div class="container">
-            <h1>Uğur Şahin</h1>
-            <h2>Teknoloji Meraklısı & Kimyager</h2>
-        </div>
-    </header>
+<body data-base="/">
+    <a class="skip-link" href="#main-content">İçeriğe atla</a>
+    <main id="main-content">
+        <h1>HPLC Bilgi Merkezi</h1>
+        <p>HPLC metod geliştirme, validasyon ve kolon seçimi konularında pratik rehberler.</p>
 
-    <div class="container">
-        <div class="intro">
-            <p>Merhaba. Bu siteyi GitHub Pages kullanarak sıfırdan oluşturdum. Teknoloji, açık kaynak kodlu yazılımlar ve yeni şeyler öğrenmekle ilgileniyorum.</p>
-        </div>
-
-        <div class="projects">
-            <h2>Projelerim ve Makalelerim</h2>
-            <div class="project-grid">
-                <div class="project">
-                    <h3>HPLC Kılavuzu</h3>
-                    <p>HPLC (Yüksek Performanslı Sıvı Kromatografisi) ile ilgili kapsamlı kılavuzlar, validasyon rehberleri ve teknik bilgiler.</p>
-                    <a href="hplc-guide.html">Projeyi Görüntüle</a>
-                </div>
-                <div class="project">
-                    <h3>HPLC Kolon Seçiminde Derin Öğrenme</h3>
-                    <p>HPLC kolon seçiminde derin öğrenme kullanarak verimliliği artırma projesi.</p>
-                    <a href="hplc-column-selection.html">Projeyi Görüntüle</a>
-                </div>
-            </div>
-        </div>
-    </div>
+        <h2>İçerikler</h2>
+        
+        <ul>
+            <li><a href="hplc-guide.html">HPLC Kılavuzu</a> - Temel kavramlar, dedektör rehberleri ve sorun giderme</li>
+            <li><a href="hplc-column-selection.html">Kolon Seçimi</a> - Veri temelli değerlendirme ve performans ölçümleri</li>
+            <li><a href="hplc-guide/validation/acceptance-criteria.html">Validasyon</a> - SOP taslakları ve kabul kriterleri</li>
+            <li><a href="hplc-guide/shimadzu/software-components.html">Shimadzu Yazılımları</a> - Veri işleme ve spektral benzerlik</li>
+            <li><a href="hplc-guide/detectors-guide.html">Dedektör Notları</a> - UV/Vis ve DAD dedektör bilgileri</li>
+        </ul>
+    </main>
 
     <footer>
-        <div class="container">
-            <p>Repository: <a href="https://github.com/ugurtrsahin/ugurtrsahin.github.io">https://github.com/ugurtrsahin/ugurtrsahin.github.io</a></p>
-        </div>
+        <p>Kaynaklar GitHub'da: <a href="https://github.com/ugurtrsahin/ugurtrsahin.github.io">github.com/ugurtrsahin/ugurtrsahin.github.io</a></p>
     </footer>
 </body>
 </html>
