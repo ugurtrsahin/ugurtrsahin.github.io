@@ -20,6 +20,22 @@ body {
     padding: 20px;
 }
 
+.skip-link {
+    position: absolute;
+    left: -999px;
+    top: 10px;
+    background: #fff;
+    color: #111;
+    padding: 8px 12px;
+    border: 1px solid #111;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+.skip-link:focus {
+    left: 20px;
+}
+
 /* Simple navigation */
 nav {
     border-bottom: 1px solid #ddd;
@@ -80,6 +96,13 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 2px;
 }
 
 /* Lists */
