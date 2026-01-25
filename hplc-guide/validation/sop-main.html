@@ -1,16 +1,707 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light">
-    <meta name="site-base" content="/">
-    <link rel="stylesheet" href="/assets/theme.css">
-    <script defer src="/assets/theme.js"></script>
-    <title>Validasyon için Standart Operasyon Prosedürü (SOP)</title>
-</head>
-<body data-base="/">
-<article id="6a581205-72b1-44f3-8334-a080ac6c59e2" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">📝</span></div><h1 class="page-title">Validasyon için Standart Operasyon Prosedürü (SOP)</h1><p class="page-description"></p></header><div class="page-body"><h1 id="1e2af884-96b0-41be-9403-61940302de9e" class="">HPLC Yöntem Validasyonu için Standart Operasyon Prosedürü (SOP)</h1><h3 id="e336d082-176f-4c06-82b4-8bdb1f95dae3" class="">SOP’LER</h3><figure id="e1a4c881-35d0-4333-b367-141a8c6cd572" class="link-to-page"><a href="sop/preparation.html">Ön Hazırlık SOP</a></figure><figure id="cb5b84ea-3101-4b46-bb5f-a769d57fdcef" class="link-to-page"><a href="sop/specificity.html">Özgüllük (Specificity) SOP</a></figure><figure id="5d9a39e8-df65-4536-b1fd-c8c5d68345cb" class="link-to-page"><a href="sop/linearity.html">Doğrusallık (Linearity) SOP</a></figure><figure id="b4f2b8d9-bd5c-499a-8f4b-0569ae0f8136" class="link-to-page"><a href="sop/range.html">Aralık (Range) SOP</a></figure><figure id="08fabc1e-3403-4634-aeea-e35f0f56b356" class="link-to-page"><a href="sop/accuracy.html"> Doğruluk (Accuracy)</a></figure><figure id="d002fcbc-57da-4092-8d62-22fda2191d70" class="link-to-page"><a href="sop/precision.html">Kesinlik (Precision) SOP</a></figure><figure id="c7b00a7c-4269-4dfe-aaf3-81e9720cfa6d" class="link-to-page"><a href="sop/repeatability.html">Tekrarlanabilirlik (Repeatability) SOP</a></figure><figure id="033cf79f-f831-42d1-b745-89647e49eff6" class="link-to-page"><a href="sop/intermediate-precision.html">Ara Kesinlik (Intermediate Precision) SOP</a></figure><figure id="6f9f9178-4fc6-4abb-a305-f23605fedef4" class="link-to-page"><a href="sop/lod.html">Tespit Limiti (LOD) SOP</a></figure><figure id="13faf035-26cb-4531-adeb-23b0a20521ce" class="link-to-page"><a href="sop/loq.html">Kantitasyon Limiti (LOQ) SOP</a></figure><figure id="b1610c60-bb59-4777-a9fc-b1da1b8f4ff1" class="link-to-page"><a href="sop/robustness.html">Sağlamlık (Robustness) SOP</a></figure><figure id="67ad8530-0cf3-4a8e-8f14-a155e9302b37" class="link-to-page"><a href="sop/system-suitability.html">Sistem Uygunluk Testi SOP</a></figure><figure id="3c3d9ae8-d8ea-4ce0-b32f-56085b4685f0" class="link-to-page"><a href="sop/data-analysis-reporting.html">Veri Analizi ve Raporlama SOP</a></figure><figure id="1a37f570-0468-4b47-938e-d1fba79ae817" class="link-to-page"><a href="sop/records.html">Kayıtlar SOP</a></figure><h2 id="59e94f0d-ae71-48ff-a84a-7c53c5029f2d" class="">1. Amaç ve Kapsam</h2><p id="6975dbed-b1c3-47da-87de-123d15a932a8" class="">Bu SOP, yüksek performanslı sıvı kromatografisi (HPLC) yöntemlerinin validasyonu için gerekli adımları ve prosedürleri tanımlar. Bu dokuman, ICH Q2(R1) rehberi ve diğer ilgili düzenleyici kılavuzlara uygun olarak hazırlanmıştır.</p><h2 id="af745e86-e30c-4217-95a8-c7faf9c30ad0" class="">2. Sorumluluklar</h2><ul id="ce3a165b-a3d5-4c56-b96a-a74b9647b4db" class="bulleted-list"><li>Analitik Kimyager: Validasyon çalışmalarını yürütmek</li></ul><ul id="6306df77-edb2-41a6-83b9-fc4f434d201e" class="bulleted-list"><li>Laboratuvar Şefi: Validasyon protokolünü onaylamak ve sonuçları gözden geçirmek</li></ul><ul id="23ce35b4-f00f-4b49-8660-49a560511007" class="bulleted-list"><li>Kalite Güvence Birimi: Validasyon raporunu incelemek ve onaylamak</li></ul><h2 id="03c72e4a-00b2-44df-961d-f23b7de3de53" class="">3. Tanımlar</h2><ul id="9b2f8dce-20b6-459a-a28d-14a21cd3f4b3" class="bulleted-list"><li>HPLC: Yüksek Performanslı Sıvı Kromatografisi</li></ul><ul id="83185d87-7c8c-4289-8e61-eb9a00f8a9c3" class="bulleted-list"><li>ICH: Uluslararası Harmonizasyon Konseyi</li></ul><ul id="b07649ff-6f0b-4858-afa9-4c6128b7cfb3" class="bulleted-list"><li>LOD: Tespit Limiti</li></ul><ul id="7c0aa21d-27e8-4285-8100-c165a9bcc505" class="bulleted-list"><li>LOQ: Kantitasyon Limiti</li></ul><ul id="87eaa43b-5da7-4d82-87fc-145ef8d197e4" class="bulleted-list"><li>RSD: Bağıl Standart Sapma</li></ul><h2 id="a49bbe06-bef7-4bbf-acd7-83306ba8e12b" class="">4. Prosedür</h2><h3 id="1fdf8ebd-8fbb-48b2-930f-894cb9234e71" class="">4.1. Ön Hazırlık</h3><ol type="1" id="067c4376-cc7a-4daa-a2e7-99bbeac14612" class="numbered-list" start="1"><li>Validasyon protokolünü hazırlayın ve onaylatın.</li></ol><ol type="1" id="816b2ed5-0d6f-4842-816a-1e39deb87de6" class="numbered-list" start="2"><li>Gerekli tüm reaktif, standart ve ekipmanların mevcut olduğundan emin olun.</li></ol><ol type="1" id="5358646f-fd86-4cac-9051-c2850854eb54" class="numbered-list" start="3"><li>HPLC sisteminin kalibrasyonunu ve bakımını kontrol edin.</li></ol><h3 id="80e7282b-7c45-4d02-ae09-8897f04883ba" class="">4.2. Özgüllük (Specificity)</h3><ol type="1" id="d97eb344-79d4-4d08-a45e-fdf02ae10ad7" class="numbered-list" start="1"><li>Analit, safsızlıklar ve plasebo çözeltilerini hazırlayın.</li></ol><ol type="1" id="ecf4d59d-4d79-48d3-9df7-348bfeda17f6" class="numbered-list" start="2"><li>Her bir çözeltiyi ayrı ayrı enjekte edin.</li></ol><ol type="1" id="3f3a8056-d0aa-448a-8592-0099a1aea4eb" class="numbered-list" start="3"><li>Kromatogramları inceleyerek piklerin ayrımını değerlendirin.</li></ol><ol type="1" id="215f90d2-5b4a-4c3d-a285-9a4b378fe4c2" class="numbered-list" start="4"><li>Gerekirse, zorlanmış bozunma çalışmaları yapın (asit, baz, oksidatif, ışık, sıcaklık).</li></ol><p id="b7ad2f1a-c9b7-43ed-8db6-9f237c47eb6f" class="">Kabul Kriteri: Analit piki diğer bileşenlerden tam olarak ayrılmalıdır.</p><h3 id="1ddffaa8-c539-4a3f-bcf8-6fc525cfa054" class="">4.3. Doğrusallık (Linearity)</h3><ol type="1" id="f7a5d80e-9782-4010-bbfb-f5e8f7f604bd" class="numbered-list" start="1"><li>En az 5 farklı konsantrasyonda kalibrasyon standardı hazırlayın (%50-%150 aralığında).</li></ol><ol type="1" id="f757ad54-d910-4cfd-96b7-471f33a0d09b" class="numbered-list" start="2"><li>Her standardı üç kez enjekte edin.</li></ol><ol type="1" id="fd216252-3ef4-46de-832a-743b19eacb5a" class="numbered-list" start="3"><li>Konsantrasyona karşı pik alanı/yüksekliği grafiğini çizin.</li></ol><ol type="1" id="8c5129c2-eaaf-4bf0-a588-798a0bc8216f" class="numbered-list" start="4"><li>Regresyon analizini yapın (en küçük kareler yöntemi).</li></ol><p id="c26f3480-91fe-4758-b433-e3c654bcedae" class="">Kabul Kriterleri:</p><ul id="2f2bd029-0c03-4477-9a94-6cae4260bee5" class="bulleted-list"><li>Korelasyon katsayısı (r) ≥ 0.999</li></ul><ul id="58999893-4a0f-45f5-a5d7-660202500ec4" class="bulleted-list"><li>Y-kesişimi, nominal konsantrasyonun ±2%&#x27;sinden az olmalı</li></ul><h3 id="c590c326-46b7-4d91-8462-8ee9d5a4f17e" class="">4.4. Aralık (Range)</h3><ol type="1" id="56a671be-0b00-4b85-a58e-f13fcf3e93f8" class="numbered-list" start="1"><li>Doğrusallık, doğruluk ve kesinlik verilerini kullanarak çalışma aralığını belirleyin.</li></ol><p id="6d013788-d9bc-4664-8c80-f3a67d6914b7" class="">Kabul Kriteri: Aralık, yöntemin amaçlanan kullanımı için uygun olmalıdır (genellikle %80-120).</p><h3 id="82aa9454-23e0-43fc-aa0c-aa81f871eed5" class="">4.5. Doğruluk (Accuracy)</h3><ol type="1" id="b0187b14-89cb-43ec-9055-f4047d6ba5e1" class="numbered-list" start="1"><li>Düşük, orta ve yüksek konsantrasyonlarda (%80, %100, %120) spike edilmiş numuneler hazırlayın.</li></ol><ol type="1" id="8f1ffc58-458b-45d9-b17f-427d4d07a5ac" class="numbered-list" start="2"><li>Her konsantrasyon için en az 3 tekrar yapın.</li></ol><ol type="1" id="a1a23ed3-c170-4840-a2f0-dd2aadb5bd84" class="numbered-list" start="3"><li>% Geri kazanımı hesaplayın.</li></ol><p id="f0361127-bdfa-4d92-af5e-1f5858162006" class="">Kabul Kriteri: Ortalama geri kazanım %98-102 arasında olmalıdır.</p><h3 id="0e1f8da2-b585-4517-b876-54d745d92976" class="">4.6. Kesinlik (Precision)</h3><h3 id="1d09eb00-e3ae-4930-b033-316ed7f8ac92" class="">4.6.1. Tekrarlanabilirlik (Repeatability)</h3><ol type="1" id="0533475d-db01-4075-bdd0-0ba1a727be49" class="numbered-list" start="1"><li>Nominal konsantrasyonda 6 bağımsız numune hazırlayın.</li></ol><ol type="1" id="d05ce6cf-361b-45ad-b7f2-ad3d48f6365d" class="numbered-list" start="2"><li>Her numuneyi analiz edin ve RSD hesaplayın.</li></ol><h3 id="146300fb-0b92-43ad-bf4f-3dfc4a936156" class="">4.6.2. Ara Kesinlik (Intermediate Precision)</h3><ol type="1" id="e2f8ba04-6df5-49f1-b365-ff7fa6d71748" class="numbered-list" start="1"><li>Farklı günlerde, farklı analistler tarafından tekrarlanabilirlik testini tekrarlayın.</li></ol><ol type="1" id="233595d6-3cc1-4581-8a0c-d365f496b5c1" class="numbered-list" start="2"><li>Sonuçların RSD&#x27;sini hesaplayın.</li></ol><p id="25be20da-e875-4633-94cf-7181a51d49f1" class="">Kabul Kriterleri:</p><ul id="d42c4568-df2c-45d5-85f4-d0e10060629a" class="bulleted-list"><li>Tekrarlanabilirlik RSD ≤ 2%</li></ul><ul id="e839f243-4c17-45d3-abef-4501a7f0c303" class="bulleted-list"><li>Ara Kesinlik RSD ≤ 3%</li></ul><h3 id="f185f94a-ffcb-4f39-b6cb-d7e36d987ae5" class="">4.7. Tespit Limiti (LOD)</h3><ol type="1" id="bf5adab1-b7e7-49e0-8ea1-6a63aed0d7fd" class="numbered-list" start="1"><li>Sinyal/Gürültü oranı yöntemini kullanın:<br/>a) Düşük konsantrasyonlu standartlar hazırlayın.<br/>b) S/N = 3 olan konsantrasyonu belirleyin.</li></ol><h3 id="7b179b72-c733-4071-b5f0-aed4341e5eb7" class="">4.8. Kantitasyon Limiti (LOQ)</h3><ol type="1" id="5cb7ca75-6189-4efc-a909-316c2ec9c821" class="numbered-list" start="1"><li>Sinyal/Gürültü oranı yöntemini kullanın:<br/>a) Düşük konsantrasyonlu standartlar hazırlayın.<br/>b) S/N = 10 olan konsantrasyonu belirleyin.</li></ol><ol type="1" id="225d6c9a-ce9f-48a7-a532-9634941c529c" class="numbered-list" start="2"><li>LOQ konsantrasyonunda 6 bağımsız numune hazırlayıp analiz edin.</li></ol><p id="748b0d06-3947-4d15-b80a-ff9a76ebdac1" class="">Kabul Kriteri: LOQ&#x27;da RSD ≤ 10%</p><h3 id="4af6ade3-a051-48f2-afc7-82b232473083" class="">4.9. Sağlamlık (Robustness)</h3><p id="ec2b5c73-04f8-432a-933a-b8fbefdfdb12" class="">Aşağıdaki parametrelerde küçük değişiklikler yaparak yöntemi test edin:</p><ul id="c962741c-52c8-406a-b180-232c60a94df0" class="bulleted-list"><li>Mobil faz bileşimi (±2%)</li></ul><ul id="09ba2270-411a-4b67-93e2-f7e8e885e445" class="bulleted-list"><li>Akış hızı (±0.1 mL/min)</li></ul><ul id="531f21ae-92b0-4796-b6b0-d7fee7cac770" class="bulleted-list"><li>Kolon sıcaklığı (±2°C)</li></ul><ul id="04d191c6-acab-4021-a4d0-ebd21dff3999" class="bulleted-list"><li>pH (±0.1 birim)</li></ul><p id="130a62b7-fd8c-4046-95cc-697f4cf3ef5c" class="">Kabul Kriteri: Küçük değişiklikler sonuçları önemli ölçüde etkilememelidir.</p><h3 id="62761a06-e65b-41f5-90f0-e0daf1fa3b75" class="">4.10. Sistem Uygunluk Testi</h3><p id="9221fbb6-7329-4805-ad69-af3a9694e560" class="">Her analiz serisinin başında aşağıdaki parametreleri kontrol edin:</p><ul id="90842e76-aaac-423f-b65a-bb56c71585af" class="bulleted-list"><li>Teorik plaka sayısı</li></ul><ul id="4b6eabcf-9027-4adb-a4ac-7602b77a1b13" class="bulleted-list"><li>Kuyruklanma faktörü</li></ul><ul id="a5ab310b-2875-431d-9cca-49c6eb9ec8be" class="bulleted-list"><li>Kapasite faktörü</li></ul><ul id="a51c447f-3443-4aa7-8ad0-d8aafed7fcf1" class="bulleted-list"><li>Çözünürlük</li></ul><p id="62c249b8-d725-4822-899e-f6b58a8104fa" class="">Kabul Kriterleri:</p><ul id="dad89715-ed09-48d3-9305-c111ccf764c8" class="bulleted-list"><li>Teorik plaka sayısı &gt; 2000</li></ul><ul id="ce1f5eea-b7df-4019-a3c3-be9f2bd6764e" class="bulleted-list"><li>Kuyruklanma faktörü &lt; 2</li></ul><ul id="74a60ddb-fd24-4c32-a1f2-22e3c6411b6b" class="bulleted-list"><li>Kapasite faktörü &gt; 2</li></ul><ul id="086ad7ea-663c-4599-ba8b-6a8833b1127b" class="bulleted-list"><li>Çözünürlük &gt; 2</li></ul><h2 id="3fd72ec2-7fbe-4f8f-8580-563163a4d36e" class="">5. Veri Analizi ve Raporlama</h2><ol type="1" id="bbfb5947-299b-4c37-af68-ebe0e7a0442e" class="numbered-list" start="1"><li>Tüm ham verileri toplayın ve gerekli hesaplamaları yapın.</li></ol><ol type="1" id="b9ec30d6-aa31-4e10-91e9-d5666da87708" class="numbered-list" start="2"><li>Her bir validasyon parametresi için sonuçları özetleyin.</li></ol><ol type="1" id="d7ed8b93-491c-4302-bdbf-69172fd9e0b1" class="numbered-list" start="3"><li>Kabul kriterlerini karşılayıp karşılamadığını değerlendirin.</li></ol><ol type="1" id="991241ef-b146-470b-ac91-6aceecc292f5" class="numbered-list" start="4"><li>Detaylı bir validasyon raporu hazırlayın.</li></ol><h2 id="f86d3a4d-4acb-43e7-b382-e61e3cfc9a78" class="">6. Kayıtlar</h2><ul id="499cccb3-704e-47e0-8f6f-b311f0e2f43c" class="bulleted-list"><li>Validasyon protokolü</li></ul><ul id="083d3337-4a5f-4828-bea6-f9bc2327b806" class="bulleted-list"><li>Ham veriler ve hesaplamalar</li></ul><ul id="a53501b5-de59-4c32-83d3-fa8f3f8153a3" class="bulleted-list"><li>Kromatogramlar</li></ul><ul id="c08e26c5-5d25-41dd-bca2-905378ee43f7" class="bulleted-list"><li>Kalibrasyon eğrileri</li></ul><ul id="57227ef6-2729-4555-a616-585e1760ca5d" class="bulleted-list"><li>Validasyon raporu</li></ul><h2 id="5a89a7db-4de7-40ba-bb93-e6394d3d463f" class="">7. Referanslar</h2><ul id="e966aa61-95c3-4e35-b306-da0218a85eba" class="bulleted-list"><li>ICH Q2(R1): Validation of Analytical Procedures: Text and Methodology</li></ul><ul id="784d0679-d572-4d0f-b4e0-e01283e08303" class="bulleted-list"><li>USP &lt;1225&gt;: Validation of Compendial Procedures</li></ul><ul id="c4d17b84-e2a0-437c-8622-a48f226494f4" class="bulleted-list"><li>Laboratuvar Kalite El Kitabı</li></ul><h2 id="19bf2444-1c51-4029-839a-fa3bffb3e146" class="">8. Revizyon Geçmişi</h2><table id="96dd2dfc-afef-4107-a6a5-9d9153a14093" class="simple-table"><tbody><tr id="4a4f5032-c3ce-4949-81c2-f60b25d657a1"><td id="TJNT" class="">Revizyon No</td><td id="}dWA" class="">Tarih</td><td id="`KsG" class="">Değişiklik Tanımı</td></tr><tr id="ed232c88-fe83-4b3e-af9e-f73f0521fb6e"><td id="TJNT" class="">00</td><td id="}dWA" class="">[Tarih]</td><td id="`KsG" class="">İlk yayın</td></tr></tbody></table><p id="f2daaa36-c1e5-46a5-96f7-4aebfe1b806b" class="">Hazırlayan: [İsim, Unvan]<br/>Onaylayan: [İsim, Unvan]</p><p id="cf99682f-6752-45f3-b2f9-d216cfc80156" class="">
-</p></div></article><span class="sans"></span>
-</body>
-</html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Validasyon için Standart Operasyon Prosedürü (SOP)</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="6a581205-72b1-44f3-8334-a080ac6c59e2" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">📝</span></div><h1 class="page-title">Validasyon için Standart Operasyon Prosedürü (SOP)</h1><p class="page-description"></p></header><div class="page-body"><h1 id="1e2af884-96b0-41be-9403-61940302de9e" class="">HPLC Yöntem Validasyonu için Standart Operasyon Prosedürü (SOP)</h1><h3 id="e336d082-176f-4c06-82b4-8bdb1f95dae3" class="">SOP’LER</h3><figure id="e1a4c881-35d0-4333-b367-141a8c6cd572" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/%C3%96n%20Haz%C4%B1rl%C4%B1k%20SOP%20e1a4c88135d04333b367141a8c6cd572.html">Ön Hazırlık SOP</a></figure><figure id="cb5b84ea-3101-4b46-bb5f-a769d57fdcef" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/%C3%96zg%C3%BCll%C3%BCk%20(Specificity)%20SOP%20cb5b84ea31014b46bb5fa769d57fdcef.html">Özgüllük (Specificity) SOP</a></figure><figure id="5d9a39e8-df65-4536-b1fd-c8c5d68345cb" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Do%C4%9Frusall%C4%B1k%20(Linearity)%20SOP%205d9a39e8df654536b1fdc8c5d68345cb.html">Doğrusallık (Linearity) SOP</a></figure><figure id="b4f2b8d9-bd5c-499a-8f4b-0569ae0f8136" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Aral%C4%B1k%20(Range)%20SOP%20b4f2b8d9bd5c499a8f4b0569ae0f8136.html">Aralık (Range) SOP</a></figure><figure id="08fabc1e-3403-4634-aeea-e35f0f56b356" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Do%C4%9Fruluk%20(Accuracy)%2008fabc1e34034634aeeae35f0f56b356.html"> Doğruluk (Accuracy)</a></figure><figure id="d002fcbc-57da-4092-8d62-22fda2191d70" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Kesinlik%20(Precision)%20SOP%20d002fcbc57da40928d6222fda2191d70.html">Kesinlik (Precision) SOP</a></figure><figure id="c7b00a7c-4269-4dfe-aaf3-81e9720cfa6d" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Tekrarlanabilirlik%20(Repeatability)%20SOP%20c7b00a7c42694dfeaaf381e9720cfa6d.html">Tekrarlanabilirlik (Repeatability) SOP</a></figure><figure id="033cf79f-f831-42d1-b745-89647e49eff6" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Ara%20Kesinlik%20(Intermediate%20Precision)%20SOP%20033cf79ff83142d1b74589647e49eff6.html">Ara Kesinlik (Intermediate Precision) SOP</a></figure><figure id="6f9f9178-4fc6-4abb-a305-f23605fedef4" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Tespit%20Limiti%20(LOD)%20SOP%206f9f91784fc64abba305f23605fedef4.html">Tespit Limiti (LOD) SOP</a></figure><figure id="13faf035-26cb-4531-adeb-23b0a20521ce" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Kantitasyon%20Limiti%20(LOQ)%20SOP%2013faf03526cb4531adeb23b0a20521ce.html">Kantitasyon Limiti (LOQ) SOP</a></figure><figure id="b1610c60-bb59-4777-a9fc-b1da1b8f4ff1" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Sa%C4%9Flaml%C4%B1k%20(Robustness)%20SOP%20b1610c60bb594777a9fcb1da1b8f4ff1.html">Sağlamlık (Robustness) SOP</a></figure><figure id="67ad8530-0cf3-4a8e-8f14-a155e9302b37" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Sistem%20Uygunluk%20Testi%20SOP%2067ad85300cf34a8e8f14a155e9302b37.html">Sistem Uygunluk Testi SOP</a></figure><figure id="3c3d9ae8-d8ea-4ce0-b32f-56085b4685f0" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Veri%20Analizi%20ve%20Raporlama%20SOP%203c3d9ae8d8ea4ce0b32f56085b4685f0.html">Veri Analizi ve Raporlama SOP</a></figure><figure id="1a37f570-0468-4b47-938e-d1fba79ae817" class="link-to-page"><a href="Validasyon%20i%C3%A7in%20Standart%20Operasyon%20Prosed%C3%BCr%C3%BC%20(SOP)/Kay%C4%B1tlar%20SOP%201a37f57004684b47938ed1fba79ae817.html">Kayıtlar SOP</a></figure><h2 id="59e94f0d-ae71-48ff-a84a-7c53c5029f2d" class="">1. Amaç ve Kapsam</h2><p id="6975dbed-b1c3-47da-87de-123d15a932a8" class="">Bu SOP, yüksek performanslı sıvı kromatografisi (HPLC) yöntemlerinin validasyonu için gerekli adımları ve prosedürleri tanımlar. Bu dokuman, ICH Q2(R1) rehberi ve diğer ilgili düzenleyici kılavuzlara uygun olarak hazırlanmıştır.</p><h2 id="af745e86-e30c-4217-95a8-c7faf9c30ad0" class="">2. Sorumluluklar</h2><ul id="ce3a165b-a3d5-4c56-b96a-a74b9647b4db" class="bulleted-list"><li style="list-style-type:disc">Analitik Kimyager: Validasyon çalışmalarını yürütmek</li></ul><ul id="6306df77-edb2-41a6-83b9-fc4f434d201e" class="bulleted-list"><li style="list-style-type:disc">Laboratuvar Şefi: Validasyon protokolünü onaylamak ve sonuçları gözden geçirmek</li></ul><ul id="23ce35b4-f00f-4b49-8660-49a560511007" class="bulleted-list"><li style="list-style-type:disc">Kalite Güvence Birimi: Validasyon raporunu incelemek ve onaylamak</li></ul><h2 id="03c72e4a-00b2-44df-961d-f23b7de3de53" class="">3. Tanımlar</h2><ul id="9b2f8dce-20b6-459a-a28d-14a21cd3f4b3" class="bulleted-list"><li style="list-style-type:disc">HPLC: Yüksek Performanslı Sıvı Kromatografisi</li></ul><ul id="83185d87-7c8c-4289-8e61-eb9a00f8a9c3" class="bulleted-list"><li style="list-style-type:disc">ICH: Uluslararası Harmonizasyon Konseyi</li></ul><ul id="b07649ff-6f0b-4858-afa9-4c6128b7cfb3" class="bulleted-list"><li style="list-style-type:disc">LOD: Tespit Limiti</li></ul><ul id="7c0aa21d-27e8-4285-8100-c165a9bcc505" class="bulleted-list"><li style="list-style-type:disc">LOQ: Kantitasyon Limiti</li></ul><ul id="87eaa43b-5da7-4d82-87fc-145ef8d197e4" class="bulleted-list"><li style="list-style-type:disc">RSD: Bağıl Standart Sapma</li></ul><h2 id="a49bbe06-bef7-4bbf-acd7-83306ba8e12b" class="">4. Prosedür</h2><h3 id="1fdf8ebd-8fbb-48b2-930f-894cb9234e71" class="">4.1. Ön Hazırlık</h3><ol type="1" id="067c4376-cc7a-4daa-a2e7-99bbeac14612" class="numbered-list" start="1"><li>Validasyon protokolünü hazırlayın ve onaylatın.</li></ol><ol type="1" id="816b2ed5-0d6f-4842-816a-1e39deb87de6" class="numbered-list" start="2"><li>Gerekli tüm reaktif, standart ve ekipmanların mevcut olduğundan emin olun.</li></ol><ol type="1" id="5358646f-fd86-4cac-9051-c2850854eb54" class="numbered-list" start="3"><li>HPLC sisteminin kalibrasyonunu ve bakımını kontrol edin.</li></ol><h3 id="80e7282b-7c45-4d02-ae09-8897f04883ba" class="">4.2. Özgüllük (Specificity)</h3><ol type="1" id="d97eb344-79d4-4d08-a45e-fdf02ae10ad7" class="numbered-list" start="1"><li>Analit, safsızlıklar ve plasebo çözeltilerini hazırlayın.</li></ol><ol type="1" id="ecf4d59d-4d79-48d3-9df7-348bfeda17f6" class="numbered-list" start="2"><li>Her bir çözeltiyi ayrı ayrı enjekte edin.</li></ol><ol type="1" id="3f3a8056-d0aa-448a-8592-0099a1aea4eb" class="numbered-list" start="3"><li>Kromatogramları inceleyerek piklerin ayrımını değerlendirin.</li></ol><ol type="1" id="215f90d2-5b4a-4c3d-a285-9a4b378fe4c2" class="numbered-list" start="4"><li>Gerekirse, zorlanmış bozunma çalışmaları yapın (asit, baz, oksidatif, ışık, sıcaklık).</li></ol><p id="b7ad2f1a-c9b7-43ed-8db6-9f237c47eb6f" class="">Kabul Kriteri: Analit piki diğer bileşenlerden tam olarak ayrılmalıdır.</p><h3 id="1ddffaa8-c539-4a3f-bcf8-6fc525cfa054" class="">4.3. Doğrusallık (Linearity)</h3><ol type="1" id="f7a5d80e-9782-4010-bbfb-f5e8f7f604bd" class="numbered-list" start="1"><li>En az 5 farklı konsantrasyonda kalibrasyon standardı hazırlayın (%50-%150 aralığında).</li></ol><ol type="1" id="f757ad54-d910-4cfd-96b7-471f33a0d09b" class="numbered-list" start="2"><li>Her standardı üç kez enjekte edin.</li></ol><ol type="1" id="fd216252-3ef4-46de-832a-743b19eacb5a" class="numbered-list" start="3"><li>Konsantrasyona karşı pik alanı/yüksekliği grafiğini çizin.</li></ol><ol type="1" id="8c5129c2-eaaf-4bf0-a588-798a0bc8216f" class="numbered-list" start="4"><li>Regresyon analizini yapın (en küçük kareler yöntemi).</li></ol><p id="c26f3480-91fe-4758-b433-e3c654bcedae" class="">Kabul Kriterleri:</p><ul id="2f2bd029-0c03-4477-9a94-6cae4260bee5" class="bulleted-list"><li style="list-style-type:disc">Korelasyon katsayısı (r) ≥ 0.999</li></ul><ul id="58999893-4a0f-45f5-a5d7-660202500ec4" class="bulleted-list"><li style="list-style-type:disc">Y-kesişimi, nominal konsantrasyonun ±2%&#x27;sinden az olmalı</li></ul><h3 id="c590c326-46b7-4d91-8462-8ee9d5a4f17e" class="">4.4. Aralık (Range)</h3><ol type="1" id="56a671be-0b00-4b85-a58e-f13fcf3e93f8" class="numbered-list" start="1"><li>Doğrusallık, doğruluk ve kesinlik verilerini kullanarak çalışma aralığını belirleyin.</li></ol><p id="6d013788-d9bc-4664-8c80-f3a67d6914b7" class="">Kabul Kriteri: Aralık, yöntemin amaçlanan kullanımı için uygun olmalıdır (genellikle %80-120).</p><h3 id="82aa9454-23e0-43fc-aa0c-aa81f871eed5" class="">4.5. Doğruluk (Accuracy)</h3><ol type="1" id="b0187b14-89cb-43ec-9055-f4047d6ba5e1" class="numbered-list" start="1"><li>Düşük, orta ve yüksek konsantrasyonlarda (%80, %100, %120) spike edilmiş numuneler hazırlayın.</li></ol><ol type="1" id="8f1ffc58-458b-45d9-b17f-427d4d07a5ac" class="numbered-list" start="2"><li>Her konsantrasyon için en az 3 tekrar yapın.</li></ol><ol type="1" id="a1a23ed3-c170-4840-a2f0-dd2aadb5bd84" class="numbered-list" start="3"><li>% Geri kazanımı hesaplayın.</li></ol><p id="f0361127-bdfa-4d92-af5e-1f5858162006" class="">Kabul Kriteri: Ortalama geri kazanım %98-102 arasında olmalıdır.</p><h3 id="0e1f8da2-b585-4517-b876-54d745d92976" class="">4.6. Kesinlik (Precision)</h3><h3 id="1d09eb00-e3ae-4930-b033-316ed7f8ac92" class="">4.6.1. Tekrarlanabilirlik (Repeatability)</h3><ol type="1" id="0533475d-db01-4075-bdd0-0ba1a727be49" class="numbered-list" start="1"><li>Nominal konsantrasyonda 6 bağımsız numune hazırlayın.</li></ol><ol type="1" id="d05ce6cf-361b-45ad-b7f2-ad3d48f6365d" class="numbered-list" start="2"><li>Her numuneyi analiz edin ve RSD hesaplayın.</li></ol><h3 id="146300fb-0b92-43ad-bf4f-3dfc4a936156" class="">4.6.2. Ara Kesinlik (Intermediate Precision)</h3><ol type="1" id="e2f8ba04-6df5-49f1-b365-ff7fa6d71748" class="numbered-list" start="1"><li>Farklı günlerde, farklı analistler tarafından tekrarlanabilirlik testini tekrarlayın.</li></ol><ol type="1" id="233595d6-3cc1-4581-8a0c-d365f496b5c1" class="numbered-list" start="2"><li>Sonuçların RSD&#x27;sini hesaplayın.</li></ol><p id="25be20da-e875-4633-94cf-7181a51d49f1" class="">Kabul Kriterleri:</p><ul id="d42c4568-df2c-45d5-85f4-d0e10060629a" class="bulleted-list"><li style="list-style-type:disc">Tekrarlanabilirlik RSD ≤ 2%</li></ul><ul id="e839f243-4c17-45d3-abef-4501a7f0c303" class="bulleted-list"><li style="list-style-type:disc">Ara Kesinlik RSD ≤ 3%</li></ul><h3 id="f185f94a-ffcb-4f39-b6cb-d7e36d987ae5" class="">4.7. Tespit Limiti (LOD)</h3><ol type="1" id="bf5adab1-b7e7-49e0-8ea1-6a63aed0d7fd" class="numbered-list" start="1"><li>Sinyal/Gürültü oranı yöntemini kullanın:<br/>a) Düşük konsantrasyonlu standartlar hazırlayın.<br/>b) S/N = 3 olan konsantrasyonu belirleyin.</li></ol><h3 id="7b179b72-c733-4071-b5f0-aed4341e5eb7" class="">4.8. Kantitasyon Limiti (LOQ)</h3><ol type="1" id="5cb7ca75-6189-4efc-a909-316c2ec9c821" class="numbered-list" start="1"><li>Sinyal/Gürültü oranı yöntemini kullanın:<br/>a) Düşük konsantrasyonlu standartlar hazırlayın.<br/>b) S/N = 10 olan konsantrasyonu belirleyin.</li></ol><ol type="1" id="225d6c9a-ce9f-48a7-a532-9634941c529c" class="numbered-list" start="2"><li>LOQ konsantrasyonunda 6 bağımsız numune hazırlayıp analiz edin.</li></ol><p id="748b0d06-3947-4d15-b80a-ff9a76ebdac1" class="">Kabul Kriteri: LOQ&#x27;da RSD ≤ 10%</p><h3 id="4af6ade3-a051-48f2-afc7-82b232473083" class="">4.9. Sağlamlık (Robustness)</h3><p id="ec2b5c73-04f8-432a-933a-b8fbefdfdb12" class="">Aşağıdaki parametrelerde küçük değişiklikler yaparak yöntemi test edin:</p><ul id="c962741c-52c8-406a-b180-232c60a94df0" class="bulleted-list"><li style="list-style-type:disc">Mobil faz bileşimi (±2%)</li></ul><ul id="09ba2270-411a-4b67-93e2-f7e8e885e445" class="bulleted-list"><li style="list-style-type:disc">Akış hızı (±0.1 mL/min)</li></ul><ul id="531f21ae-92b0-4796-b6b0-d7fee7cac770" class="bulleted-list"><li style="list-style-type:disc">Kolon sıcaklığı (±2°C)</li></ul><ul id="04d191c6-acab-4021-a4d0-ebd21dff3999" class="bulleted-list"><li style="list-style-type:disc">pH (±0.1 birim)</li></ul><p id="130a62b7-fd8c-4046-95cc-697f4cf3ef5c" class="">Kabul Kriteri: Küçük değişiklikler sonuçları önemli ölçüde etkilememelidir.</p><h3 id="62761a06-e65b-41f5-90f0-e0daf1fa3b75" class="">4.10. Sistem Uygunluk Testi</h3><p id="9221fbb6-7329-4805-ad69-af3a9694e560" class="">Her analiz serisinin başında aşağıdaki parametreleri kontrol edin:</p><ul id="90842e76-aaac-423f-b65a-bb56c71585af" class="bulleted-list"><li style="list-style-type:disc">Teorik plaka sayısı</li></ul><ul id="4b6eabcf-9027-4adb-a4ac-7602b77a1b13" class="bulleted-list"><li style="list-style-type:disc">Kuyruklanma faktörü</li></ul><ul id="a5ab310b-2875-431d-9cca-49c6eb9ec8be" class="bulleted-list"><li style="list-style-type:disc">Kapasite faktörü</li></ul><ul id="a51c447f-3443-4aa7-8ad0-d8aafed7fcf1" class="bulleted-list"><li style="list-style-type:disc">Çözünürlük</li></ul><p id="62c249b8-d725-4822-899e-f6b58a8104fa" class="">Kabul Kriterleri:</p><ul id="dad89715-ed09-48d3-9305-c111ccf764c8" class="bulleted-list"><li style="list-style-type:disc">Teorik plaka sayısı &gt; 2000</li></ul><ul id="ce1f5eea-b7df-4019-a3c3-be9f2bd6764e" class="bulleted-list"><li style="list-style-type:disc">Kuyruklanma faktörü &lt; 2</li></ul><ul id="74a60ddb-fd24-4c32-a1f2-22e3c6411b6b" class="bulleted-list"><li style="list-style-type:disc">Kapasite faktörü &gt; 2</li></ul><ul id="086ad7ea-663c-4599-ba8b-6a8833b1127b" class="bulleted-list"><li style="list-style-type:disc">Çözünürlük &gt; 2</li></ul><h2 id="3fd72ec2-7fbe-4f8f-8580-563163a4d36e" class="">5. Veri Analizi ve Raporlama</h2><ol type="1" id="bbfb5947-299b-4c37-af68-ebe0e7a0442e" class="numbered-list" start="1"><li>Tüm ham verileri toplayın ve gerekli hesaplamaları yapın.</li></ol><ol type="1" id="b9ec30d6-aa31-4e10-91e9-d5666da87708" class="numbered-list" start="2"><li>Her bir validasyon parametresi için sonuçları özetleyin.</li></ol><ol type="1" id="d7ed8b93-491c-4302-bdbf-69172fd9e0b1" class="numbered-list" start="3"><li>Kabul kriterlerini karşılayıp karşılamadığını değerlendirin.</li></ol><ol type="1" id="991241ef-b146-470b-ac91-6aceecc292f5" class="numbered-list" start="4"><li>Detaylı bir validasyon raporu hazırlayın.</li></ol><h2 id="f86d3a4d-4acb-43e7-b382-e61e3cfc9a78" class="">6. Kayıtlar</h2><ul id="499cccb3-704e-47e0-8f6f-b311f0e2f43c" class="bulleted-list"><li style="list-style-type:disc">Validasyon protokolü</li></ul><ul id="083d3337-4a5f-4828-bea6-f9bc2327b806" class="bulleted-list"><li style="list-style-type:disc">Ham veriler ve hesaplamalar</li></ul><ul id="a53501b5-de59-4c32-83d3-fa8f3f8153a3" class="bulleted-list"><li style="list-style-type:disc">Kromatogramlar</li></ul><ul id="c08e26c5-5d25-41dd-bca2-905378ee43f7" class="bulleted-list"><li style="list-style-type:disc">Kalibrasyon eğrileri</li></ul><ul id="57227ef6-2729-4555-a616-585e1760ca5d" class="bulleted-list"><li style="list-style-type:disc">Validasyon raporu</li></ul><h2 id="5a89a7db-4de7-40ba-bb93-e6394d3d463f" class="">7. Referanslar</h2><ul id="e966aa61-95c3-4e35-b306-da0218a85eba" class="bulleted-list"><li style="list-style-type:disc">ICH Q2(R1): Validation of Analytical Procedures: Text and Methodology</li></ul><ul id="784d0679-d572-4d0f-b4e0-e01283e08303" class="bulleted-list"><li style="list-style-type:disc">USP &lt;1225&gt;: Validation of Compendial Procedures</li></ul><ul id="c4d17b84-e2a0-437c-8622-a48f226494f4" class="bulleted-list"><li style="list-style-type:disc">Laboratuvar Kalite El Kitabı</li></ul><h2 id="19bf2444-1c51-4029-839a-fa3bffb3e146" class="">8. Revizyon Geçmişi</h2><table id="96dd2dfc-afef-4107-a6a5-9d9153a14093" class="simple-table"><tbody><tr id="4a4f5032-c3ce-4949-81c2-f60b25d657a1"><td id="TJNT" class="">Revizyon No</td><td id="}dWA" class="">Tarih</td><td id="`KsG" class="">Değişiklik Tanımı</td></tr><tr id="ed232c88-fe83-4b3e-af9e-f73f0521fb6e"><td id="TJNT" class="">00</td><td id="}dWA" class="">[Tarih]</td><td id="`KsG" class="">İlk yayın</td></tr></tbody></table><p id="f2daaa36-c1e5-46a5-96f7-4aebfe1b806b" class="">Hazırlayan: [İsim, Unvan]<br/>Onaylayan: [İsim, Unvan]</p><p id="cf99682f-6752-45f3-b2f9-d216cfc80156" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
