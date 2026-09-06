@@ -1,0 +1,2635 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Etkileşimli 3D HPLC cihaz simülatörü: modüler sistem mimarisi, akış yolu animasyonu, gerçek zamanlı kromatogram ve LSS tabanlı gradient elüsyon modeli.">
+<title>İnteraktif HPLC Sistemi — 3D Simülasyon</title>
+<style>
+/* =====================================================================
+   TEMA — modern analitik cihaz yazılımı estetiği (koyu laboratuvar UI)
+   ===================================================================== */
+:root{
+  --bg:#0b0f14;            /* ana zemin */
+  --bg-2:#111823;          /* panel zemini */
+  --bg-3:#18212e;          /* yükseltilmiş yüzey */
+  --line:#243141;          /* ayırıcı çizgi */
+  --line-2:#2f4055;
+  --txt:#dbe6f2;           /* birincil metin */
+  --txt-2:#8fa3b8;         /* ikincil metin */
+  --txt-3:#5f7185;
+  --acc:#25d0c4;           /* birincil vurgu (turkuaz) */
+  --acc-2:#4aa3ff;         /* ikincil vurgu (mavi) */
+  --warn:#ffb347;
+  --err:#ff6b6b;
+  --ok:#59d97a;
+  --a-color:#3f8cff;       /* Mobil faz A */
+  --b-color:#a06bff;       /* Mobil faz B */
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);
+  font-size:14px;line-height:1.45;overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+
+/* ---------- Genel yerleşim ---------- */
+.app{display:grid;grid-template-rows:auto 1fr;height:100dvh;min-height:100dvh}
+.workspace{
+  display:grid;grid-template-columns:1fr 390px;grid-template-rows:1fr 288px;
+  min-height:0;gap:1px;background:var(--line);
+}
+#stage{position:relative;background:#05080c;min-height:0;overflow:hidden}
+#chromaPane{grid-column:1;grid-row:2;background:var(--bg-2);display:flex;flex-direction:column;min-height:0}
+#sidebar{grid-column:2;grid-row:1/span 2;background:var(--bg-2);display:flex;flex-direction:column;min-height:0}
+
+/* ---------- Başlık ---------- */
+header{
+  display:flex;align-items:center;gap:18px;padding:10px 18px;
+  background:linear-gradient(180deg,#141d29,#0d141d);border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand .logo{
+  width:36px;height:36px;border-radius:9px;flex:0 0 auto;
+  background:radial-gradient(circle at 30% 25%,#2ee7d8,#0f7f78 60%,#07403d);
+  box-shadow:0 0 16px rgba(37,208,196,.35),inset 0 0 8px rgba(255,255,255,.25);
+  position:relative;
+}
+.brand .logo::after{
+  content:"";position:absolute;inset:9px 8px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);
+  opacity:.7;
+}
+h1{font-size:16.5px;margin:0;letter-spacing:.3px;font-weight:650}
+.subtitle{margin:0;font-size:11.5px;color:var(--txt-2);letter-spacing:.4px;text-transform:uppercase}
+.header-spacer{flex:1 1 auto}
+
+/* ---------- Sistem durumu (LED şeridi) ---------- */
+.status-strip{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.status-strip .status-title{
+  font-size:10px;color:var(--txt-3);text-transform:uppercase;letter-spacing:.8px;margin-right:4px
+}
+.led{
+  display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;
+  background:#0d141d;border:1px solid var(--line);font-size:11.5px;color:var(--txt-3);
+  transition:all .25s ease;white-space:nowrap;
+}
+.led .dot{
+  width:8px;height:8px;border-radius:50%;background:#2a3746;flex:0 0 auto;
+  transition:all .25s ease;
+}
+.led.on{color:var(--txt);border-color:var(--led-c,var(--acc));background:#0f1c24}
+.led.on .dot{background:var(--led-c,var(--acc));box-shadow:0 0 9px var(--led-c,var(--acc))}
+.led.on.blink .dot{animation:blink 1s steps(1,end) infinite}
+@keyframes blink{50%{opacity:.25}}
+.led[data-led="hazir"]{--led-c:#59d97a}
+.led[data-led="pompa"]{--led-c:#4aa3ff}
+.led[data-led="enjeksiyon"]{--led-c:#ffb347}
+.led[data-led="analiz"]{--led-c:#25d0c4}
+.led[data-led="tamam"]{--led-c:#b98cff}
+
+/* ---------- 3B sahne üstü katmanlar ---------- */
+#glcanvas{display:block;width:100%;height:100%;cursor:grab}
+#glcanvas.dragging{cursor:grabbing}
+#glcanvas.pickable{cursor:pointer}
+#labelLayer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.mlabel{
+  position:absolute;transform:translate(-50%,-50%);
+  font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#bcd0e4;
+  background:rgba(8,14,20,.72);border:1px solid rgba(80,110,140,.45);
+  padding:2px 7px;border-radius:4px;white-space:nowrap;backdrop-filter:blur(2px);
+  transition:opacity .2s,color .2s,border-color .2s;
+}
+.mlabel.active{color:#0a1014;background:var(--acc);border-color:var(--acc);font-weight:600}
+.mlabel.dim{opacity:.22}
+
+.stage-toolbar{
+  position:absolute;top:12px;left:12px;display:flex;gap:8px;flex-wrap:wrap;max-width:calc(100% - 24px)
+}
+.stage-hint{
+  position:absolute;bottom:10px;left:12px;font-size:10.5px;color:var(--txt-3);
+  background:rgba(8,12,18,.6);padding:4px 9px;border-radius:5px;border:1px solid var(--line);
+  pointer-events:none;
+}
+.tbtn{
+  display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:7px;
+  background:rgba(17,24,35,.86);border:1px solid var(--line-2);color:var(--txt-2);
+  cursor:pointer;font-size:12px;backdrop-filter:blur(3px);transition:.18s;
+}
+.tbtn:hover{border-color:var(--acc);color:var(--txt)}
+.tbtn.active{background:rgba(37,208,196,.16);border-color:var(--acc);color:#c9fff9}
+.tbtn .sw{width:8px;height:8px;border-radius:2px;background:currentColor;opacity:.75}
+
+/* Debi / basınç göstergesi */
+.gauges{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.gauge{
+  background:rgba(11,17,24,.82);border:1px solid var(--line);border-radius:9px;
+  padding:8px 11px;min-width:132px;backdrop-filter:blur(3px);
+}
+.gauge .g-label{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3)}
+.gauge .g-val{font-family:var(--mono);font-size:19px;line-height:1.15;color:var(--acc)}
+.gauge .g-val small{font-size:10.5px;color:var(--txt-2);margin-left:3px}
+.gauge.p .g-val{color:var(--acc-2)}
+.gauge.p.hi .g-val{color:var(--err)}
+.bar{height:4px;background:#1b2635;border-radius:3px;margin-top:6px;overflow:hidden}
+.bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--acc-2),var(--acc));width:0;transition:width .25s}
+.gauge.p.hi .bar > i{background:linear-gradient(90deg,var(--warn),var(--err))}
+
+#loadState{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;text-align:center;padding:24px;background:#05080c;z-index:5
+}
+#loadState .spinner{
+  width:34px;height:34px;border-radius:50%;border:3px solid #1d2a38;border-top-color:var(--acc);
+  animation:spin 1s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadState p{margin:0;color:var(--txt-2);max-width:460px;font-size:13px}
+#loadState code{font-family:var(--mono);font-size:12px;color:var(--acc)}
+
+/* ---------- Sekmeler / yan panel ---------- */
+.tabs{display:flex;border-bottom:1px solid var(--line);background:#0d141d;flex:0 0 auto}
+.tab{
+  flex:1 1 0;padding:11px 6px;text-align:center;font-size:11.5px;letter-spacing:.3px;
+  color:var(--txt-3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;
+  transition:.18s;white-space:nowrap;
+}
+.tab:hover{color:var(--txt-2)}
+.tab.active{color:var(--acc);border-bottom-color:var(--acc);background:rgba(37,208,196,.06)}
+.tabpanes{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain}
+.pane{display:none;padding:14px 15px 26px}
+.pane.active{display:block}
+
+.section{margin:0 0 18px}
+.section > h3{
+  margin:0 0 10px;font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--txt-3);
+  display:flex;align-items:center;gap:8px;
+}
+.section > h3::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* Kontrol satırları */
+.ctrl{margin-bottom:13px}
+.ctrl-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
+.ctrl-head label{font-size:12.5px;color:var(--txt)}
+.ctrl-head .val{font-family:var(--mono);font-size:12.5px;color:var(--acc);white-space:nowrap}
+.ctrl-head .val small{color:var(--txt-3);font-size:10.5px}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;
+  background:linear-gradient(90deg,var(--acc) var(--fill,0%),#22303f var(--fill,0%));outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#0d141d;
+  border:2px solid var(--acc);box-shadow:0 0 7px rgba(37,208,196,.5);cursor:grab;
+}
+input[type=range]::-moz-range-thumb{
+  width:13px;height:13px;border-radius:50%;background:#0d141d;border:2px solid var(--acc);cursor:grab
+}
+input[type=range]:disabled{opacity:.45;cursor:not-allowed}
+.hint{font-size:10.5px;color:var(--txt-3);margin-top:3px}
+
+select,input[type=number]{
+  width:100%;background:#0d141d;border:1px solid var(--line-2);border-radius:6px;
+  padding:7px 9px;font-size:12.5px;outline:none;transition:.15s;
+}
+select:focus,input[type=number]:focus{border-color:var(--acc)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+/* Butonlar */
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  flex:1 1 auto;padding:10px 12px;border-radius:7px;border:1px solid var(--line-2);
+  background:#16202c;color:var(--txt);cursor:pointer;font-size:12.5px;font-weight:550;
+  transition:.16s;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+}
+.btn:hover:not(:disabled){border-color:var(--acc);background:#1b2836}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primary{background:linear-gradient(180deg,#1ec3b8,#12908a);border-color:#1ec3b8;color:#04211f;font-weight:700}
+.btn.primary:hover:not(:disabled){background:linear-gradient(180deg,#2ee0d3,#159d96)}
+.btn.danger{border-color:#63313a;color:#ffb0b0}
+.btn.danger:hover:not(:disabled){border-color:var(--err);background:#2a1618}
+
+/* Gradient tablosu */
+table.gt{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+table.gt th{
+  font-family:var(--sans);font-size:10px;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--txt-3);font-weight:500;text-align:left;padding:0 5px 5px;
+}
+table.gt td{padding:2px 3px}
+table.gt input{
+  width:100%;background:#0d141d;border:1px solid var(--line);border-radius:5px;
+  padding:5px 6px;font-family:var(--mono);font-size:12px;text-align:right;
+}
+table.gt input:focus{border-color:var(--acc);outline:none}
+.rowdel{
+  background:none;border:1px solid var(--line);color:var(--txt-3);border-radius:5px;
+  width:26px;height:28px;cursor:pointer;line-height:1;
+}
+.rowdel:hover{color:var(--err);border-color:var(--err)}
+#gradPreview{width:100%;height:88px;display:block;background:#0a1119;border:1px solid var(--line);border-radius:7px;margin-top:9px}
+
+/* Bilgi paneli */
+.info-empty{color:var(--txt-3);font-size:12.5px;padding:26px 6px;text-align:center;line-height:1.6}
+.info-card h2{margin:0 0 2px;font-size:17px;letter-spacing:.2px}
+.info-card .kicker{font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+.info-card p{margin:0 0 10px;font-size:12.8px;color:#c3d3e4}
+.info-card h4{
+  margin:14px 0 6px;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3)
+}
+.info-card ul{margin:0 0 10px;padding-left:17px}
+.info-card li{font-size:12.5px;color:#c3d3e4;margin-bottom:4px}
+.speclist{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12.2px}
+.speclist dt{color:var(--txt-2);padding:4px 0;border-bottom:1px dashed var(--line)}
+.speclist dd{margin:0;padding:4px 0;font-family:var(--mono);color:var(--txt);text-align:right;border-bottom:1px dashed var(--line)}
+.note{
+  border-left:2px solid var(--acc-2);background:rgba(74,163,255,.07);padding:8px 11px;
+  border-radius:0 6px 6px 0;font-size:12px;color:#b9cee2;margin:10px 0 0
+}
+
+/* Eğitim modu */
+.edu-step{
+  display:flex;gap:11px;padding:10px;border:1px solid var(--line);border-radius:8px;
+  margin-bottom:8px;cursor:pointer;background:#0e161f;transition:.16s;
+}
+.edu-step:hover{border-color:var(--line-2);background:#121c27}
+.edu-step.active{border-color:var(--acc);background:rgba(37,208,196,.08)}
+.edu-step.done .n{background:var(--ok);color:#04210c;border-color:var(--ok)}
+.edu-step .n{
+  flex:0 0 auto;width:24px;height:24px;border-radius:50%;border:1px solid var(--line-2);
+  display:grid;place-items:center;font-family:var(--mono);font-size:11.5px;color:var(--txt-2);
+}
+.edu-step.active .n{background:var(--acc);color:#04211f;border-color:var(--acc);font-weight:700}
+.edu-step .t{font-size:12.8px;font-weight:600;margin-bottom:2px}
+.edu-step .d{font-size:11.8px;color:var(--txt-2);line-height:1.45}
+
+/* Sonuç tablosu */
+table.res{width:100%;border-collapse:collapse;font-size:11.8px}
+table.res th{
+  font-size:9.8px;letter-spacing:.5px;text-transform:uppercase;color:var(--txt-3);
+  font-weight:500;text-align:right;padding:5px 4px;border-bottom:1px solid var(--line-2);
+}
+table.res th:first-child,table.res td:first-child{text-align:left}
+table.res td{padding:6px 4px;text-align:right;font-family:var(--mono);border-bottom:1px solid var(--line)}
+table.res td:first-child{font-family:var(--sans)}
+table.res tr.hl td{background:rgba(37,208,196,.09)}
+.swatch{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+/* ---------- Kromatogram ---------- */
+.chroma-bar{
+  display:flex;align-items:center;gap:9px;padding:7px 12px;border-bottom:1px solid var(--line);
+  flex-wrap:wrap;flex:0 0 auto;
+}
+.chroma-bar .title{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-right:auto}
+.chip{
+  font-family:var(--mono);font-size:11.5px;padding:3px 9px;border-radius:5px;
+  background:#0d141d;border:1px solid var(--line);color:var(--txt-2);white-space:nowrap
+}
+.chip b{color:var(--acc);font-weight:600}
+.mini{
+  padding:5px 9px;font-size:11.5px;border-radius:6px;border:1px solid var(--line-2);
+  background:#141d28;color:var(--txt-2);cursor:pointer;transition:.15s
+}
+.mini:hover{border-color:var(--acc);color:var(--txt)}
+.mini.active{border-color:var(--acc);color:var(--acc)}
+#chromaWrap{position:relative;flex:1 1 auto;min-height:0}
+#chromaCanvas{display:block;width:100%;height:100%;cursor:crosshair}
+#chromaTip{
+  position:absolute;pointer-events:none;opacity:0;transition:opacity .12s;z-index:3;
+  background:rgba(10,16,23,.95);border:1px solid var(--acc);border-radius:7px;padding:8px 11px;
+  font-family:var(--mono);font-size:11.5px;line-height:1.55;white-space:nowrap;
+  box-shadow:0 6px 20px rgba(0,0,0,.6)
+}
+#chromaTip .tt{font-family:var(--sans);font-weight:700;color:var(--acc);margin-bottom:3px}
+#chromaTip span{color:var(--txt-3)}
+
+/* ---------- Duyarlı yerleşim ---------- */
+@media (max-width:1080px){
+  body{overflow:auto}
+  .app{height:auto;min-height:100dvh}
+  .workspace{grid-template-columns:1fr;grid-template-rows:auto auto auto}
+  #stage{height:56vh;min-height:340px}
+  #chromaPane{grid-column:1;grid-row:2;height:300px}
+  #sidebar{grid-column:1;grid-row:3;max-height:none}
+  .tabpanes{overflow:visible}
+}
+@media (max-width:760px){
+  header{flex-wrap:wrap;gap:10px;padding:9px 12px}
+  h1{font-size:14.5px}
+  .subtitle{font-size:10px}
+  .status-strip{width:100%}
+  .led{padding:4px 8px;font-size:10.5px}
+  #stage{height:52vh;min-height:300px}
+  /* Göstergeler dikey sütun yerine üstte yatay şerit olur */
+  .gauges{flex-direction:row;top:auto;bottom:8px;left:8px;right:8px;align-items:stretch;gap:6px}
+  .gauge{flex:1 1 0;min-width:0;padding:5px 7px}
+  .gauge .g-label{font-size:8.5px;letter-spacing:.5px}
+  .gauge .g-val{font-size:15px}
+  .gauge .g-val small{font-size:9px}
+  .bar{margin-top:4px}
+  .stage-hint{display:none}
+  .stage-toolbar{gap:6px}
+  .tbtn{padding:6px 9px;font-size:11.5px}
+}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= BAŞLIK + SİSTEM DURUMU ================= -->
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>İnteraktif HPLC Sistemi</h1>
+        <p class="subtitle">Yüksek Performanslı Sıvı Kromatografisi — 3D Simülasyon</p>
+      </div>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="status-strip" id="statusStrip" role="status" aria-live="polite">
+      <span class="status-title">Sistem Durumu</span>
+      <span class="led on" data-led="hazir"><i class="dot"></i>Hazır</span>
+      <span class="led" data-led="pompa"><i class="dot"></i>Pompa</span>
+      <span class="led" data-led="enjeksiyon"><i class="dot"></i>Enjeksiyon</span>
+      <span class="led" data-led="analiz"><i class="dot"></i>Analiz</span>
+      <span class="led" data-led="tamam"><i class="dot"></i>Tamamlandı</span>
+    </div>
+  </header>
+
+  <div class="workspace">
+
+    <!-- ================= 3B SAHNE ================= -->
+    <section id="stage" aria-label="Üç boyutlu HPLC sistemi görünümü">
+      <canvas id="glcanvas"></canvas>
+      <div id="labelLayer"></div>
+
+      <div class="stage-toolbar">
+        <button class="tbtn" id="btnFlow" title="Mobil fazın sistem içindeki yolunu animasyonla göster">
+          <i class="sw"></i>Akış Yolu
+        </button>
+        <button class="tbtn" id="btnEdu" title="Modülleri sırayla gezerek sistemi öğren">
+          <i class="sw"></i>Eğitim Modu
+        </button>
+        <button class="tbtn" id="btnLabels" title="Modül etiketlerini göster/gizle">
+          <i class="sw"></i>Etiketler
+        </button>
+        <button class="tbtn" id="btnView" title="Kamerayı başlangıç görünümüne getir">
+          <i class="sw"></i>Görünümü Sıfırla
+        </button>
+      </div>
+
+      <div class="gauges">
+        <div class="gauge f">
+          <div class="g-label">Debi</div>
+          <div class="g-val" id="gFlow">0.00<small>mL/dk</small></div>
+          <div class="bar"><i id="gFlowBar"></i></div>
+        </div>
+        <div class="gauge p" id="gaugePress">
+          <div class="g-label">Sistem Basıncı</div>
+          <div class="g-val" id="gPress">0<small>bar</small></div>
+          <div class="bar"><i id="gPressBar"></i></div>
+        </div>
+        <div class="gauge">
+          <div class="g-label">Analiz Zamanı</div>
+          <div class="g-val" id="gTime">0.00<small>dk</small></div>
+          <div class="bar"><i id="gTimeBar"></i></div>
+        </div>
+      </div>
+
+      <div class="stage-hint">Döndür: sol tuş · Kaydır: sağ tuş / Shift+sol · Yakınlaştır: tekerlek · Modül seç: tıkla</div>
+
+      <div id="loadState">
+        <div class="spinner"></div>
+        <p id="loadMsg">3D motor yükleniyor…</p>
+      </div>
+    </section>
+
+    <!-- ================= KROMATOGRAM ================= -->
+    <section id="chromaPane" aria-label="Kromatogram">
+      <div class="chroma-bar">
+        <span class="title">Kromatogram — Dedektör Sinyali</span>
+        <span class="chip">λ <b id="chipWl">254</b> nm</span>
+        <span class="chip">%B <b id="chipB">5</b></span>
+        <span class="chip">t<sub>0</sub> <b id="chipT0">1.62</b> dk</span>
+        <button class="mini" id="btnZoomIn" title="Zaman ekseninde yakınlaştır">＋</button>
+        <button class="mini" id="btnZoomOut" title="Zaman ekseninde uzaklaştır">－</button>
+        <button class="mini" id="btnFit" title="Tüm kromatogramı sığdır">Sığdır</button>
+        <button class="mini active" id="btnAuto" title="Y eksenini otomatik ölçekle">Oto Y</button>
+      </div>
+      <div id="chromaWrap">
+        <canvas id="chromaCanvas"></canvas>
+        <div id="chromaTip"></div>
+      </div>
+    </section>
+
+    <!-- ================= YAN PANEL ================= -->
+    <aside id="sidebar">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="ctrl" role="tab">Kontrol Paneli</button>
+        <button class="tab" data-tab="info" role="tab">Modül Bilgisi</button>
+        <button class="tab" data-tab="edu" role="tab">Eğitim Modu</button>
+        <button class="tab" data-tab="res" role="tab">Sonuçlar</button>
+      </div>
+
+      <div class="tabpanes">
+
+        <!-- ---------- KONTROL PANELİ ---------- -->
+        <div class="pane active" id="pane-ctrl" role="tabpanel">
+
+          <div class="section">
+            <h3>Metot Parametreleri</h3>
+
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="inFlow">Debi</label>
+                <span class="val" id="vFlow">1.00 <small>mL/dk</small></span></div>
+              <input type="range" id="inFlow" min="0.1" max="3" step="0.05" value="1">
+              <div class="hint">Lineer hız ve van Deemter üzerinden verimliliği, Darcy yasası üzerinden basıncı belirler.</div>
+            </div>
+
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="inTemp">Kolon Sıcaklığı</label>
+                <span class="val" id="vTemp">30 <small>°C</small></span></div>
+              <input type="range" id="inTemp" min="20" max="70" step="1" value="30">
+              <div class="hint">van 't Hoff bağıntısı: sıcaklık artışı alıkonmayı ve viskoziteyi düşürür.</div>
+            </div>
+
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="inInj">Enjeksiyon Hacmi</label>
+                <span class="val" id="vInj">10 <small>µL</small></span></div>
+              <input type="range" id="inInj" min="1" max="100" step="1" value="10">
+              <div class="hint">Pik alanı kütle ile orantılıdır; yüksek hacimlerde hacimsel bant genişlemesi başlar.</div>
+            </div>
+
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="inWl">Dalga Boyu</label>
+                <span class="val" id="vWl">254 <small>nm</small></span></div>
+              <input type="range" id="inWl" min="200" max="400" step="1" value="254">
+              <div class="hint">Analitlerin molar absorptivitesine göre bağıl pik yüksekliklerini değiştirir.</div>
+            </div>
+
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="inRun">Analiz Süresi</label>
+                <span class="val" id="vRun">10 <small>dk</small></span></div>
+              <input type="range" id="inRun" min="3" max="40" step="1" value="10">
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Mobil Faz</h3>
+            <div class="grid2">
+              <div>
+                <div class="hint" style="margin:0 0 4px">A — Sulu faz</div>
+                <select id="inSolvA">
+                  <option value="water">Su (0,1% Formik asit)</option>
+                  <option value="buffer">20 mM Fosfat tamponu pH 3,0</option>
+                  <option value="ammonium">10 mM Amonyum asetat pH 4,7</option>
+                </select>
+              </div>
+              <div>
+                <div class="hint" style="margin:0 0 4px">B — Organik faz</div>
+                <select id="inSolvB">
+                  <option value="acn">Asetonitril</option>
+                  <option value="meoh">Metanol</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="ctrl" style="margin-top:12px">
+              <div class="ctrl-head"><label for="inMode">Elüsyon Modu</label></div>
+              <select id="inMode">
+                <option value="iso">İzokratik</option>
+                <option value="grad" selected>Gradient</option>
+              </select>
+            </div>
+
+            <div class="ctrl" id="isoWrap" hidden>
+              <div class="ctrl-head"><label for="inB">Mobil Faz A/B Oranı</label>
+                <span class="val" id="vB">45 / 55 <small>A/B</small></span></div>
+              <input type="range" id="inB" min="0" max="100" step="1" value="55">
+            </div>
+
+            <div id="gradWrap">
+              <div class="ctrl-head" style="margin-bottom:6px">
+                <label>Gradient Programı</label>
+                <button class="mini" id="btnAddRow" type="button">+ Basamak</button>
+              </div>
+              <table class="gt" id="gradTable">
+                <thead><tr><th>Zaman (dk)</th><th>%B</th><th></th></tr></thead>
+                <tbody></tbody>
+              </table>
+              <canvas id="gradPreview" width="700" height="200"></canvas>
+              <div class="hint">Gecikme (dwell) hacmi 0,60 mL kabul edilir; gradient kolona bu hacim kadar gecikmeyle ulaşır.</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Kolon ve Numune</h3>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="inCol">Analitik Kolon</label></div>
+              <select id="inCol">
+                <option value="c18_150">C18, 150 × 4,6 mm, 5 µm</option>
+                <option value="c18_100">C18, 100 × 4,6 mm, 3,5 µm</option>
+                <option value="c18_50">C18, 50 × 2,1 mm, 1,8 µm (UHPLC)</option>
+                <option value="c8_150">C8, 150 × 4,6 mm, 5 µm</option>
+              </select>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="inSpeed">Simülasyon Hızı</label>
+                <span class="val" id="vSpeed">×10</span></div>
+              <input type="range" id="inSpeed" min="1" max="60" step="1" value="10">
+              <div class="hint">Gerçek zamanın kaç katı hızla oynatılacağını belirler.</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Çalıştırma</h3>
+            <div class="btnrow">
+              <button class="btn primary" id="btnStart">▶ Başlat</button>
+              <button class="btn" id="btnStop" disabled>■ Durdur</button>
+            </div>
+            <div class="btnrow" style="margin-top:8px">
+              <button class="btn danger" id="btnReset">↺ Reset</button>
+            </div>
+            <div class="note" id="runNote">
+              Sistem hazır. Parametreleri ayarlayıp <b>Başlat</b>'a basın; pompa devreye girecek,
+              enjeksiyon gerçekleşecek ve kromatogram gerçek zamanlı oluşacaktır.
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- MODÜL BİLGİSİ ---------- -->
+        <div class="pane" id="pane-info" role="tabpanel">
+          <div id="infoBody">
+            <div class="info-empty">
+              3D görünümde bir modüle tıklayın.<br>
+              Modülün görevi, çalışma prensibi ve tipik teknik parametreleri burada görüntülenecektir.
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- EĞİTİM MODU ---------- -->
+        <div class="pane" id="pane-edu" role="tabpanel">
+          <div class="section">
+            <h3>Akış Sırası</h3>
+            <p class="hint" style="margin:0 0 10px">
+              Hazne → Degazör → Pompa → Otosampler → Kolon Fırını → Kolon → Dedektör → Atık.
+              Bir adıma tıklayın; kamera ilgili modüle gider ve açıklama görüntülenir.
+            </p>
+            <div id="eduList"></div>
+            <div class="btnrow" style="margin-top:10px">
+              <button class="btn" id="btnEduPrev">← Önceki</button>
+              <button class="btn" id="btnEduNext">Sonraki →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- SONUÇLAR ---------- -->
+        <div class="pane" id="pane-res" role="tabpanel">
+          <div class="section">
+            <h3>Pik Tablosu</h3>
+            <table class="res" id="resTable">
+              <thead><tr>
+                <th>Analit</th><th>t<sub>R</sub> (dk)</th><th>k</th>
+                <th>N*</th><th>Alan</th><th>Yük.</th><th>R<sub>s</sub></th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="hint" id="resHint" style="margin-top:8px">
+              Analiz başlatıldığında pikler oluştukça tablo doldurulur. Alan mAU·s, yükseklik mAU birimindedir;
+              R<sub>s</sub> bir önceki pike göre, N* ve R<sub>s</sub> yarı yükseklik genişliğinden hesaplanır.
+            </div>
+          </div>
+          <div class="section">
+            <h3>Sistem Uygunluğu (özet)</h3>
+            <dl class="speclist" id="suitList">
+              <dt>Ölü zaman t<sub>0</sub></dt><dd id="suT0">—</dd>
+              <dt>Kolon hacmi V<sub>M</sub></dt><dd id="suVm">—</dd>
+              <dt>Lineer hız u</dt><dd id="suU">—</dd>
+              <dt>Teorik tabaka N (ortalama)</dt><dd id="suN">—</dd>
+              <dt>En küçük çözünürlük R<sub>s,min</sub></dt><dd id="suRs">—</dd>
+              <dt>Maksimum basınç</dt><dd id="suP">—</dd>
+            </dl>
+            <div class="note">
+              Değerler LSS (lineer çözücü gücü) alıkonma modeli, van Deemter verim modeli ve
+              Darcy basınç modelinin birleştirilmesiyle hesaplanır — ölçüm verisi değil, model çıktısıdır.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+/* =====================================================================================
+   İNTERAKTİF HPLC SİSTEMİ — 3D SİMÜLASYON
+   Tek dosyalık, backend gerektirmeyen uygulama.
+
+   Bölümler:
+     1) Veri katmanı  : modül bilgileri, analit özellikleri, kolon tanımları, eğitim adımları
+     2) Fizik/kimya   : LSS alıkonma modeli, van Deemter verim modeli, Darcy basınç modeli
+     3) 3B sahne      : Three.js ile modüler cihaz geometrisi, kapiler bağlantılar, akış partikülleri
+     4) Etkileşim     : orbit/pan/zoom kamera, raycast ile modül seçimi, eğitim modu kamera geçişleri
+     5) Kromatogram   : Canvas 2D üzerinde gerçek zamanlı sinyal, zoom/pan, pik etiketleme, tooltip
+     6) UI bağlama    : kontrol paneli, sistem durumu LED'leri, sonuç tabloları
+   ===================================================================================== */
+'use strict';
+
+/* ==========================================================================
+   1) VERİ KATMANI
+   ========================================================================== */
+
+/* --- Modül bilgi kartları (Türkçe teknik içerik) --- */
+const MODULES = {
+  bottles: {
+    title: 'Mobil Faz Hazneleri',
+    kicker: 'Solvent Reservuarları',
+    desc: 'Mobil fazın (A: sulu faz, B: organik faz) bulunduğu, genellikle 1 L borosilikat cam şişelerdir. ' +
+          'Şişe kapaklarındaki emiş hatları PTFE/PEEK malzemedendir ve uçlarında 2–10 µm gözenekli paslanmaz çelik ' +
+          'sinter filtre (frit) bulunur.',
+    principle: [
+      'Emiş hattı hidrostatik olarak pompanın giriş valfini besler; bu nedenle şişeler daima pompa seviyesinin üzerinde durur.',
+      'Frit, partikül kaynaklı giriş valfi tıkanmasını ve kolon başı kirlenmesini engeller.',
+      'Tampon içeren sulu fazlarda mikrobiyal üreme riski nedeniyle günlük hazırlama ve şişe yıkama esastır.',
+      'Organik oranı yüksek karışımlarda tampon çökelmesi (özellikle fosfat + >%60 ACN) sistemi tıkayabilir.'
+    ],
+    specs: [['Tipik hacim','1 L (cam)'],['Emiş filtresi','2–10 µm sinter'],['Hat malzemesi','PTFE / PEEK'],
+            ['Konum','Sistemin en üstünde'],['Kritik risk','Kuru kalma, tampon çökelmesi']]
+  },
+  degasser: {
+    title: 'Degazör',
+    kicker: 'Çevrimiçi Vakum Degazörü',
+    desc: 'Mobil faz içinde çözünmüş gazları (özellikle O₂ ve N₂) pompaya girmeden önce uzaklaştırır. ' +
+          'Modern sistemlerde gaz geçirgen membran (AF-2400 tipi amorf floropolimer) kanallarından geçen sıvı, ' +
+          'membranın dış yüzeyindeki vakum odası sayesinde gazını kaybeder.',
+    principle: [
+      'Henry yasası gereği çözünmüş gaz miktarı kısmi basınçla orantılıdır; vakum odası kısmi basıncı düşürerek gazı sıvıdan çeker.',
+      'Degaze edilmemiş mobil fazda pompa başında kabarcık oluşumu debi kararsızlığına ve basınç dalgalanmasına yol açar.',
+      'Dedektör hücresinde kabarcık, taban çizgisinde ani spike ve gürültü artışı olarak görülür.',
+      'Su/ACN gibi karışımlarda karıştırma sırasında çözünürlük düştüğü için kabarcık oluşumu tipiktir; degazör bunu önler.'
+    ],
+    specs: [['Prensip','Membran + vakum'],['İç hacim','~500 µL/kanal'],['Kanal sayısı','2–4'],
+            ['Etki','Taban gürültüsü ↓, debi kararlılığı ↑'],['Alternatif','Helyum ile süpürme (sparging)']]
+  },
+  pump: {
+    title: 'Pompa',
+    kicker: 'İkili Pistonlu Yüksek Basınç Pompası',
+    desc: 'Mobil fazı sabit ve pulsasyonsuz debide, kolonun oluşturduğu geri basınca karşı iter. ' +
+          'Seri veya paralel çalışan iki piston, bir pistonun emiş yaptığı fazda diğerinin basması sayesinde ' +
+          'sürekli akış üretir. Gradient, düşük basınç tarafındaki oransal valf (LPG) veya iki ayrı pompa başı (HPG) ile oluşturulur.',
+    principle: [
+      'Kontrol sabit debidir (sabit basınç değil); basınç, sistemin akış direncine göre türeyen bir çıktıdır.',
+      'Darcy yasası: ΔP = φ·η·L·u / d_p². Basınç; viskozite, kolon uzunluğu, lineer hız ile doğru, partikül çapının karesi ile ters orantılıdır.',
+      'Piston geçişlerindeki pulsasyon, sönümleyici (damper) ve piston hareket profili ile bastırılır; artık pulsasyon dedektörde periyodik gürültü verir.',
+      'Check-valf sızıntısı ve piston keçesi aşınması, debinin sistematik düşmesi ve alıkonma zamanı kayması olarak görünür.'
+    ],
+    specs: [['Debi aralığı','0,001–10 mL/dk'],['Maks. basınç','400 bar (HPLC) / 1300 bar (UHPLC)'],
+            ['Debi doğruluğu','±%1'],['Gradient tipi','LPG (kuaterner) veya HPG (binary)'],
+            ['Dwell hacmi','LPG ~0,6–1,2 mL, HPG ~0,1–0,4 mL']]
+  },
+  autosampler: {
+    title: 'Otosampler',
+    kicker: 'Otomatik Enjeksiyon Ünitesi',
+    desc: 'Numuneyi vialden ölçülü hacimde çekip, altı yollu (six-port) enjeksiyon valfi üzerinden akış hattına ' +
+          'aktarır. LOAD konumunda numune döngüye (loop) doldurulur; INJECT konumunda valf döner ve mobil faz ' +
+          'döngüdeki numuneyi kolona taşır.',
+    principle: [
+      'Enjeksiyon anı kromatogramın t = 0 referansıdır; valf dönüşü sistemde küçük bir basınç sıçraması yaratır.',
+      'Sabit döngü (fixed loop) tam dolumda hacimsel doğruluğu yüksektir; kısmi dolum (partial loop) esnek hacim sağlar ama tekrarlanabilirliği biraz düşüktür.',
+      'Enjeksiyon hacmi arttıkça hacimsel bant genişlemesi başlar: σ_inj = V_inj/√12; bu terim özellikle dar kolonlarda (2,1 mm) belirleyicidir.',
+      'Numune çözücüsünün mobil fazdan güçlü olması, pik bozulmasına (fronting/split) yol açar — çözücü uyumu kritiktir.'
+    ],
+    specs: [['Enjeksiyon hacmi','0,1–100 µL'],['Taşıma (carry-over)','< %0,05'],['Tekrarlanabilirlik','RSD < %0,5'],
+            ['Valf','6 yollu, 2 konumlu'],['Vial sıcaklığı','4–40 °C (termostatlı)']]
+  },
+  oven: {
+    title: 'Kolon Fırını',
+    kicker: 'Termostatlı Kolon Bölmesi',
+    desc: 'Kolonu ±0,1 °C mertebesinde sabit sıcaklıkta tutar. Sıcaklık; alıkonma, seçicilik, viskozite ve ' +
+          'dolayısıyla sistem basıncı üzerinde doğrudan etkilidir. Yüksek debilerde mobil fazın kolona girmeden ' +
+          'önce ısıtıldığı ön-ısıtma (pre-heater) kapileri bulunur.',
+    principle: [
+      "van 't Hoff bağıntısı: ln k = −ΔH°/RT + ΔS°/R + ln β. Transfer entalpisi negatif olduğundan sıcaklık artışı k'yı düşürür (tipik %1–2/°C).",
+      'Sıcaklık artışı viskoziteyi düşürerek basıncı azaltır ve difüzyon katsayısını (D_m) artırarak kütle transferi direncini (C terimi) iyileştirir.',
+      'Sıcaklık aynı zamanda seçiciliği (α) değiştirebilir: farklı analitlerin ΔH° değerleri farklıysa pik sırası bile değişebilir.',
+      'Oda sıcaklığında çalışma tekrarlanabilirliği bozar; validasyonlu metotlarda fırın sıcaklığı daima kontrol edilir.'
+    ],
+    specs: [['Sıcaklık aralığı','Ortam+5 … 80 °C'],['Kararlılık','±0,1 °C'],['Isıtma tipi','Peltier / zorlanmış hava'],
+            ['Ön ısıtma','Kapiler ön-ısıtıcı'],['Etki','k, α, η, D_m']]
+  },
+  column: {
+    title: 'HPLC Kolonu',
+    kicker: 'Ayırmanın Gerçekleştiği Yer',
+    desc: 'Paslanmaz çelik gövde içinde, yüzeyi kimyasal olarak modifiye edilmiş gözenekli silika partikülleri ' +
+          '(ör. oktadesilsilan, C18) bulunur. Analitler durgun faz ile mobil faz arasında sürekli dağılım dengesine ' +
+          'girerek farklı hızlarda ilerler; ayırma bu hız farkından doğar.',
+    principle: [
+      'Alıkonma faktörü k = (t_R − t_0)/t_0; ters faz kromatografisinde organik oran (φ) arttıkça k üstel olarak azalır: log k = log k_w − S·φ (LSS modeli).',
+      'Verimlilik van Deemter/Knox ile tanımlanır: h = ν^⅓ + 2/ν + 0,05·ν. Küçük partikül çapı hem H değerini düşürür hem de optimum hızı yukarı kaydırır.',
+      'Çözünürlük üç terimin çarpımıdır: R_s = (√N/4)·((α−1)/α)·(k/(1+k)). Pratikte en verimli kaldıraç seçiciliktir (α).',
+      'Basınç d_p² ile ters orantılı olduğundan 1,8 µm partiküller UHPLC donanımı (yüksek basınç, düşük ekstra-kolon hacim) gerektirir.'
+    ],
+    specs: [['Gövde','Paslanmaz çelik'],['Durgun faz','C18 / C8, uç kapamalı'],['Partikül','1,8–5 µm, 100 Å'],
+            ['Boyut','50–250 mm × 2,1–4,6 mm'],['Frit','0,5–2 µm'],['Toplam gözeneklilik','ε_T ≈ 0,65']]
+  },
+  detector: {
+    title: 'Dedektör (UV/DAD)',
+    kicker: 'Ultraviyole / Diyot Dizisi Dedektörü',
+    desc: 'Kolon çıkışındaki akışkanı, ışık yolu 6–10 mm olan bir akış hücresinden geçirir ve absorbansı ölçer. ' +
+          'DAD, tüm spektrumu diyot dizisi üzerine düşürerek eş zamanlı çok dalga boylu ölçüm ve pik saflığı ' +
+          'değerlendirmesi yapılmasını sağlar.',
+    principle: [
+      'Lambert–Beer yasası: A = ε·b·c. Sinyal derişimle orantılıdır; bu nedenle UV dedektörü derişim duyarlıdır (kütle duyarlı değil).',
+      'Sabit kütle enjekte edilirken debi artarsa pik alanı azalır (alan ∝ kütle/debi), pik yüksekliği ise büyük ölçüde korunur.',
+      'Dalga boyu seçimi λ_max civarında yapılır; λ düştükçe mobil faz kesme (cut-off) absorbansı ve gradient taban çizgisi kayması artar.',
+      'Hücre hacmi (1–14 µL) ekstra-kolon bant genişlemesine katkı verir; dar kolonlarda küçük hacimli hücre şarttır.'
+    ],
+    specs: [['Lamba','Döteryum (190–400 nm) + W'],['Dalga boyu','190–800 nm'],['Hücre','~10 µL, 10 mm yol'],
+            ['Gürültü','< ±0,5 ×10⁻⁵ AU'],['Veri hızı','1–100 Hz'],['Doğrusallık','~2 AU']]
+  },
+  waste: {
+    title: 'Atık Haznesi',
+    kicker: 'Solvent Atık Toplama',
+    desc: 'Dedektörden çıkan akış, kimyasal atık mevzuatına uygun şekilde toplanır. Hat ucu sıvı içine ' +
+          'daldırılmaz; aksi halde sifon etkisi ve geri basınç değişimi dedektör taban çizgisini bozar.',
+    principle: [
+      'Atık hattı serbest (atmosferik) olmalıdır; kısıtlama dedektör hücresinde basınç oluşturarak kabarcık/patlama riski yaratır.',
+      'Organik solvent buharlarının geri difüzyonu için havalandırmalı kapak veya karbon filtre kullanılır.',
+      'Tamponlu ve organik atıklar mevzuata göre ayrı toplanır; kütlesel takip validasyon dosyalarının parçasıdır.',
+      'Atık hacmi izlenerek gerçek debi kabaca doğrulanabilir (gravimetrik debi kontrolü).'
+    ],
+    specs: [['Hacim','2–10 L'],['Malzeme','HDPE / cam'],['Kapak','Havalandırmalı, karbon filtreli'],
+            ['Kural','Hat ucu sıvıya daldırılmaz']]
+  },
+  tubing: {
+    title: 'Kapiler ve Bağlantılar',
+    kicker: 'Akış Hattı Elemanları',
+    desc: 'Modüller arası bağlantılar; pompa öncesi PTFE (düşük basınç), pompa sonrası paslanmaz çelik veya ' +
+          'PEEK kapiler (yüksek basınç) ile yapılır. Kolon–dedektör arası hat, ekstra-kolon bant genişlemesinin ' +
+          'en kritik bileşenidir.',
+    principle: [
+      'Ekstra-kolon varyans toplanır: σ²_toplam = σ²_kolon + σ²_enj + σ²_kapiler + σ²_hücre.',
+      'Kapiler varyansı yarıçapın 4. kuvveti ile artar (Taylor–Aris): iç çap 0,17 mm yerine 0,12 mm seçmek belirgin kazanç sağlar.',
+      'Kolon sonrası hat mümkün olan en kısa ve en dar olmalıdır; kolon öncesi hattın genişlemeye etkisi ihmal edilebilir.',
+      'Yanlış fitting derinliği ölü hacim (void) yaratır ve pik kuyruklanması olarak görünür.'
+    ],
+    specs: [['Düşük basınç','PTFE, 1,6 mm İÇ'],['Yüksek basınç','SS/PEEK, 0,12–0,17 mm İÇ'],
+            ['Fitting','10-32 koni, PEEK/SS'],['Kritik hat','Kolon → Dedektör']]
+  }
+};
+
+/* --- Analit kütüphanesi ---
+   logkw : saf sulu fazda log k (LSS kesişimi)
+   S     : LSS eğimi (log k = log kw - S*phi)
+   dH    : transfer entalpisi (kJ/mol, negatif = ekzotermik)
+   conc  : numune derişimi (mg/mL)
+   uv    : UV spektrumu, gauss bantlarının toplamı {lm: merkez nm, e: bağıl absorptivite, w: yarı genişlik}
+   tau   : kuyruklanma zaman sabiti (dk cinsinden, birinci mertebe gecikme)               */
+const ANALYTES = [
+  { id:1, name:'Parasetamol', color:'#4aa3ff', logkw:0.85, S:3.20, dH:-16, conc:0.10, tau:0.010,
+    uv:[{lm:243,e:1.00,w:16},{lm:210,e:0.72,w:14}] },
+  { id:2, name:'Kafein',      color:'#25d0c4', logkw:1.15, S:3.50, dH:-17, conc:0.08, tau:0.011,
+    uv:[{lm:273,e:0.95,w:18},{lm:205,e:0.80,w:12}] },
+  { id:3, name:'Naproksen',   color:'#ffb347', logkw:3.00, S:4.50, dH:-19, conc:0.06, tau:0.014,
+    uv:[{lm:230,e:1.20,w:12},{lm:262,e:0.45,w:14},{lm:331,e:0.18,w:16}] },
+  { id:4, name:'İbuprofen',   color:'#ff6b6b', logkw:3.90, S:4.90, dH:-20, conc:0.20, tau:0.016,
+    uv:[{lm:222,e:0.65,w:11},{lm:264,e:0.06,w:12}] }
+];
+
+/* --- Kolon tanımları --- */
+const COLUMNS = {
+  c18_150:{ label:'C18 150×4,6 mm 5 µm',  L:15.0, id:0.46, dp:5.0, eT:0.65, dOff:0.00, sEC:7.0 },
+  c18_100:{ label:'C18 100×4,6 mm 3,5 µm',L:10.0, id:0.46, dp:3.5, eT:0.65, dOff:0.00, sEC:7.0 },
+  c18_50: { label:'C18 50×2,1 mm 1,8 µm', L:5.0,  id:0.21, dp:1.8, eT:0.64, dOff:0.00, sEC:2.0 },
+  c8_150: { label:'C8 150×4,6 mm 5 µm',   L:15.0, id:0.46, dp:5.0, eT:0.65, dOff:-0.45, sEC:7.0 }
+};
+
+/* --- Çözücü özellikleri (25 °C viskozite, cP; eluotropik güç katsayısı) --- */
+const SOLVENTS = {
+  acn : { label:'Asetonitril', eta:0.34, curv:0.60, strength:1.00, cutoff:190 },
+  meoh: { label:'Metanol',     eta:0.55, curv:3.60, strength:0.82, cutoff:205 }
+};
+const AQUEOUS = {
+  water:    { label:'Su (0,1% FA)',      eta:0.89, uvbase:0.6 },
+  buffer:   { label:'Fosfat pH 3,0',     eta:0.95, uvbase:1.6 },
+  ammonium: { label:'Amonyum asetat',    eta:0.92, uvbase:2.4 }
+};
+
+/* --- Eğitim modu adımları --- */
+const EDU_STEPS = [
+  { m:'bottles',    t:'1. Mobil Faz Hazneleri',
+    d:'Analiz, mobil fazın hazırlanmasıyla başlar. Sulu faz (A) ve organik faz (B) ayrı şişelerde bulunur; emiş hatlarının ucundaki fritler partikülleri tutar. Şişeler daima pompa seviyesinin üzerindedir.' },
+  { m:'degasser',   t:'2. Degazör',
+    d:'Mobil faz pompaya girmeden önce çözünmüş gazlarından arındırılır. Aksi halde pompa başında kabarcık oluşur; debi kararsızlaşır ve dedektör taban çizgisinde spike’lar görülür.' },
+  { m:'pump',       t:'3. Pompa',
+    d:'İki pistonlu pompa mobil fazı sabit debide, kolonun geri basıncına karşı iter. Gradient programı burada oransal valfle oluşturulur. Basınç bir ayar değil, sistemin direncine bağlı bir sonuçtur.' },
+  { m:'autosampler',t:'4. Otosampler',
+    d:'Numune vialden çekilir ve altı yollu valf LOAD konumundayken döngüye doldurulur. Valf INJECT konumuna döndüğünde mobil faz numuneyi kolona taşır; kromatogramın t = 0 anı budur.' },
+  { m:'oven',       t:'5. Kolon Fırını',
+    d:'Kolon sabit sıcaklıkta tutulur. Sıcaklık alıkonmayı (van ’t Hoff), viskoziteyi ve difüzyonu etkilediği için hem seçiciliği hem basıncı hem de pik genişliğini değiştirir.' },
+  { m:'column',     t:'6. Kolon — Ayırma',
+    d:'Analitler durgun faz ile mobil faz arasında sürekli dağılır. Hidrofobikliği yüksek olan analit durgun fazda daha uzun kalır ve daha geç çıkar. Ayırma bu göç hızı farkından doğar.' },
+  { m:'detector',   t:'7. Dedektör (UV/DAD)',
+    d:'Kolondan çıkan bant akış hücresinden geçerken absorbans ölçülür (A = ε·b·c). Derişim arttıkça sinyal artar; kromatogramdaki pik bu geçişin zaman içindeki izdüşümüdür.' },
+  { m:'waste',      t:'8. Atık Haznesi',
+    d:'Ölçümü tamamlanan akış, mevzuata uygun biçimde atık haznesinde toplanır. Hattın serbest (atmosferik) kalması, dedektör hücresinde basınç birikmesini önler.' }
+];
+</script>
+
+<script>
+'use strict';
+/* ==========================================================================
+   2) FİZİKSEL/KİMYASAL MODEL
+   --------------------------------------------------------------------------
+   Modelin dayandığı varsayımlar (bilinçli basitleştirmeler):
+     • Alıkonma: lineer çözücü gücü (LSS) modeli, log k = log k_w − S·φ
+     • Sıcaklık: van 't Hoff, sabit ΔH° kabulü (dar sıcaklık aralığında geçerli)
+     • Verim   : Knox indirgenmiş tabaka yüksekliği, h = ν^(1/3) + 2/ν + 0,05·ν
+     • Basınç  : Darcy, ΔP = φ_res·η·L·u/d_p² (+ %12 donanım direnci)
+     • Gradient: çözücünün kolon içindeki konumuna göre gecikmeli bileşim yaklaşımı
+     • Pik şekli: Gauss + birinci mertebe üstel gecikme (EMG eşdeğeri kuyruklanma)
+   Bu bir eğitim/öngörü modelidir; deneysel veri yerine geçmez.
+   ========================================================================== */
+
+const R_GAS = 8.314;          // J/(mol·K)
+const DWELL_V = 0.60;         // mL — gradient gecikme (dwell) hacmi (LPG kabulü)
+const FLOW_RESIST = 700;      // Darcy akış direnci katsayısı (küresel dolgu + frit)
+const DM25 = 1.0e-5;          // cm²/s — 25 °C referans difüzyon katsayısı
+const KRESP = 1500;           // mAU·s / (µg·mL⁻¹·dk) ölçek sabiti (cihaz kazancı)
+
+/* Uygulama durumu */
+const S = {
+  flow:1.0, temp:30, inj:10, wl:254, run:10,
+  mode:'grad', isoB:55,
+  grad:[{t:0,b:5},{t:0.5,b:5},{t:7.0,b:95},{t:9.0,b:95},{t:9.2,b:5}],
+  col:'c18_150', solvA:'water', solvB:'acn', speed:10,
+  phase:'idle',          // idle | running | paused | done
+  t:0,                   // geçen analiz zamanı (dk)
+  result:null,           // hesaplanmış çalışma verisi
+  flowMode:false,        // "Akış Yolu" gösterimi
+  eduMode:false, eduIdx:-1,
+  selected:null, hovered:null,
+  showLabels:true,
+  view:{t0:0,t1:10,autoY:true,y0:-5,y1:100}
+};
+
+/* ---------- Yardımcılar ---------- */
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp  = (a,b,t)=>a+(b-a)*t;
+const fmt   = (v,d)=>Number(v).toFixed(d).replace('.',',');
+
+/* Gradient programındaki t anındaki %B (pompa çıkışı, 0–1) */
+function phiProgram(t){
+  if(S.mode==='iso') return S.isoB/100;
+  const g=S.grad;
+  if(!g.length) return 0.05;
+  if(t<=g[0].t) return g[0].b/100;
+  for(let i=0;i<g.length-1;i++){
+    if(t>=g[i].t && t<=g[i+1].t){
+      const f=(g[i+1].t===g[i].t)?1:(t-g[i].t)/(g[i+1].t-g[i].t);
+      return lerp(g[i].b,g[i+1].b,f)/100;
+    }
+  }
+  return g[g.length-1].b/100;
+}
+
+/* Mobil faz viskozitesi (cP) — karışım maksimumu + Andrade sıcaklık düzeltmesi */
+function viscosity(phi, TK){
+  const A=AQUEOUS[S.solvA], B=SOLVENTS[S.solvB];
+  const eta25 = A.eta*(1-phi) + B.eta*phi + B.curv*phi*(1-phi);
+  return eta25 * Math.exp(1900*(1/TK - 1/298.15));   // 1900 K ≈ su/organik karışım aktivasyon terimi
+}
+
+/* Kolon geometrisi ve temel akış büyüklükleri */
+function colGeom(){
+  const c=COLUMNS[S.col];
+  const Ac=Math.PI*Math.pow(c.id/2,2);      // cm²
+  const Vm=Ac*c.L*c.eT;                     // mL (toplam gözenek hacmi)
+  const t0=Vm/S.flow;                       // dk
+  const u=c.L/(t0*60);                      // cm/s
+  return {c,Ac,Vm,t0,u};
+}
+
+/* Sistem basıncı (bar) — Darcy */
+function pressureBar(phi){
+  const {c,u}=colGeom();
+  const TK=S.temp+273.15;
+  const eta=viscosity(phi,TK)*1e-3;                 // Pa·s
+  const dp=c.dp*1e-6, L=c.L*1e-2, uSI=u*1e-2;
+  const dP=FLOW_RESIST*eta*L*uSI/(dp*dp);           // Pa
+  return dP*1.12/1e5;                               // +%12 donanım direnci → bar
+}
+
+/* Teorik tabaka sayısı — Knox modeli */
+function platesN(phiAvg){
+  const {c,u}=colGeom();
+  const TK=S.temp+273.15;
+  const eta=viscosity(phiAvg,TK);
+  const Dm=DM25*(TK/298.15)*(0.89/eta);             // cm²/s (Wilke–Chang benzeri ölçekleme)
+  const dpc=c.dp*1e-4;                              // cm
+  const nu=u*dpc/Dm;                                // indirgenmiş hız
+  const h=Math.pow(nu,1/3)+2/nu+0.05*nu;            // indirgenmiş tabaka yüksekliği
+  const H=h*dpc;
+  return {N:Math.max(200,c.L/H), nu, h, Dm};
+}
+
+/* Alıkonma faktörü k(φ,T) */
+function kOf(a, phi, TK){
+  const st=SOLVENTS[S.solvB].strength;
+  const phiEff=clamp(phi*st,0,0.98);
+  let logk=(a.logkw+COLUMNS[S.col].dOff) - a.S*phiEff;
+  logk += (-a.dH*1000/(2.303*R_GAS))*(1/TK - 1/303.15);   // van 't Hoff
+  return clamp(Math.pow(10,clamp(logk,-2,3.4)),0,2500);
+}
+
+/* Dalga boyuna bağlı bağıl molar absorptivite */
+function absorptivity(a, wl){
+  let s=0;
+  for(const b of a.uv) s += b.e*Math.exp(-Math.pow(wl-b.lm,2)/(2*b.w*b.w));
+  return s;
+}
+
+/* ---------------------------------------------------------------------------
+   ÇALIŞMA HESABI — analitlerin göçü, pik profilleri ve kromatogram sinyali
+   --------------------------------------------------------------------------- */
+function computeRun(){
+  const g=colGeom(), TK=S.temp+273.15;
+  const runT=S.run, n=1600, dtGrid=runT/(n-1);
+  const tD=DWELL_V/S.flow;                       // dwell zamanı (dk)
+
+  /* Ortalama bileşim → verim ve difüzyon için temsilî φ */
+  let phiSum=0; for(let i=0;i<n;i++) phiSum+=phiProgram(i*dtGrid);
+  const phiAvg=phiSum/n;
+  const {N,nu,h}=platesN(phiAvg);
+
+  /* Zaman ızgarası */
+  const time=new Float64Array(n);
+  for(let i=0;i<n;i++) time[i]=i*dtGrid;
+
+  /* Ekstra-kolon ve enjeksiyon varyansları (dk) */
+  const sigInj=(S.inj/1000)/(Math.sqrt(12)*S.flow);
+  const sigEC =(g.c.sEC/1000)/S.flow;
+  const Gcomp =(S.mode==='grad')?0.85:1.0;        // gradient bant sıkışması
+
+  const peaks=[];
+  const trajectories=[];                          // 3B görselleştirme için göç eğrileri
+
+  for(const a of ANALYTES){
+    /* --- Göç integrasyonu: dx/dt = 1/(t0·(1+k)) --- */
+    const dt=Math.min(0.0015, runT/6000);
+    let x=0, t=0, kEl=kOf(a,phiProgram(0),TK), eluted=false;
+    const traj=new Float64Array(n); let gi=0;
+    const tMaxInt=runT*1.6;
+    while(t<tMaxInt){
+      /* Çözücünün analit konumuna ulaşma gecikmesi: dwell + kolon içi yol */
+      const phiLocal=phiProgram(t - tD - x*g.t0);
+      const k=kOf(a,phiLocal,TK);
+      const dx=dt/(g.t0*(1+k));
+      x+=dx; t+=dt;
+      while(gi<n && time[gi]<=t){ traj[gi]=Math.min(x,1); gi++; }
+      if(x>=1){ kEl=k; eluted=true; break; }
+    }
+    while(gi<n){ traj[gi]=1; gi++; }
+    const tR=t;
+    trajectories.push({id:a.id, x:traj, tR:tR, color:a.color, name:a.name});
+
+    if(!eluted || tR>runT){                       // analiz süresinde elüe olmadı
+      peaks.push({a, eluted:false, tR:tR});
+      continue;
+    }
+
+    /* --- Pik genişliği --- */
+    const sigCol=(g.t0*(1+kEl)/Math.sqrt(N))*Gcomp;
+    const sigma=Math.sqrt(sigCol*sigCol + sigInj*sigInj + sigEC*sigEC);
+
+    /* --- Pik alanı: derişim duyarlı dedektör → alan ∝ kütle/debi --- */
+    const mass=a.conc*S.inj;                      // µg
+    const area=mass*absorptivity(a,S.wl)*KRESP/S.flow;   // mAU·s
+
+    /* --- Gauss profili + birinci mertebe kuyruklanma (EMG eşdeğeri) --- */
+    const prof=new Float64Array(n);
+    const norm=area/(sigma*60*Math.sqrt(2*Math.PI));     // mAU tepe (kuyruklanma öncesi)
+    for(let i=0;i<n;i++){
+      const z=(time[i]-tR)/sigma;
+      prof[i]=(Math.abs(z)<7)?norm*Math.exp(-0.5*z*z):0;
+    }
+    /* Kuyruklanma zaman sabiti: ekstra-kolon hacim kaynaklı olduğundan
+       sistem hacmi ile doğru, debi ile ters orantılıdır (τ = V_tail / F). */
+    const tau=a.tau*(g.c.sEC/7)/S.flow;
+    let y=0;
+    for(let i=0;i<n;i++){ y += (prof[i]-y)*(dtGrid/(tau+dtGrid)); prof[i]=y; }
+
+    peaks.push({a, eluted:true, prof, area, sigma, k:kEl, tRideal:tR, N:N});
+  }
+
+  /* --- Taban çizgisi: gradient kaynaklı kayma + gürültü + pompa pulsasyonu --- */
+  const base=new Float64Array(n);
+  const aq=AQUEOUS[S.solvA], sb=SOLVENTS[S.solvB];
+  const uvPenalty=Math.max(0,(sb.cutoff+30-S.wl))/30;          // kesme dalga boyuna yaklaşım
+  const driftMag=aq.uvbase*(0.4+uvPenalty*2.2);
+  for(let i=0;i<n;i++){
+    const phiDet=phiProgram(time[i]-tD-g.t0);                   // dedektöre ulaşan bileşim
+    base[i]=1.2 + driftMag*phiDet
+          + 0.35*Math.sin(time[i]*2*Math.PI*S.flow*8)*0.15      // pompa pulsasyonu
+          + (Math.random()-0.5)*0.16;                           // dedektör gürültüsü
+  }
+
+  /* --- Ölü hacim (void) bozulması: t0 civarında bağlanmamış matris --- */
+  const voidH=clamp(S.inj*0.35,1,18);
+  for(let i=0;i<n;i++){
+    const z=(time[i]-g.t0)/(0.012+ sigInj*1.4);
+    if(Math.abs(z)<6) base[i]+=voidH*Math.exp(-0.5*z*z);
+  }
+
+  /* --- Toplam sinyal --- */
+  const total=new Float64Array(n);
+  for(let i=0;i<n;i++){
+    let v=base[i];
+    for(const p of peaks) if(p.eluted) v+=p.prof[i];
+    total[i]=v;
+  }
+
+  /* --- Pik ölçütleri: gözlenen tR, yükseklik, w50, N, kuyruklanma, Rs --- */
+  const eluting=peaks.filter(p=>p.eluted);
+  for(const p of eluting){
+    let mi=0; for(let i=1;i<n;i++) if(p.prof[i]>p.prof[mi]) mi=i;
+    p.tR=time[mi]; p.height=p.prof[mi];
+    p.w50=widthAt(p.prof,time,mi,0.5);
+    p.w05=widthAt(p.prof,time,mi,0.05,true);
+    p.Nobs=(p.w50>0)?5.54*Math.pow(p.tR/p.w50,2):p.N;
+    p.As=(p.w05 && p.w05.front>0)?(p.w05.front+p.w05.back)/(2*p.w05.front):1;
+    p.kObs=(p.tR-g.t0)/g.t0;
+  }
+  eluting.sort((x,y)=>x.tR-y.tR);
+  for(let i=0;i<eluting.length;i++){
+    if(i===0){ eluting[i].Rs=null; continue; }
+    const a1=eluting[i-1], a2=eluting[i];
+    eluting[i].Rs=1.18*(a2.tR-a1.tR)/(a1.w50+a2.w50);          // yarı yükseklik (EP) yöntemi
+  }
+
+  /* --- Basınç profili --- */
+  let pMax=0; const press=new Float64Array(n);
+  for(let i=0;i<n;i++){ press[i]=pressureBar(phiProgram(time[i])); if(press[i]>pMax) pMax=press[i]; }
+
+  return {time,total,base,peaks,eluting,trajectories,t0:g.t0,Vm:g.Vm,u:g.u,N,nu,h,
+          press,pMax,dtGrid,n,phiAvg,tD,sigInj,sigEC};
+}
+
+/* Belirli bir yükseklik oranındaki pik genişliği (dk). detail=true ise ön/arka yarılar. */
+function widthAt(prof,time,mi,frac,detail){
+  const hLim=prof[mi]*frac;
+  let l=mi; while(l>0 && prof[l]>hLim) l--;
+  let r=mi; while(r<prof.length-1 && prof[r]>hLim) r++;
+  const interp=(i,j)=>{
+    const d=prof[j]-prof[i];
+    const f=(Math.abs(d)<1e-12)?0:(hLim-prof[i])/d;
+    return time[i]+(time[j]-time[i])*f;
+  };
+  const tl=interp(l,Math.min(l+1,prof.length-1));
+  const tr=interp(r,Math.max(r-1,0));
+  if(detail) return {front:Math.max(1e-6,time[mi]-tl), back:Math.max(1e-6,tr-time[mi])};
+  return Math.max(1e-6,tr-tl);
+}
+</script>
+
+<script>
+'use strict';
+/* ==========================================================================
+   3) 3B SAHNE — Three.js ile modüler HPLC cihazı
+   Ölçek: 1 birim ≈ 5 cm. Yığın (stack) mimarisi gerçek bir modüler HPLC
+   sistemine uygun sırayla dizilir: degazör → pompa → otosampler → kolon fırını
+   → dedektör; solvent şişeleri en üstteki tepsi üzerinde durur.
+   ========================================================================== */
+
+const V = {
+  ok:false, scene:null, cam:null, renderer:null, ray:null,
+  modules:{},         // id -> {group, outline, label, focus:{pos,target}}
+  segments:[],        // akış hattı parçaları
+  bands:[],           // kolon içindeki analit bantları
+  dots:[],            // kolon sonrası analit noktaları
+  screens:{},         // dinamik ekranlar (canvas doku)
+  wasteLiquid:null, cellGlow:null, beam:null,
+  pumpPistons:[], needle:null, injValve:null,
+  clock:null, labels:[]
+};
+
+/* Yığın geometrisi (birim) */
+const STACK = { w:4.2, d:3.0, x:0, z:0 };
+const LAYOUT = {
+  degasser:    {y:0.15, h:0.75},
+  pump:        {y:0.95, h:1.50},
+  autosampler: {y:2.50, h:1.70},
+  oven:        {y:4.25, h:1.60},
+  detector:    {y:5.90, h:1.50}
+};
+const COL_Y = 5.02, COL_X0 = -1.45, COL_X1 = 1.25, COL_Z = 0.55;
+
+/* ---------- Geometri yardımcıları ---------- */
+function roundedBoxGeom(w,h,d,r,b){
+  b=b||0.03; r=Math.min(r, w/2-0.001, h/2-0.001);
+  const s=new THREE.Shape(), x=-w/2, y=-h/2;
+  s.moveTo(x+r,y);
+  s.lineTo(x+w-r,y); s.quadraticCurveTo(x+w,y,x+w,y+r);
+  s.lineTo(x+w,y+h-r); s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  s.lineTo(x+r,y+h); s.quadraticCurveTo(x,y+h,x,y+h-r);
+  s.lineTo(x,y+r); s.quadraticCurveTo(x,y,x+r,y);
+  const g=new THREE.ExtrudeGeometry(s,{depth:Math.max(0.01,d-2*b),bevelEnabled:true,
+        bevelSize:b,bevelThickness:b,bevelSegments:2,curveSegments:5});
+  g.center(); g.computeVertexNormals();
+  return g;
+}
+function metal(color,rough,metal_){ return new THREE.MeshStandardMaterial({color:color,roughness:rough!==undefined?rough:0.42,metalness:metal_!==undefined?metal_:0.85}); }
+function plastic(color,rough){ return new THREE.MeshStandardMaterial({color:color,roughness:rough!==undefined?rough:0.6,metalness:0.1}); }
+function glow(color,intensity){ return new THREE.MeshStandardMaterial({color:0x0a0f14,emissive:color,emissiveIntensity:intensity||1.4,roughness:0.4,metalness:0}); }
+
+/* Dinamik ekran (canvas doku) */
+function makeScreen(wpx,hpx,wu,hu){
+  const cv=document.createElement('canvas'); cv.width=wpx; cv.height=hpx;
+  const ctx=cv.getContext('2d');
+  const tex=new THREE.CanvasTexture(cv);
+  const mat=new THREE.MeshBasicMaterial({map:tex});
+  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(wu,hu),mat);
+  return {mesh,ctx,tex,w:wpx,h:hpx};
+}
+
+/* Modül gövdesi: metalik kasa + ön bezel + havalandırma + ayaklar
+   opts.opening verilirse gövde kapalı kutu yerine önü açık kabuk olarak kurulur;
+   böylece fırın içindeki kolon, otosampler vialleri ve dedektör akış hücresi
+   gerçekten görünür (cam pencere arkasından). */
+function buildChassis(id,name,h,opts){
+  opts=opts||{};
+  const g=new THREE.Group();
+  g.userData.moduleId=id;
+  const W=STACK.w, D=STACK.d, op=opts.opening;
+  const bodyC=opts.bodyColor||0x232931, faceC=opts.faceColor||0x2f3742;
+
+  const addMesh=(geo,mat,x,y,z)=>{
+    const m=new THREE.Mesh(geo,mat);
+    m.position.set(x,y,z);
+    m.castShadow=true; m.receiveShadow=true; m.userData.hl=true;
+    g.add(m); return m;
+  };
+
+  if(!op){
+    /* Kapalı kasa (degazör, pompa) */
+    const body=addMesh(roundedBoxGeom(W,h,D,0.08,0.035), metal(bodyC,0.45,0.9),0,0,0);
+    void body;
+    const fp=new THREE.Mesh(roundedBoxGeom(W-0.16,h-0.14,0.10,0.05,0.02), plastic(faceC,0.55));
+    fp.position.z=D/2-0.01; fp.castShadow=true; fp.userData.hl=true; g.add(fp);
+  } else {
+    /* Önü açık kabuk: arka, yanlar, tavan, taban + pencere çerçevesi */
+    const t=0.13, mb=metal(bodyC,0.45,0.9);
+    addMesh(new THREE.BoxGeometry(W,h,t), mb, 0,0,-D/2+t/2);              // arka
+    addMesh(new THREE.BoxGeometry(t,h,D), mb, -W/2+t/2,0,0);              // sol
+    addMesh(new THREE.BoxGeometry(t,h,D), mb,  W/2-t/2,0,0);              // sağ
+    addMesh(new THREE.BoxGeometry(W,t,D), mb, 0, h/2-t/2,0);              // tavan
+    addMesh(new THREE.BoxGeometry(W,t,D), mb, 0,-h/2+t/2,0);              // taban
+    /* İç yüzey (koyu mat) — derinlik hissi için */
+    const inner=new THREE.Mesh(new THREE.BoxGeometry(W-2*t,h-2*t,0.02), plastic(0x0f1318,0.95));
+    inner.position.z=-D/2+t+0.01; g.add(inner);
+
+    const tf=0.15, mf=plastic(faceC,0.55), zf=D/2-tf/2;
+    const barX=(x0,x1,y0,y1)=>{
+      if(x1-x0<=0.001||y1-y0<=0.001) return;
+      addMesh(new THREE.BoxGeometry(x1-x0,y1-y0,tf), mf, (x0+x1)/2,(y0+y1)/2, zf);
+    };
+    barX(-W/2, op.x0, -h/2, h/2);            // pencerenin solu
+    barX(op.x1, W/2, -h/2, h/2);             // pencerenin sağı
+    barX(op.x0, op.x1, -h/2, op.y0);         // pencerenin altı
+    barX(op.x0, op.x1, op.y1, h/2);          // pencerenin üstü
+
+    /* Dumanlı cam pencere */
+    const glass=new THREE.Mesh(new THREE.BoxGeometry(op.x1-op.x0,op.y1-op.y0,0.03),
+      new THREE.MeshStandardMaterial({color:op.tint||0x9fd8e8,transparent:true,
+        opacity:op.opacity!==undefined?op.opacity:0.13,roughness:0.08,metalness:0.05}));
+    glass.position.set((op.x0+op.x1)/2,(op.y0+op.y1)/2, D/2+0.01);
+    g.add(glass);
+    /* Pencere iç aydınlatması — bölme içindeki parçalar seçilebilsin */
+    const lamp=new THREE.PointLight(op.lampColor||0xbcd4e8, op.lamp!==undefined?op.lamp:0.7, 5.0);
+    lamp.position.set((op.x0+op.x1)/2,(op.y0+op.y1)/2, D/2-0.5);
+    g.add(lamp);
+  }
+
+  /* Marka şeridi */
+  const strip=new THREE.Mesh(new THREE.BoxGeometry(W-1.5,0.025,0.02), glow(0x1a9a92,0.45));
+  strip.position.set(0,-h/2+0.16,D/2+0.05);
+  g.add(strip);
+
+  /* Yan havalandırma dilimleri */
+  for(let sgn=-1;sgn<=1;sgn+=2){
+    for(let i=0;i<Math.max(3,Math.floor(h*4));i++){
+      const v=new THREE.Mesh(new THREE.BoxGeometry(0.02,0.035,D*0.55), plastic(0x14181d,0.9));
+      v.position.set(sgn*(W/2+0.002), -h/2+0.22+i*0.11, 0);
+      g.add(v);
+    }
+  }
+  /* Ayak/ara plakalar */
+  const foot=new THREE.Mesh(new THREE.BoxGeometry(W*0.9,0.05,D*0.85), plastic(0x101318,0.8));
+  foot.position.y=-h/2-0.025; g.add(foot);
+
+  /* Seçim çerçevesi (varsayılan gizli) */
+  const edges=new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(W+0.12,h+0.12,D+0.12)),
+    new THREE.LineBasicMaterial({color:0x25d0c4})
+  );
+  edges.visible=false; g.add(edges);
+  g.userData.outline=edges;
+  return g;
+}
+
+/* Port (fitting) — kapiler bağlantı noktası */
+function addPort(parent,x,y,z,color){
+  const p=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.075,0.14,12), metal(color||0x9aa6b2,0.35,0.95));
+  p.rotation.x=Math.PI/2; p.position.set(x,y,z); parent.add(p);
+  return p;
+}
+/* LED */
+function addLED(parent,x,y,z,color,size){
+  const l=new THREE.Mesh(new THREE.SphereGeometry(size||0.045,10,8), glow(color,1.6));
+  l.position.set(x,y,z); parent.add(l);
+  return l;
+}
+
+/* ---------- Kapiler hat ---------- */
+function makeTube(pts,radius,color,opacity){
+  const curve=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p[0],p[1],p[2])));
+  curve.curveType='catmullrom'; curve.tension=0.45;
+  const geo=new THREE.TubeGeometry(curve, Math.max(24,pts.length*14), radius, 8, false);
+  const mat=new THREE.MeshStandardMaterial({color:color,roughness:0.35,metalness:0.55,
+      transparent:opacity!==undefined,opacity:opacity===undefined?1:opacity});
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.castShadow=false; mesh.userData.moduleId='tubing'; mesh.userData.hl=true;
+  return {curve,mesh,mat,len:curve.getLength()};
+}
+
+/* ---------- Sahne kurulumu ---------- */
+function build3D(canvas){
+  const scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x070b10);
+  scene.fog=new THREE.Fog(0x070b10, 30, 70);
+
+  const cam=new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+  cam.position.set(9.5,8.6,14.0);
+
+  const renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+  renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+  /* Renkler doğrudan yazıldıkları gibi görüntülensin diye lineer çıkış kullanılır;
+     sRGB dönüşümü koyu metalik gövdeleri açık griye çevirip cihazın gerçekçiliğini bozuyor. */
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+
+  /* --- Aydınlatma --- */
+  scene.add(new THREE.HemisphereLight(0x9dc4e8, 0x0a0e13, 0.75));
+  const key=new THREE.DirectionalLight(0xffffff,1.55);
+  key.position.set(11,17,11); key.castShadow=true;
+  key.shadow.mapSize.set(1024,1024);
+  key.shadow.camera.near=1; key.shadow.camera.far=60;
+  key.shadow.camera.left=-14; key.shadow.camera.right=14;
+  key.shadow.camera.top=16; key.shadow.camera.bottom=-4;
+  key.shadow.bias=-0.0012;
+  scene.add(key);
+  const fill=new THREE.DirectionalLight(0x8fc0ff,0.55); fill.position.set(-13,7,9); scene.add(fill);
+  const rim =new THREE.DirectionalLight(0x25d0c4,0.55); rim.position.set(-7,6,-13); scene.add(rim);
+
+  /* --- Zemin ve tezgâh --- */
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(70,70), new THREE.MeshStandardMaterial({color:0x0a0f15,roughness:0.95,metalness:0.05}));
+  floor.rotation.x=-Math.PI/2; floor.position.y=-0.52; floor.receiveShadow=true; scene.add(floor);
+
+  const bench=new THREE.Mesh(roundedBoxGeom(17,0.5,9.2,0.05,0.02), new THREE.MeshStandardMaterial({color:0x1b232c,roughness:0.7,metalness:0.35}));
+  bench.position.set(-0.4,-0.25,0); bench.receiveShadow=true; bench.castShadow=true; scene.add(bench);
+  const benchEdge=new THREE.Mesh(new THREE.BoxGeometry(17,0.05,0.06), glow(0x15556b,0.3));
+  benchEdge.position.set(-0.4,0.0,4.62); scene.add(benchEdge);
+
+  /* ================= MODÜLLER ================= */
+
+  /* --- Degazör --- */
+  const deg=buildChassis('degasser','Degazör',LAYOUT.degasser.h,{bodyColor:0x1f242b});
+  deg.position.set(0,LAYOUT.degasser.y+LAYOUT.degasser.h/2,0);
+  addPort(deg,-1.5,-0.06,STACK.d/2+0.06,0x8fa0b0);
+  addPort(deg,-1.15,-0.06,STACK.d/2+0.06,0x8fa0b0);
+  addPort(deg, 1.20,-0.06,STACK.d/2+0.06,0xb0bcc8);
+  addLED(deg,1.75,0.16,STACK.d/2+0.06,0x59d97a);
+  scene.add(deg);
+
+  /* --- Pompa --- */
+  const pump=buildChassis('pump','Pompa',LAYOUT.pump.h);
+  pump.position.set(0,LAYOUT.pump.y+LAYOUT.pump.h/2,0);
+  const pumpScreen=makeScreen(320,120,1.45,0.55);
+  pumpScreen.mesh.position.set(-0.95,0.28,STACK.d/2+0.06);
+  pump.add(pumpScreen.mesh); V.screens.pump=pumpScreen;
+  /* Piston başlıkları (çalışırken hareket eder) */
+  for(let i=0;i<2;i++){
+    const head=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.17,0.34,16), metal(0xb8c2cc,0.3,0.95));
+    head.rotation.x=Math.PI/2; head.position.set(0.75+i*0.5,-0.12,STACK.d/2+0.14);
+    pump.add(head); V.pumpPistons.push(head);
+  }
+  addPort(pump,1.75,-0.34,STACK.d/2+0.06,0x9aa6b2);
+  addPort(pump,1.90,0.55,STACK.d/2+0.06,0xd0d8e0);
+  V.pumpLED=addLED(pump,1.85,0.32,STACK.d/2+0.07,0x4aa3ff);
+  scene.add(pump);
+
+  /* --- Otosampler --- */
+  const as=buildChassis('autosampler','Otosampler',LAYOUT.autosampler.h,{faceColor:0x2b333d,
+      opening:{x0:-1.95,x1:0.45,y0:-0.80,y1:0.42,tint:0x9fd8e8,opacity:0.14,lamp:0.75}});
+  as.position.set(0,LAYOUT.autosampler.y+LAYOUT.autosampler.h/2,0);
+  const tray=new THREE.Mesh(new THREE.BoxGeometry(2.3,0.06,1.1), plastic(0x1b222a,0.8));
+  tray.position.set(-0.75,-0.62,0.55); as.add(tray);
+  for(let r=0;r<2;r++) for(let c=0;c<7;c++){
+    const vial=new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.075,0.28,10),
+        new THREE.MeshStandardMaterial({color:(r===0&&c===2)?0xffd27f:0xbfd5e2,transparent:true,opacity:0.6,roughness:0.2,metalness:0.05}));
+    vial.position.set(-1.70+c*0.32,-0.44,0.25+r*0.42); as.add(vial);
+    const capv=new THREE.Mesh(new THREE.CylinderGeometry(0.078,0.078,0.05,10), plastic(0x2b3240,0.6));
+    capv.position.set(-1.70+c*0.32,-0.28,0.25+r*0.42); as.add(capv);
+  }
+  /* Enjeksiyon iğnesi ve altı yollu valf */
+  const needle=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.012,0.55,8), metal(0xdde5ec,0.25,1.0));
+  needle.position.set(0.05,0.30,0.42); as.add(needle); V.needle=needle;
+  const valve=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.16,18), metal(0x8f9aa6,0.3,0.95));
+  valve.rotation.x=Math.PI/2; valve.position.set(1.35,0.35,STACK.d/2+0.03); as.add(valve); V.injValve=valve;
+  V.asLED=addLED(as,1.85,0.55,STACK.d/2+0.07,0x3a4450);
+  addPort(as,1.95,-0.44,STACK.d/2+0.06,0x9aa6b2);
+  addPort(as,1.95,0.60,STACK.d/2+0.06,0xd0d8e0);
+  scene.add(as);
+
+  /* --- Kolon Fırını --- */
+  const oven=buildChassis('oven','Kolon Fırını',LAYOUT.oven.h,{bodyColor:0x252b33,
+      opening:{x0:-1.90,x1:1.55,y0:-0.55,y1:0.58,tint:0x8fd6e0,opacity:0.10,
+               lampColor:0xffc79a,lamp:0.85}});
+  oven.position.set(0,LAYOUT.oven.y+LAYOUT.oven.h/2,0);
+  const ovenScreen=makeScreen(220,110,0.72,0.36);
+  ovenScreen.mesh.position.set(1.68,0.30,STACK.d/2+0.06); oven.add(ovenScreen.mesh);
+  V.screens.oven=ovenScreen;
+  V.ovenLED=addLED(oven,1.68,-0.12,STACK.d/2+0.07,0xff8f4a,0.04);
+  addPort(oven,1.90,-0.50,STACK.d/2+0.06,0x9aa6b2);
+  addPort(oven,1.95,0.62,STACK.d/2+0.06,0xd0d8e0);
+  scene.add(oven);
+
+  /* --- Kolon (fırın içinde, ayrı seçilebilir modül) --- */
+  const colG=new THREE.Group(); colG.userData.moduleId='column';
+  const colLen=COL_X1-COL_X0;
+  /* Gövde kasıtlı olarak yarı saydam ("kesit") modellenir: paslanmaz çelik gövde
+     opak olsaydı kolon içindeki bant ayrışması görülemezdi. */
+  const colBody=new THREE.Mesh(new THREE.CylinderGeometry(0.155,0.155,colLen,24),
+      new THREE.MeshStandardMaterial({color:0xcfd8e0,roughness:0.22,metalness:1.0,
+        transparent:true,opacity:0.34,depthWrite:false}));
+  colBody.rotation.z=Math.PI/2; colBody.position.set((COL_X0+COL_X1)/2,COL_Y,COL_Z);
+  colBody.castShadow=true; colBody.userData.hl=true; colG.add(colBody);
+  for(const ex of [COL_X0,COL_X1]){
+    const nut=new THREE.Mesh(new THREE.CylinderGeometry(0.20,0.20,0.20,6), metal(0x9aa6b2,0.3,0.95));
+    nut.rotation.z=Math.PI/2; nut.position.set(ex,COL_Y,COL_Z); colG.add(nut);
+  }
+  /* Kolon etiketi */
+  const lab=makeScreen(512,128,1.25,0.28);
+  lab.mesh.position.set((COL_X0+COL_X1)/2,COL_Y+0.115,COL_Z+0.115);
+  lab.mesh.rotation.x=-0.55;
+  colG.add(lab.mesh); V.screens.colLabel=lab;
+  /* Analit bantları (kolon içinde ilerler) */
+  for(const a of ANALYTES){
+    const band=new THREE.Mesh(new THREE.CylinderGeometry(0.125,0.125,0.10,16),
+      new THREE.MeshBasicMaterial({color:new THREE.Color(a.color),transparent:true,opacity:0.9,depthWrite:false}));
+    band.rotation.z=Math.PI/2; band.position.set(COL_X0,COL_Y,COL_Z); band.visible=false;
+    colG.add(band); V.bands.push({mesh:band,a:a});
+  }
+  /* Kolon içi mobil faz dolgusu (yumuşak ışıma) */
+  const colFill=new THREE.Mesh(new THREE.CylinderGeometry(0.108,0.108,colLen-0.02,20),
+      new THREE.MeshBasicMaterial({color:0x1b4a63,transparent:true,opacity:0.16,depthWrite:false}));
+  colFill.rotation.z=Math.PI/2; colFill.position.set((COL_X0+COL_X1)/2,COL_Y,COL_Z); colG.add(colFill);
+  scene.add(colG);
+
+  /* --- Dedektör --- */
+  const det=buildChassis('detector','Dedektör',LAYOUT.detector.h,{bodyColor:0x212831,
+      opening:{x0:0.45,x1:1.80,y0:-0.30,y1:0.48,tint:0x86c6d8,opacity:0.12,lamp:0.55}});
+  det.position.set(0,LAYOUT.detector.y+LAYOUT.detector.h/2,0);
+  const detScreen=makeScreen(420,150,1.85,0.66);
+  detScreen.mesh.position.set(-0.95,0.18,STACK.d/2+0.06);
+  det.add(detScreen.mesh); V.screens.det=detScreen;
+  /* Akış hücresi penceresi + ışın */
+  const cell=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.20,0.20), new THREE.MeshStandardMaterial({
+      color:0xbfe6f2,transparent:true,opacity:0.45,roughness:0.05,metalness:0.1}));
+  cell.position.set(1.15,0.10,0.75); det.add(cell);
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,0.95,10),
+      new THREE.MeshBasicMaterial({color:0xbfa8ff,transparent:true,opacity:0.35}));
+  beam.rotation.z=Math.PI/2; beam.position.set(1.15,0.10,0.75); det.add(beam); V.beam=beam;
+  const lamp=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,0.34,14), glow(0xb08cff,0.8));
+  lamp.rotation.z=Math.PI/2; lamp.position.set(0.52,0.10,0.75); det.add(lamp);
+  V.cellGlow=new THREE.PointLight(0x9f7dff,0.0,3.2); V.cellGlow.position.set(1.15,0.10,0.78); det.add(V.cellGlow);
+  V.detLED=addLED(det,1.85,0.48,STACK.d/2+0.07,0x3a4450);
+  addPort(det,1.90,-0.42,STACK.d/2+0.06,0x9aa6b2);
+  addPort(det,-1.90,-0.42,STACK.d/2+0.06,0xd0d8e0);
+  scene.add(det);
+
+  /* --- Üst tepsi + solvent şişeleri --- */
+  const trayTop=new THREE.Mesh(roundedBoxGeom(STACK.w+0.5,0.12,STACK.d+0.4,0.05,0.02), metal(0x232a33,0.6,0.6));
+  trayTop.position.set(0,7.46,0); trayTop.castShadow=true; trayTop.receiveShadow=true; scene.add(trayTop);
+
+  const bottles=new THREE.Group(); bottles.userData.moduleId='bottles';
+  const bottleDefs=[{x:-1.15,c:0x2f6fd0,lab:'A'},{x:0.15,c:0x7a4fd0,lab:'B'}];
+  V.bottleLiquids=[];
+  bottleDefs.forEach((bd,i)=>{
+    const glass=new THREE.Mesh(new THREE.CylinderGeometry(0.52,0.52,1.75,22,1,true),
+      new THREE.MeshStandardMaterial({color:0xcfe6f0,transparent:true,opacity:0.22,roughness:0.08,
+        metalness:0.0,side:THREE.DoubleSide}));
+    glass.position.set(bd.x,7.52+0.875,-0.15); glass.userData.hl=true; bottles.add(glass);
+    const bottom=new THREE.Mesh(new THREE.CylinderGeometry(0.52,0.52,0.05,22), new THREE.MeshStandardMaterial({color:0xcfe6f0,transparent:true,opacity:0.3,roughness:0.1}));
+    bottom.position.set(bd.x,7.545,-0.15); bottles.add(bottom);
+    const liq=new THREE.Mesh(new THREE.CylinderGeometry(0.485,0.485,1.25,22),
+      new THREE.MeshStandardMaterial({color:bd.c,transparent:true,opacity:0.55,roughness:0.2,metalness:0.0}));
+    liq.position.set(bd.x,7.55+0.63,-0.15); bottles.add(liq); V.bottleLiquids.push(liq);
+    const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.20,0.30,0.30,18),
+      new THREE.MeshStandardMaterial({color:0xcfe6f0,transparent:true,opacity:0.25,roughness:0.1}));
+    neck.position.set(bd.x,9.34,-0.15); bottles.add(neck);
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.21,0.21,0.16,18), plastic(0x2c333d,0.6));
+    cap.position.set(bd.x,9.55,-0.15); bottles.add(cap);
+    const lbl=makeScreen(256,128,0.78,0.42);
+    lbl.mesh.position.set(bd.x,8.5,0.39); bottles.add(lbl.mesh);
+    V.screens['bottle'+bd.lab]=lbl;
+  });
+  scene.add(bottles);
+
+  /* --- Atık haznesi --- */
+  const waste=new THREE.Group(); waste.userData.moduleId='waste';
+  const wGlass=new THREE.Mesh(new THREE.CylinderGeometry(0.85,0.85,2.2,24,1,true),
+    new THREE.MeshStandardMaterial({color:0xd8cfae,transparent:true,opacity:0.20,roughness:0.15,side:THREE.DoubleSide}));
+  wGlass.position.set(-5.3,1.1,0.6); wGlass.userData.hl=true; waste.add(wGlass);
+  const wBottom=new THREE.Mesh(new THREE.CylinderGeometry(0.85,0.85,0.06,24), new THREE.MeshStandardMaterial({color:0xd8cfae,transparent:true,opacity:0.3}));
+  wBottom.position.set(-5.3,0.03,0.6); waste.add(wBottom);
+  const wLiq=new THREE.Mesh(new THREE.CylinderGeometry(0.80,0.80,0.5,24),
+    new THREE.MeshStandardMaterial({color:0x3f7f86,transparent:true,opacity:0.55,roughness:0.25}));
+  wLiq.position.set(-5.3,0.28,0.6); waste.add(wLiq); V.wasteLiquid=wLiq;
+  const wNeck=new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.5,0.32,18), new THREE.MeshStandardMaterial({color:0xd8cfae,transparent:true,opacity:0.24}));
+  wNeck.position.set(-5.3,2.32,0.6); waste.add(wNeck);
+  const wCap=new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.36,0.18,18), plastic(0x39404a,0.65));
+  wCap.position.set(-5.3,2.54,0.6); waste.add(wCap);
+  const wLbl=makeScreen(256,128,1.0,0.5);
+  wLbl.mesh.position.set(-5.3,1.35,1.46); waste.add(wLbl.mesh); V.screens.waste=wLbl;
+  scene.add(waste);
+
+  /* ================= KAPİLER HATLAR ================= */
+  const D2=STACK.d/2;
+  const segDefs=[
+    { id:'A', color:0x2f6fd0, r:0.045, kind:'lp', pts:[
+      [-1.15,9.62,-0.15],[-1.15,9.95,0.15],[-2.05,9.6,0.5],[-2.62,8.4,0.85],
+      [-2.62,5.0,1.05],[-2.62,1.9,1.30],[-2.25,0.62,1.55],[-1.5,0.55,D2+0.10]] },
+    { id:'B', color:0x7a4fd0, r:0.045, kind:'lp', pts:[
+      [0.15,9.62,-0.15],[0.15,10.0,0.2],[-0.85,9.75,0.62],[-2.30,8.2,1.0],
+      [-2.30,5.0,1.22],[-2.30,1.9,1.44],[-1.95,0.58,1.62],[-1.15,0.55,D2+0.10]] },
+    { id:'deg-pump', color:0xb9c4cf, r:0.038, kind:'hp', pts:[
+      [1.20,0.55,D2+0.10],[1.95,0.62,1.85],[2.35,1.05,1.75],[2.10,1.40,1.68],[1.75,1.36,D2+0.10]] },
+    { id:'pump-as', color:0xb9c4cf, r:0.038, kind:'hp', pts:[
+      [1.90,2.25,D2+0.10],[2.45,2.45,1.80],[2.55,2.90,1.75],[2.20,3.08,1.68],[1.95,3.06,D2+0.10]] },
+    { id:'as-col', color:0xb9c4cf, r:0.038, kind:'hp', pts:[
+      [1.95,4.10,D2+0.10],[2.55,4.35,1.80],[2.60,4.95,1.70],[2.10,5.12,1.60],[1.90,4.87,D2+0.05],
+      [1.30,4.62,0.90],[0.10,4.52,0.35],[-1.70,4.62,0.18],[-1.62,4.95,COL_Z]] },
+    { id:'column', color:0x000000, r:0.0, kind:'col', pts:[[COL_X0,COL_Y,COL_Z],[COL_X1,COL_Y,COL_Z]] },
+    { id:'col-det', color:0xb9c4cf, r:0.035, kind:'hp', pts:[
+      [COL_X1,COL_Y,COL_Z],[1.85,5.18,0.45],[2.05,5.62,1.10],[1.95,5.75,D2+0.05],
+      [2.60,6.05,1.75],[2.35,6.35,1.70],[1.90,6.38,D2+0.10],[1.15,6.55,0.95],[0.60,6.50,0.55],[0,6.50,0.40]] },
+    { id:'det-waste', color:0x8f9aa6, r:0.042, kind:'lp', pts:[
+      [0,6.50,0.40],[-0.9,6.42,0.70],[-1.90,6.38,D2+0.10],[-2.95,6.0,1.55],
+      [-3.75,4.2,1.30],[-4.45,2.4,1.05],[-5.05,1.9,0.75],[-5.30,1.72,0.60]] }
+  ];
+
+  V.segments=[];
+  for(const sd of segDefs){
+    if(sd.kind==='col'){
+      const curve=new THREE.CatmullRomCurve3([new THREE.Vector3(...sd.pts[0]),new THREE.Vector3(...sd.pts[1])]);
+      V.segments.push({id:sd.id,curve:curve,len:curve.getLength(),kind:'col',mesh:null,parts:[]});
+      continue;
+    }
+    const t=makeTube(sd.pts,sd.r,sd.color, sd.kind==='lp'?0.95:1.0);
+    scene.add(t.mesh);
+    V.segments.push({id:sd.id,curve:t.curve,len:t.len,kind:sd.kind,mesh:t.mesh,mat:t.mat,parts:[]});
+  }
+
+  /* --- Akış partikülleri --- */
+  const pGeo=new THREE.SphereGeometry(0.055,8,6);
+  for(const seg of V.segments){
+    const count=Math.max(4,Math.round(seg.len*2.2));
+    for(let i=0;i<count;i++){
+      const col=(seg.id==='A')?0x59a6ff:(seg.id==='B')?0xb07fff:0x2ee0d3;
+      const m=new THREE.Mesh(pGeo,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.9}));
+      m.visible=false; scene.add(m);
+      seg.parts.push({mesh:m,t:i/count});
+    }
+  }
+
+  /* --- Kolon sonrası analit noktaları --- */
+  for(const a of ANALYTES){
+    const d=new THREE.Mesh(new THREE.SphereGeometry(0.10,10,8),
+      new THREE.MeshBasicMaterial({color:new THREE.Color(a.color),transparent:true,opacity:0.95}));
+    d.visible=false; scene.add(d);
+    V.dots.push({mesh:d,a:a});
+  }
+
+  /* Modül kaydı + kamera odak noktaları */
+  const reg=(id,group,fp,ft)=>{
+    V.modules[id]={group:group||null,
+                   outline:(group&&group.userData)?group.userData.outline:null,
+                   focus:{pos:new THREE.Vector3(fp[0],fp[1],fp[2]),
+                          target:new THREE.Vector3(ft[0],ft[1],ft[2])}};
+  };
+  reg('degasser',deg,[6.0,3.2,7.0],[0,0.55,0]);
+  reg('pump',pump,[6.5,3.6,7.5],[0,1.70,0]);
+  reg('autosampler',as,[5.4,4.8,8.4],[0,3.35,0]);
+  reg('oven',oven,[5.4,6.2,8.4],[0,5.05,0]);
+  reg('column',colG,[2.4,5.9,7.4],[-0.1,5.02,0.55]);
+  reg('detector',det,[5.6,7.5,8.4],[0,6.65,0]);
+  reg('bottles',bottles,[5.5,10.2,8.5],[-0.5,8.5,0]);
+  reg('waste',waste,[-1.5,4.2,9.5],[-5.0,1.3,0.6]);
+  reg('tubing',null,[9.5,8.6,14.0],[-0.9,4.4,0]);
+  V.modules.tubing.group=null;
+
+  _tmpV=new THREE.Vector3();
+  camInit();
+  V.scene=scene; V.cam=cam; V.renderer=renderer;
+  V.ray=new THREE.Raycaster();
+  V.clock=new THREE.Clock();
+  V.ok=true;
+
+  drawStaticScreens();
+  return V;
+}
+
+/* Statik ekran içerikleri (şişe etiketleri, kolon etiketi, atık) */
+function drawStaticScreens(){
+  const panel=(s,title,sub,accent)=>{
+    const c=s.ctx,w=s.w,h=s.h;
+    c.fillStyle='#0d141c'; c.fillRect(0,0,w,h);
+    c.strokeStyle=accent; c.lineWidth=Math.max(2,h*0.035); c.strokeRect(c.lineWidth/2,c.lineWidth/2,w-c.lineWidth,h-c.lineWidth);
+    c.fillStyle=accent; c.font='bold '+Math.round(h*0.34)+'px system-ui,sans-serif';
+    c.textAlign='center'; c.fillText(title,w/2,h*0.44);
+    c.fillStyle='#9fb2c6'; c.font=Math.round(h*0.20)+'px system-ui,sans-serif';
+    c.fillText(sub,w/2,h*0.75);
+    s.tex.needsUpdate=true;
+  };
+  if(V.screens.bottleA) panel(V.screens.bottleA,'A',AQUEOUS[S.solvA].label,'#5aa4ff');
+  if(V.screens.bottleB) panel(V.screens.bottleB,'B',SOLVENTS[S.solvB].label,'#b07fff');
+  if(V.screens.waste)   panel(V.screens.waste,'ATIK','Solvent atığı','#8fa0b0');
+  if(V.screens.colLabel){
+    const s=V.screens.colLabel,c=s.ctx;
+    c.fillStyle='#e6edf4'; c.fillRect(0,0,s.w,s.h);
+    c.fillStyle='#101820'; c.font='bold 38px system-ui,sans-serif'; c.textAlign='left';
+    c.fillText(COLUMNS[S.col].label,16,54);
+    c.fillStyle='#4b5b6b'; c.font='26px system-ui,sans-serif';
+    c.fillText('Ters faz analitik kolon',16,96);
+    c.fillStyle='#25d0c4'; c.fillRect(0,s.h-10,s.w,10);
+    s.tex.needsUpdate=true;
+  }
+}
+</script>
+
+<script>
+'use strict';
+/* ==========================================================================
+   4) ETKİLEŞİM — kamera, seçim, etiketler, 3B animasyon döngüsü
+   ========================================================================== */
+
+const CAM = {
+  target:null, targetGoal:null,
+  r:17.4, rGoal:17.4, theta:0.596, thetaGoal:0.596, phi:1.339, phiGoal:1.339,
+  home:{r:17.4,theta:0.596,phi:1.339,target:null},
+  dragging:false, mode:'orbit', lastX:0, lastY:0, moved:0, pointers:new Map(), pinch:0
+};
+/* THREE asenkron yüklendiği için vektörler sahne kurulurken oluşturulur */
+function camInit(){
+  CAM.target     = new THREE.Vector3(-0.9,4.4,0);
+  CAM.targetGoal = new THREE.Vector3(-0.9,4.4,0);
+  CAM.home.target= new THREE.Vector3(-0.9,4.4,0);
+}
+
+function camApply(){
+  const sp=Math.sin(CAM.phi), cp=Math.cos(CAM.phi);
+  V.cam.position.set(
+    CAM.target.x + CAM.r*sp*Math.sin(CAM.theta),
+    CAM.target.y + CAM.r*cp,
+    CAM.target.z + CAM.r*sp*Math.cos(CAM.theta));
+  V.cam.lookAt(CAM.target);
+}
+function camUpdate(dt){
+  const k=1-Math.pow(0.0025, Math.min(dt,0.1));   // kare hızından bağımsız yumuşatma
+  CAM.r     += (CAM.rGoal-CAM.r)*k;
+  CAM.theta += (CAM.thetaGoal-CAM.theta)*k;
+  CAM.phi   += (CAM.phiGoal-CAM.phi)*k;
+  CAM.target.lerp(CAM.targetGoal,k);
+  camApply();
+}
+function camFocus(pos,target){
+  CAM.userZoom=true;
+  const off=new THREE.Vector3().subVectors(pos,target);
+  CAM.rGoal=clamp(off.length(),4,60);
+  CAM.phiGoal=clamp(Math.acos(off.y/off.length()),0.12,1.55);
+  CAM.thetaGoal=Math.atan2(off.x,off.z);
+  CAM.targetGoal.copy(target);
+}
+function camHome(){ CAM.userZoom=false; CAM.rGoal=CAM.home.r; CAM.thetaGoal=CAM.home.theta; CAM.phiGoal=CAM.home.phi; CAM.targetGoal.copy(CAM.home.target); }
+
+/* ---------- Girdi olayları ---------- */
+function bindCameraEvents(canvas){
+  canvas.addEventListener('contextmenu',e=>e.preventDefault());
+
+  canvas.addEventListener('pointerdown',e=>{
+    canvas.setPointerCapture(e.pointerId);
+    CAM.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(CAM.pointers.size===1){
+      CAM.dragging=true; CAM.moved=0; CAM.lastX=e.clientX; CAM.lastY=e.clientY;
+      CAM.mode=(e.button===2||e.button===1||e.shiftKey)?'pan':'orbit';
+      canvas.classList.add('dragging');
+    } else if(CAM.pointers.size===2){
+      CAM.pinch=pointerDist();
+    }
+  });
+
+  canvas.addEventListener('pointermove',e=>{
+    if(CAM.pointers.has(e.pointerId)) CAM.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+
+    if(CAM.pointers.size===2){                      /* iki parmak: yakınlaştır + kaydır */
+      const d=pointerDist();
+      if(CAM.pinch>0){ CAM.userZoom=true; CAM.rGoal=clamp(CAM.rGoal*(CAM.pinch/d),4,60); }
+      CAM.pinch=d;
+      return;
+    }
+    if(CAM.dragging){
+      const dx=e.clientX-CAM.lastX, dy=e.clientY-CAM.lastY;
+      CAM.lastX=e.clientX; CAM.lastY=e.clientY;
+      CAM.moved+=Math.abs(dx)+Math.abs(dy);
+      if(CAM.mode==='orbit'){
+        CAM.thetaGoal-=dx*0.006;
+        CAM.phiGoal=clamp(CAM.phiGoal-dy*0.005,0.12,1.55);
+      }else{
+        /* Kaydırma: kamera sağ vektörü boyunca yatay, dünya yukarısı boyunca dikey */
+        const sc=CAM.r*0.0016;
+        const right=new THREE.Vector3().setFromMatrixColumn(V.cam.matrix,0);
+        CAM.targetGoal.addScaledVector(right,-dx*sc);
+        CAM.targetGoal.y += dy*sc;
+      }
+    } else {
+      hoverTest(e);
+    }
+  });
+
+  const endPointer=e=>{
+    canvas.classList.remove('dragging');
+    if(CAM.pointers.size<=1 && CAM.dragging && CAM.moved<6) clickTest(e);
+    CAM.pointers.delete(e.pointerId);
+    if(CAM.pointers.size<2) CAM.pinch=0;
+    if(CAM.pointers.size===0) CAM.dragging=false;
+  };
+  canvas.addEventListener('pointerup',endPointer);
+  canvas.addEventListener('pointercancel',e=>{CAM.pointers.delete(e.pointerId);CAM.dragging=false;canvas.classList.remove('dragging');});
+  canvas.addEventListener('pointerleave',()=>{ if(!CAM.dragging){ S.hovered=null; applyHighlight(); }});
+
+  canvas.addEventListener('wheel',e=>{
+    e.preventDefault();
+    CAM.userZoom=true;
+    CAM.rGoal=clamp(CAM.rGoal*Math.exp(e.deltaY*0.0011),4,60);
+  },{passive:false});
+
+  function pointerDist(){
+    const v=[...CAM.pointers.values()];
+    if(v.length<2) return 0;
+    return Math.hypot(v[0].x-v[1].x, v[0].y-v[1].y);
+  }
+}
+
+/* ---------- Raycast ile modül seçimi ---------- */
+function pickAt(ev){
+  const canvas=V.renderer.domElement, rect=canvas.getBoundingClientRect();
+  const nx=((ev.clientX-rect.left)/rect.width)*2-1;
+  const ny=-((ev.clientY-rect.top)/rect.height)*2+1;
+  V.ray.setFromCamera({x:nx,y:ny}, V.cam);
+  const hits=V.ray.intersectObjects(V.scene.children,true);
+  for(const h of hits){
+    let o=h.object;
+    while(o){ if(o.userData && o.userData.moduleId) return o.userData.moduleId; o=o.parent; }
+  }
+  return null;
+}
+let hoverRAF=0;
+function hoverTest(ev){
+  if(hoverRAF) return;
+  hoverRAF=requestAnimationFrame(()=>{
+    hoverRAF=0;
+    const id=pickAt(ev);
+    if(id!==S.hovered){
+      S.hovered=id;
+      V.renderer.domElement.classList.toggle('pickable',!!id);
+      applyHighlight();
+    }
+  });
+}
+function clickTest(ev){
+  const id=pickAt(ev);
+  if(id){ selectModule(id,true); }
+}
+
+/* ---------- Görsel vurgulama ---------- */
+function applyHighlight(){
+  for(const id in V.modules){
+    const m=V.modules[id];
+    if(!m.group) continue;
+    const st=(S.selected===id)?2:(S.hovered===id?1:0);
+    if(m.group.userData && m.group.userData.outline) m.group.userData.outline.visible=(st>0);
+    m.group.traverse(o=>{
+      if(o.isMesh && o.userData.hl && o.material && o.material.emissive){
+        o.material.emissive.setHex(st===2?0x05181a:(st===1?0x030e10:0x000000));
+        o.material.emissiveIntensity=0.9;
+      }
+    });
+  }
+  /* Kapiler hatlar ayrı ele alınır */
+  const tst=(S.selected==='tubing')?2:(S.hovered==='tubing'?1:0);
+  for(const seg of V.segments){
+    if(!seg.mat) continue;
+    if(seg.mat.emissive) seg.mat.emissive.setHex(tst===2?0x0f6f68:(tst===1?0x0a4a45:0x000000));
+  }
+  /* Etiket durumları */
+  for(const l of V.labels){
+    l.el.classList.toggle('active', S.selected===l.id || S.hovered===l.id);
+    l.el.classList.toggle('dim', S.eduMode && S.eduIdx>=0 && EDU_STEPS[S.eduIdx].m!==l.id);
+  }
+}
+
+/* ---------- Etiket katmanı ---------- */
+const LABEL_ANCHORS = [
+  {id:'bottles',    text:'Mobil Faz',    p:[0.9,9.55,0.2]},
+  {id:'detector',   text:'Dedektör',     p:[3.35,6.65,0.6]},
+  {id:'oven',       text:'Kolon Fırını', p:[3.45,5.05,0.6]},
+  {id:'column',     text:'Kolon',        p:[-3.05,5.05,0.5]},
+  {id:'autosampler',text:'Otosampler',   p:[3.45,3.35,0.6]},
+  {id:'pump',       text:'Pompa',        p:[3.35,1.70,0.6]},
+  {id:'degasser',   text:'Degazör',      p:[3.35,0.55,0.6]},
+  {id:'waste',      text:'Atık',         p:[-5.3,2.95,0.6]}
+];
+function buildLabels(){
+  const layer=document.getElementById('labelLayer');
+  layer.innerHTML='';
+  V.labels=LABEL_ANCHORS.map(a=>{
+    const el=document.createElement('div');
+    el.className='mlabel'; el.textContent=a.text;
+    el.style.pointerEvents='auto'; el.style.cursor='pointer';
+    el.addEventListener('click',()=>selectModule(a.id,true));
+    layer.appendChild(el);
+    return {id:a.id, el, v:new THREE.Vector3(a.p[0],a.p[1],a.p[2])};
+  });
+}
+let _pv=null;
+function updateLabels(){
+  if(!_pv) _pv=new THREE.Vector3();
+  const canvas=V.renderer.domElement;
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  for(const l of V.labels){
+    if(!S.showLabels){ l.el.style.display='none'; continue; }
+    _pv.copy(l.v).project(V.cam);
+    if(_pv.z>1){ l.el.style.display='none'; continue; }
+    l.el.style.display='block';
+    l.el.style.left=((_pv.x*0.5+0.5)*w)+'px';
+    l.el.style.top =((-_pv.y*0.5+0.5)*h)+'px';
+  }
+}
+
+/* ---------- Modül seçimi ---------- */
+function selectModule(id, focus){
+  S.selected=id;
+  renderInfo(id);
+  showTab('info');
+  if(focus && V.modules[id]) camFocus(V.modules[id].focus.pos, V.modules[id].focus.target);
+  applyHighlight();
+}
+
+/* ==========================================================================
+   3B ANİMASYON — akış partikülleri, analit bantları, cihaz göstergeleri
+   ========================================================================== */
+const FLOWV = 0.42;            // birim/s — görsel akış hızı ölçeği (1 mL/dk için)
+let _tmpV=null;
+let screenClock=0;
+
+function updateFlow3D(dt){
+  const running=(S.phase==='running');
+  const pumpOn = running || S.flowMode;
+  const phi = running ? phiProgram(S.t) : (S.mode==='iso'? S.isoB/100 : phiProgram(0));
+
+  /* Partiküller */
+  const v=FLOWV*Math.max(0.15,S.flow);
+  const colA=new THREE.Color(0x59a6ff), colB=new THREE.Color(0xb07fff), mix=new THREE.Color();
+  mix.copy(colA).lerp(colB,phi);
+  for(const seg of V.segments){
+    const isA=(seg.id==='A'), isB=(seg.id==='B'), inCol=(seg.kind==='col');
+    const n=seg.parts.length;
+    let shown=n;
+    if(isA) shown=Math.round(n*(1-phi));
+    if(isB) shown=Math.round(n*phi);
+    for(let i=0;i<n;i++){
+      const p=seg.parts[i];
+      if(!pumpOn || inCol || i>=shown){ p.mesh.visible=false; continue; }
+      p.t=(p.t + v*dt/Math.max(0.5,seg.len))%1;
+      seg.curve.getPointAt(p.t,_tmpV);
+      p.mesh.position.copy(_tmpV);
+      p.mesh.visible=true;
+      if(!isA && !isB) p.mesh.material.color.copy(mix);
+      p.mesh.material.opacity = S.flowMode?1.0:0.75;
+      const sc = S.flowMode?1.25:1.0;
+      p.mesh.scale.setScalar(sc);
+    }
+    /* Akış yolu modunda hattın kendisi hafifçe parlar */
+    if(seg.mat && seg.mat.emissive && S.selected!=='tubing' && S.hovered!=='tubing'){
+      seg.mat.emissive.setHex(S.flowMode?0x093a44:0x000000);
+    }
+  }
+
+  /* Pompa pistonları */
+  if(V.pumpPistons.length){
+    const ph=performance.now()*0.001*Math.max(0.3,S.flow)*3.2;
+    V.pumpPistons.forEach((h,i)=>{
+      const off=pumpOn?Math.sin(ph+i*Math.PI)*0.05:0;
+      h.position.z=STACK.d/2+0.14+off;
+    });
+  }
+  if(V.pumpLED) V.pumpLED.material.emissiveIntensity = pumpOn?(1.6+Math.sin(performance.now()*0.006)*0.5):0.25;
+  if(V.ovenLED) V.ovenLED.material.emissiveIntensity = (S.temp>25)?1.4:0.3;
+  if(V.detLED)  V.detLED.material.emissiveIntensity  = running?1.6:0.3;
+  if(V.asLED)   V.asLED.material.emissiveIntensity   = running?1.2:0.3;
+
+  /* Enjeksiyon animasyonu: ilk ~0,15 dk içinde iğne iner, valf döner */
+  if(V.needle){
+    let ny=0.30;
+    if(running && S.t<0.25){
+      const f=Math.min(1,S.t/0.12);
+      ny=0.30-0.55*Math.sin(Math.PI*f);
+    }
+    V.needle.position.y=ny;
+  }
+  if(V.injValve) V.injValve.rotation.z = (running && S.t>0.05)?Math.PI/3:0;
+
+  /* Analit bantları — kolon içi göç */
+  const res=S.result;
+  if(res && running){
+    const idx=clamp(Math.floor(S.t/res.dtGrid),0,res.n-1);
+    for(let i=0;i<V.bands.length;i++){
+      const b=V.bands[i], tr=res.trajectories[i];
+      const x=tr.x[idx];
+      if(x>=0.999){ b.mesh.visible=false; }
+      else{
+        b.mesh.visible=true;
+        b.mesh.position.x=COL_X0+(COL_X1-COL_X0)*x;
+        const len=0.09+0.40*Math.sqrt(x);
+        b.mesh.scale.y=len/0.10;
+        b.mesh.material.opacity=clamp(0.9-0.35*Math.sqrt(x),0.3,0.9);
+      }
+    }
+    /* Kolon sonrası noktalar: elüsyondan sonra dedektöre ve atığa ilerler */
+    const segCD=V.segments.find(s=>s.id==='col-det');
+    const segDW=V.segments.find(s=>s.id==='det-waste');
+    for(let i=0;i<V.dots.length;i++){
+      const d=V.dots[i], tr=res.trajectories[i];
+      if(S.t<tr.tR || S.t>tr.tR+3){ d.mesh.visible=false; continue; }
+      const travelled=(S.t-tr.tR)*60/ (S.speed) * v;    // birim (görsel)
+      if(travelled<segCD.len){ segCD.curve.getPointAt(travelled/segCD.len,_tmpV); }
+      else if(travelled<segCD.len+segDW.len){ segDW.curve.getPointAt((travelled-segCD.len)/segDW.len,_tmpV); }
+      else { d.mesh.visible=false; continue; }
+      d.mesh.position.copy(_tmpV); d.mesh.visible=true;
+    }
+  } else {
+    V.bands.forEach(b=>b.mesh.visible=false);
+    V.dots.forEach(d=>d.mesh.visible=false);
+  }
+
+  /* Dedektör hücresi: anlık sinyale göre parlama */
+  let sigNorm=0;
+  if(res && (running || S.phase==='done')){
+    const idx=clamp(Math.floor(S.t/res.dtGrid),0,res.n-1);
+    const mx=Math.max(20,res.maxSignal||100);
+    sigNorm=clamp((res.total[idx]-res.base[idx])/mx,0,1);
+  }
+  if(V.cellGlow) V.cellGlow.intensity=0.25+sigNorm*3.0;
+  if(V.beam){ V.beam.material.opacity=0.25+sigNorm*0.6; V.beam.scale.set(1+sigNorm*0.5,1,1+sigNorm*0.5); }
+
+  /* Atık hacmi yükselir */
+  if(V.wasteLiquid && res){
+    const prog=clamp(S.t/Math.max(0.1,S.run),0,1);
+    const hgt=0.5+prog*1.1;
+    V.wasteLiquid.scale.y=hgt/0.5;
+    V.wasteLiquid.position.y=0.03+hgt/2;
+  }
+
+  /* Şişe sıvı seviyeleri (A ve B tüketimi) */
+  if(V.bottleLiquids && res){
+    const prog=clamp(S.t/Math.max(0.1,S.run),0,1);
+    const consA=1-0.25*prog*(1-phi), consB=1-0.25*prog*phi;
+    [consA,consB].forEach((c,i)=>{
+      const l=V.bottleLiquids[i]; if(!l) return;
+      l.scale.y=c; l.position.y=7.55+ (1.25*c)/2;
+    });
+  }
+
+  /* Cihaz ekranları (5 Hz) */
+  screenClock+=dt;
+  if(screenClock>0.2){ screenClock=0; updateInstrumentScreens(phi); }
+}
+
+/* Cihaz üzerindeki dinamik ekranlar */
+function updateInstrumentScreens(phi){
+  const running=(S.phase==='running');
+  const p=V.screens.pump;
+  if(p){
+    const c=p.ctx;
+    c.fillStyle='#06120f'; c.fillRect(0,0,p.w,p.h);
+    c.strokeStyle='#12352f'; c.lineWidth=2; c.strokeRect(1,1,p.w-2,p.h-2);
+    c.fillStyle='#2ee0d3'; c.font='bold 34px ui-monospace,monospace'; c.textAlign='left';
+    c.fillText((running||S.flowMode?S.flow.toFixed(3):'0.000'),14,44);
+    c.fillStyle='#6f8f8b'; c.font='16px ui-monospace,monospace';
+    c.fillText('mL/min',150,44);
+    c.fillStyle='#7fd6ff'; c.font='bold 22px ui-monospace,monospace';
+    c.fillText(Math.round((running||S.flowMode?pressureBar(phi):0))+' bar',14,84);
+    c.fillStyle='#b08cff'; c.fillText('%B '+Math.round(phi*100),150,84);
+    c.fillStyle=running?'#59d97a':'#3a4450';
+    c.fillRect(p.w-26,12,14,14);
+    p.tex.needsUpdate=true;
+  }
+  const o=V.screens.oven;
+  if(o){
+    const c=o.ctx;
+    c.fillStyle='#150c06'; c.fillRect(0,0,o.w,o.h);
+    c.strokeStyle='#3a2412'; c.lineWidth=2; c.strokeRect(1,1,o.w-2,o.h-2);
+    c.fillStyle='#ff9f5a'; c.font='bold 40px ui-monospace,monospace'; c.textAlign='center';
+    c.fillText(S.temp.toFixed(0)+'°C',o.w/2,58);
+    c.fillStyle='#8a6a52'; c.font='16px ui-monospace,monospace';
+    c.fillText('KOLON SICAKLIĞI',o.w/2,88);
+    o.tex.needsUpdate=true;
+  }
+  const d=V.screens.det;
+  if(d){
+    const c=d.ctx, res=S.result;
+    c.fillStyle='#050d12'; c.fillRect(0,0,d.w,d.h);
+    c.strokeStyle='#123040'; c.lineWidth=2; c.strokeRect(1,1,d.w-2,d.h-2);
+    c.fillStyle='#4aa3ff'; c.font='15px ui-monospace,monospace'; c.textAlign='left';
+    c.fillText(S.wl+' nm',10,20);
+    c.textAlign='right'; c.fillText(fmt(S.t,2)+' dk',d.w-10,20);
+    if(res){
+      const idx=clamp(Math.floor(S.t/res.dtGrid),0,res.n-1);
+      const from=Math.max(0,idx-500);
+      let mx=1; for(let i=from;i<=idx;i++) mx=Math.max(mx,res.total[i]);
+      c.strokeStyle='#2ee0d3'; c.lineWidth=2; c.beginPath();
+      for(let i=from;i<=idx;i++){
+        const x=10+((i-from)/Math.max(1,(idx-from)))*(d.w-20);
+        const y=d.h-14-(res.total[i]/mx)*(d.h-46);
+        i===from?c.moveTo(x,y):c.lineTo(x,y);
+      }
+      c.stroke();
+    }
+    d.tex.needsUpdate=true;
+  }
+}
+</script>
+
+<script>
+'use strict';
+/* ==========================================================================
+   5) KROMATOGRAM — Canvas 2D üzerinde gerçek zamanlı çizim, zoom/pan, tooltip
+   ========================================================================== */
+const CH = { cv:null, ctx:null, w:0, h:0, dpr:1,
+             pad:{l:52,r:46,t:16,b:30}, hover:null, drag:false, dragX:0, dragT:0 };
+
+function initChroma(){
+  CH.cv=document.getElementById('chromaCanvas');
+  CH.ctx=CH.cv.getContext('2d');
+  resizeChroma();
+  const tip=document.getElementById('chromaTip');
+
+  CH.cv.addEventListener('mousemove',e=>{
+    const r=CH.cv.getBoundingClientRect();
+    const px=e.clientX-r.left, py=e.clientY-r.top;
+    if(CH.drag){
+      const span=S.view.t1-S.view.t0;
+      const dt=(px-CH.dragX)/plotW()*span;
+      S.view.t0=CH.dragT-dt; S.view.t1=S.view.t0+span;
+      clampView(); return;
+    }
+    const t=pxToTime(px);
+    CH.hover={px,py,t};
+    updateTooltip(tip,px,py,t);
+  });
+  CH.cv.addEventListener('mouseleave',()=>{CH.hover=null;tip.style.opacity=0;});
+  CH.cv.addEventListener('mousedown',e=>{
+    const r=CH.cv.getBoundingClientRect();
+    CH.drag=true; CH.dragX=e.clientX-r.left; CH.dragT=S.view.t0; CH.cv.style.cursor='grabbing';
+  });
+  window.addEventListener('mouseup',()=>{CH.drag=false;if(CH.cv)CH.cv.style.cursor='crosshair';});
+  CH.cv.addEventListener('wheel',e=>{
+    e.preventDefault();
+    const r=CH.cv.getBoundingClientRect();
+    const t=pxToTime(e.clientX-r.left);
+    const f=Math.exp(e.deltaY*0.0014);
+    S.view.t0=t-(t-S.view.t0)*f;
+    S.view.t1=t+(S.view.t1-t)*f;
+    clampView();
+  },{passive:false});
+  window.addEventListener('resize',resizeChroma);
+}
+function plotW(){ return CH.w-CH.pad.l-CH.pad.r; }
+function plotH(){ return CH.h-CH.pad.t-CH.pad.b; }
+function timeToPx(t){ return CH.pad.l + (t-S.view.t0)/(S.view.t1-S.view.t0)*plotW(); }
+function pxToTime(px){ return S.view.t0 + (px-CH.pad.l)/plotW()*(S.view.t1-S.view.t0); }
+function valToPy(v){ return CH.pad.t + (1-(v-S.view.y0)/(S.view.y1-S.view.y0))*plotH(); }
+function clampView(){
+  const maxT=Math.max(S.run,0.5);
+  if(S.view.t1-S.view.t0<0.05){ const c=(S.view.t0+S.view.t1)/2; S.view.t0=c-0.025; S.view.t1=c+0.025; }
+  if(S.view.t1-S.view.t0>maxT*1.5){ S.view.t0=0; S.view.t1=maxT; }
+  if(S.view.t0<-0.15){ const d=-0.15-S.view.t0; S.view.t0+=d; S.view.t1+=d; }
+  if(S.view.t1>maxT*1.5){ const d=S.view.t1-maxT*1.5; S.view.t0-=d; S.view.t1-=d; }
+}
+function resizeChroma(){
+  if(!CH.cv) return;
+  const rect=CH.cv.getBoundingClientRect();
+  CH.dpr=Math.min(2,window.devicePixelRatio||1);
+  CH.w=Math.max(200,rect.width); CH.h=Math.max(120,rect.height);
+  CH.cv.width=Math.round(CH.w*CH.dpr); CH.cv.height=Math.round(CH.h*CH.dpr);
+  CH.ctx.setTransform(CH.dpr,0,0,CH.dpr,0,0);
+}
+
+function revealedIndex(){
+  const res=S.result; if(!res) return -1;
+  if(S.phase==='idle') return -1;
+  return clamp(Math.floor(S.t/res.dtGrid),0,res.n-1);
+}
+
+function drawChroma(){
+  const c=CH.ctx; if(!c) return;
+  const res=S.result, W=CH.w, H=CH.h;
+  c.clearRect(0,0,W,H);
+
+  /* Otomatik Y ölçekleme */
+  const idx=revealedIndex();
+  if(S.view.autoY){
+    let mx=10, mn=0;
+    if(res && idx>=0){
+      const i0=clamp(Math.floor(S.view.t0/res.dtGrid),0,res.n-1);
+      const i1=clamp(Math.ceil(S.view.t1/res.dtGrid),0,idx);
+      for(let i=i0;i<=i1;i++){ if(res.total[i]>mx) mx=res.total[i]; if(res.total[i]<mn) mn=res.total[i]; }
+    }
+    const target1=mx*1.15+4, target0=mn-4;
+    S.view.y1+= (target1-S.view.y1)*0.12;
+    S.view.y0+= (target0-S.view.y0)*0.12;
+  }
+
+  /* Çerçeve ve ızgara */
+  c.fillStyle='#0a1119'; c.fillRect(CH.pad.l,CH.pad.t,plotW(),plotH());
+  c.strokeStyle='#1b2836'; c.lineWidth=1;
+  const span=S.view.t1-S.view.t0;
+  const stepT=niceStep(span/7);
+  c.font='10px ui-monospace,monospace'; c.textAlign='center'; c.textBaseline='top';
+  for(let t=Math.ceil(S.view.t0/stepT)*stepT; t<=S.view.t1; t+=stepT){
+    const x=timeToPx(t);
+    c.beginPath(); c.moveTo(x,CH.pad.t); c.lineTo(x,CH.pad.t+plotH()); c.stroke();
+    c.fillStyle='#5f7185'; c.fillText(fmt(t, stepT<1?1:0), x, CH.pad.t+plotH()+6);
+  }
+  const stepY=niceStep((S.view.y1-S.view.y0)/5);
+  c.textAlign='right'; c.textBaseline='middle';
+  for(let v=Math.ceil(S.view.y0/stepY)*stepY; v<=S.view.y1; v+=stepY){
+    const y=valToPy(v);
+    if(y<CH.pad.t-1||y>CH.pad.t+plotH()+1) continue;
+    c.strokeStyle='#16212e'; c.beginPath(); c.moveTo(CH.pad.l,y); c.lineTo(CH.pad.l+plotW(),y); c.stroke();
+    c.fillStyle='#5f7185'; c.fillText(fmt(v,0),CH.pad.l-7,y);
+  }
+  c.strokeStyle='#2f4055'; c.strokeRect(CH.pad.l,CH.pad.t,plotW(),plotH());
+
+  /* Eksen başlıkları */
+  c.fillStyle='#8fa3b8'; c.font='10.5px system-ui,sans-serif';
+  c.textAlign='center'; c.textBaseline='bottom';
+  c.fillText('Zaman (dk)', CH.pad.l+plotW()/2, H-2);
+  c.save(); c.translate(11,CH.pad.t+plotH()/2); c.rotate(-Math.PI/2);
+  c.fillText('Sinyal (mAU)',0,0); c.restore();
+
+  /* Gradient profili (sağ eksen) */
+  c.save();
+  c.beginPath(); c.rect(CH.pad.l,CH.pad.t,plotW(),plotH()); c.clip();
+  c.strokeStyle='rgba(160,107,255,.55)'; c.setLineDash([5,4]); c.lineWidth=1.4;
+  c.beginPath();
+  for(let i=0;i<=90;i++){
+    const t=S.view.t0+span*i/90;
+    const y=CH.pad.t+plotH()*(1-phiProgram(t));
+    i===0?c.moveTo(timeToPx(t),y):c.lineTo(timeToPx(t),y);
+  }
+  c.stroke(); c.setLineDash([]);
+  c.restore();
+  c.fillStyle='rgba(160,107,255,.85)'; c.font='10px ui-monospace,monospace';
+  c.textAlign='left'; c.textBaseline='middle';
+  c.fillText('100%B',CH.pad.l+plotW()+5,CH.pad.t+4);
+  c.fillText('0%B',CH.pad.l+plotW()+5,CH.pad.t+plotH()-4);
+
+  /* Sinyal izi */
+  if(res && idx>0){
+    c.save();
+    c.beginPath(); c.rect(CH.pad.l,CH.pad.t,plotW(),plotH()); c.clip();
+    const i0=clamp(Math.floor(S.view.t0/res.dtGrid),0,res.n-1);
+    const i1=clamp(Math.ceil(S.view.t1/res.dtGrid),0,idx);
+    const stepI=Math.max(1,Math.floor((i1-i0)/(plotW()*2)));
+    c.strokeStyle='#2ee0d3'; c.lineWidth=1.5; c.lineJoin='round';
+    c.beginPath();
+    let started=false;
+    for(let i=i0;i<=i1;i+=stepI){
+      const x=timeToPx(res.time[i]), y=valToPy(res.total[i]);
+      if(!started){ c.moveTo(x,y); started=true; } else c.lineTo(x,y);
+    }
+    c.stroke();
+    /* Analiz sürerken izin ucunda parlak nokta */
+    if(S.phase==='running'){
+      const x=timeToPx(res.time[idx]), y=valToPy(res.total[idx]);
+      c.fillStyle='#2ee0d3'; c.beginPath(); c.arc(x,y,3.2,0,7); c.fill();
+      c.strokeStyle='rgba(46,224,211,.35)'; c.lineWidth=1;
+      c.beginPath(); c.moveTo(x,CH.pad.t); c.lineTo(x,CH.pad.t+plotH()); c.stroke();
+    }
+    /* Pik etiketleri — yakın pikler için kademeli yerleşim (çakışma önleme) */
+    c.font='10.5px system-ui,sans-serif'; c.textAlign='center'; c.textBaseline='bottom';
+    let lastX=-1e9, lastY=1e9;
+    for(const p of res.eluting){
+      if(p.tR>res.time[idx]) continue;
+      const x=timeToPx(p.tR);
+      if(x<CH.pad.l-30||x>CH.pad.l+plotW()+30) continue;
+      const apex=p.height+res.base[clamp(Math.round(p.tR/res.dtGrid),0,res.n-1)];
+      const yTop=Math.max(CH.pad.t+48, valToPy(apex));
+      let yLab=yTop-16;
+      if(x-lastX<62) yLab=Math.min(yLab,lastY-23);      // komşu etiketin üstüne kaydır
+      yLab=Math.max(yLab,CH.pad.t+14);
+      lastX=x; lastY=yLab;
+      c.strokeStyle=p.a.color; c.globalAlpha=.55; c.lineWidth=1;
+      c.beginPath(); c.moveTo(x,yTop-4); c.lineTo(x,yLab+3); c.stroke(); c.globalAlpha=1;
+      c.fillStyle=p.a.color;
+      c.fillText(p.a.name, x, yLab);
+      c.fillStyle='#7f93a8'; c.font='9.5px ui-monospace,monospace';
+      c.fillText(fmt(p.tR,2)+' dk', x, yLab-11);
+      c.font='10.5px system-ui,sans-serif';
+    }
+    c.restore();
+  } else {
+    c.fillStyle='#3d4c5d'; c.font='12px system-ui,sans-serif';
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('Kromatogram için "Başlat" düğmesine basın', CH.pad.l+plotW()/2, CH.pad.t+plotH()/2);
+  }
+
+  /* İmleç çizgisi */
+  if(CH.hover && !CH.drag){
+    c.strokeStyle='rgba(143,163,184,.35)'; c.setLineDash([3,3]); c.lineWidth=1;
+    c.beginPath(); c.moveTo(CH.hover.px,CH.pad.t); c.lineTo(CH.hover.px,CH.pad.t+plotH()); c.stroke();
+    c.setLineDash([]);
+  }
+}
+function niceStep(raw){
+  const p=Math.pow(10,Math.floor(Math.log10(Math.max(1e-6,raw))));
+  const n=raw/p;
+  return (n<1.5?1:n<3?2:n<7?5:10)*p;
+}
+
+/* Tooltip: pik üzerinde Rt/alan/yükseklik, boşlukta imleç okuması */
+function updateTooltip(tip,px,py,t){
+  const res=S.result;
+  if(!res || revealedIndex()<0){ tip.style.opacity=0; return; }
+  let best=null,bestD=1e9;
+  for(const p of res.eluting){
+    if(p.tR>res.time[revealedIndex()]) continue;
+    const d=Math.abs(timeToPx(p.tR)-px);
+    if(d<bestD){bestD=d;best=p;}
+  }
+  let html;
+  if(best && bestD<26){
+    html='<div class="tt">'+best.a.name+'</div>'+
+      '<span>t<sub>R</sub></span> '+fmt(best.tR,3)+' dk<br>'+
+      '<span>Alan</span> '+fmt(best.area,1)+' mAU·s<br>'+
+      '<span>Yükseklik</span> '+fmt(best.height,1)+' mAU<br>'+
+      '<span>k</span> '+fmt(best.kObs,2)+' &nbsp; <span>N</span> '+Math.round(best.Nobs)+'<br>'+
+      '<span>w<sub>50</sub></span> '+fmt(best.w50*60,1)+' s &nbsp; <span>A<sub>s</sub></span> '+fmt(best.As,2)+
+      (best.Rs?('<br><span>R<sub>s</sub></span> '+fmt(best.Rs,2)+' (önceki pike göre)'):'');
+  }else{
+    const i=clamp(Math.round(t/res.dtGrid),0,revealedIndex());
+    if(t<0||t>res.time[revealedIndex()]){ tip.style.opacity=0; return; }
+    html='<span>Zaman</span> '+fmt(t,3)+' dk<br><span>Sinyal</span> '+fmt(res.total[i],2)+' mAU'+
+         '<br><span>%B</span> '+Math.round(phiProgram(t)*100);
+  }
+  tip.innerHTML=html;
+  tip.style.opacity=1;
+  const tw=tip.offsetWidth, th=tip.offsetHeight;
+  let x=px+14, y=py-th-10;
+  if(x+tw>CH.w-6) x=px-tw-14;
+  if(y<4) y=py+16;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+}
+</script>
+
+<script>
+'use strict';
+/* ==========================================================================
+   6) KULLANICI ARAYÜZÜ — kontrol paneli, durum LED'leri, tablolar, ana döngü
+   ========================================================================== */
+const $=id=>document.getElementById(id);
+
+/* ---------- Sekmeler ---------- */
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active',p.id==='pane-'+name));
+}
+
+/* ---------- Modül bilgi kartı ---------- */
+function renderInfo(id){
+  const m=MODULES[id]; if(!m) return;
+  const specs=m.specs.map(s=>'<dt>'+s[0]+'</dt><dd>'+s[1]+'</dd>').join('');
+  const prin=m.principle.map(p=>'<li>'+p+'</li>').join('');
+  $('infoBody').innerHTML=
+    '<div class="info-card">'+
+      '<div class="kicker">'+m.kicker+'</div>'+
+      '<h2>'+m.title+'</h2>'+
+      '<p>'+m.desc+'</p>'+
+      '<h4>Çalışma Prensibi</h4><ul>'+prin+'</ul>'+
+      '<h4>Teknik Parametreler</h4><dl class="speclist">'+specs+'</dl>'+
+      (id==='column'? '<div class="note">3B görünümde kolon gövdesi bilinçli olarak <b>yarı saydam (kesit)</b> '+
+        'modellenmiştir; gerçek kolon gövdesi opaktır ve iç kısmı görülemez.<br>Seçili kolon: <b>'+COLUMNS[S.col].label+
+        '</b> — hesaplanan ölü zaman t<sub>0</sub> = '+fmt(colGeom().t0,2)+' dk, V<sub>M</sub> = '+
+        fmt(colGeom().Vm,2)+' mL.</div>' : '')+
+    '</div>';
+}
+
+/* ---------- Durum LED'leri ---------- */
+function setLeds(){
+  const st={hazir:false,pompa:false,enjeksiyon:false,analiz:false,tamam:false};
+  const blink={};
+  if(S.phase==='idle'){ st.hazir=true; if(S.flowMode){st.pompa=true;blink.pompa=true;} }
+  else if(S.phase==='running'){
+    st.pompa=true;
+    if(S.t<0.2){ st.enjeksiyon=true; blink.enjeksiyon=true; }
+    else { st.analiz=true; blink.analiz=true; }
+  }
+  else if(S.phase==='paused'){ st.hazir=true; }
+  else if(S.phase==='done'){ st.tamam=true; st.hazir=true; }
+  document.querySelectorAll('.led').forEach(el=>{
+    const k=el.dataset.led;
+    el.classList.toggle('on',!!st[k]);
+    el.classList.toggle('blink',!!blink[k]);
+  });
+}
+
+/* ---------- Göstergeler ---------- */
+function updateGauges(){
+  const running=(S.phase==='running');
+  const phi=running?phiProgram(S.t):(S.mode==='iso'?S.isoB/100:phiProgram(0));
+  const f=(running||S.flowMode)?S.flow:0;
+  $('gFlow').innerHTML=fmt(f,2)+'<small>mL/dk</small>';
+  $('gFlowBar').style.width=(f/3*100)+'%';
+  const p=(running||S.flowMode)?pressureBar(phi):0;
+  $('gPress').innerHTML=Math.round(p)+'<small>bar</small>';
+  const pmax=(COLUMNS[S.col].dp<2)?1000:400;
+  $('gPressBar').style.width=clamp(p/pmax*100,0,100)+'%';
+  $('gaugePress').classList.toggle('hi',p>pmax*0.9);
+  $('gTime').innerHTML=fmt(S.t,2)+'<small>dk</small>';
+  $('gTimeBar').style.width=clamp(S.t/S.run*100,0,100)+'%';
+  $('chipB').textContent=Math.round(phi*100);
+  $('chipWl').textContent=S.wl;
+  $('chipT0').textContent=fmt(colGeom().t0,2);
+}
+
+/* ---------- Gradient tablosu ---------- */
+function renderGradTable(){
+  const tb=$('gradTable').querySelector('tbody');
+  tb.innerHTML='';
+  S.grad.forEach((row,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td><input type="number" step="0.1" min="0" value="'+row.t+'" data-i="'+i+'" data-k="t"></td>'+
+                 '<td><input type="number" step="1" min="0" max="100" value="'+row.b+'" data-i="'+i+'" data-k="b"></td>'+
+                 '<td><button class="rowdel" data-del="'+i+'" title="Basamağı sil">×</button></td>';
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('change',e=>{
+      const i=+e.target.dataset.i, k=e.target.dataset.k;
+      let v=parseFloat(e.target.value); if(isNaN(v)) v=0;
+      if(k==='b') v=clamp(v,0,100); else v=Math.max(0,v);
+      S.grad[i][k]=v;
+      S.grad.sort((a,b)=>a.t-b.t);
+      renderGradTable(); drawGradPreview();
+    });
+  });
+  tb.querySelectorAll('.rowdel').forEach(b=>{
+    b.addEventListener('click',e=>{
+      if(S.grad.length<=2) return;
+      S.grad.splice(+e.target.dataset.del,1);
+      renderGradTable(); drawGradPreview();
+    });
+  });
+  drawGradPreview();
+}
+function drawGradPreview(){
+  const cv=$('gradPreview'), c=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  c.clearRect(0,0,W,H);
+  c.fillStyle='#0a1119'; c.fillRect(0,0,W,H);
+  const pad=22, maxT=Math.max(S.run,S.grad[S.grad.length-1].t||1);
+  c.strokeStyle='#1b2836'; c.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad+(H-2*pad)*i/4;
+    c.beginPath(); c.moveTo(pad,y); c.lineTo(W-pad,y); c.stroke();
+  }
+  c.strokeStyle='#a06bff'; c.lineWidth=3; c.beginPath();
+  for(let i=0;i<=140;i++){
+    const t=maxT*i/140, x=pad+(W-2*pad)*(t/maxT), y=pad+(H-2*pad)*(1-phiProgram(t));
+    i===0?c.moveTo(x,y):c.lineTo(x,y);
+  }
+  c.stroke();
+  c.fillStyle='#5f7185'; c.font='18px ui-monospace,monospace';
+  c.textAlign='left'; c.fillText('%B',6,pad+6);
+  c.textAlign='right'; c.fillText(fmt(maxT,0)+' dk',W-6,H-6);
+}
+
+/* ---------- Sonuç tablosu ---------- */
+function renderResults(){
+  const tb=$('resTable').querySelector('tbody');
+  const res=S.result;
+  if(!res){ tb.innerHTML=''; return; }
+  const idx=revealedIndex();
+  const tNow=(idx>=0)?res.time[idx]:0;
+  let html='';
+  for(const p of res.eluting){
+    if(p.tR>tNow) continue;
+    html+='<tr>'+
+      '<td><span class="swatch" style="background:'+p.a.color+'"></span>'+p.a.name+'</td>'+
+      '<td>'+fmt(p.tR,2)+'</td><td>'+fmt(p.kObs,2)+'</td><td>'+Math.round(p.Nobs).toLocaleString('tr-TR')+'</td>'+
+      '<td>'+fmt(p.area,0)+'</td><td>'+fmt(p.height,1)+'</td>'+
+      '<td>'+(p.Rs?fmt(p.Rs,2):'—')+'</td></tr>';
+  }
+  const missing=res.peaks.filter(p=>!p.eluted);
+  tb.innerHTML=html||'<tr><td colspan="7" style="text-align:center;color:#5f7185">Henüz pik elüe olmadı</td></tr>';
+  let hint='Alan mAU·s, yükseklik mAU. N* ve R<sub>s</sub> yarı yükseklik genişliğinden (EP yöntemi) hesaplanır. '+
+    (S.mode==='grad'
+      ? '<b>Gradient modunda N* yalnızca görünür bir değerdir</b>: bant sıkışması nedeniyle izokratik verimin çok üzerinde çıkar ve sistem uygunluğu ölçütü olarak kullanılamaz.'
+      : 'İzokratik modda N gerçek kolon verimini temsil eder.');
+  if(missing.length) hint+=' <b style="color:#ffb347">Uyarı:</b> '+missing.map(p=>p.a.name).join(', ')+
+      ' seçilen koşullarda analiz süresi içinde elüe olmadı (elüsyon gücü yetersiz veya süre kısa).';
+  $('resHint').innerHTML=hint;
+
+  /* Sistem uygunluğu özeti */
+  const g=colGeom();
+  $('suT0').textContent=fmt(g.t0,2)+' dk';
+  $('suVm').textContent=fmt(g.Vm,2)+' mL';
+  $('suU').textContent=fmt(g.u,3)+' cm/s';
+  $('suN').textContent=Math.round(res.N).toLocaleString('tr-TR');
+  const rss=res.eluting.filter(p=>p.Rs!=null).map(p=>p.Rs);
+  $('suRs').textContent=rss.length?fmt(Math.min.apply(null,rss),2):'—';
+  $('suP').textContent=Math.round(res.pMax)+' bar';
+}
+
+/* ---------- Eğitim modu ---------- */
+function renderEdu(){
+  const box=$('eduList');
+  box.innerHTML='';
+  EDU_STEPS.forEach((st,i)=>{
+    const d=document.createElement('div');
+    d.className='edu-step'+(i===S.eduIdx?' active':'')+(i<S.eduIdx?' done':'');
+    d.innerHTML='<div class="n">'+(i+1)+'</div><div><div class="t">'+st.t+'</div><div class="d">'+st.d+'</div></div>';
+    d.addEventListener('click',()=>gotoEdu(i));
+    box.appendChild(d);
+    if(i===S.eduIdx) setTimeout(()=>d.scrollIntoView({block:'nearest',behavior:'smooth'}),30);
+  });
+}
+function gotoEdu(i){
+  S.eduMode=true; S.eduIdx=clamp(i,0,EDU_STEPS.length-1);
+  const step=EDU_STEPS[S.eduIdx];
+  S.selected=step.m;
+  renderInfo(step.m);
+  if(V.ok && V.modules[step.m]) camFocus(V.modules[step.m].focus.pos, V.modules[step.m].focus.target);
+  $('btnEdu').classList.add('active');
+  renderEdu(); if(V.ok) applyHighlight();
+  showTab('edu');
+}
+
+/* ---------- Analiz kontrolü ---------- */
+function startRun(){
+  if(S.phase==='paused'){                    /* duraklatılmışsa devam et */
+    S.phase='running'; setLeds(); updateRunNote(); syncButtons(); return;
+  }
+  S.result=computeRun();
+  let mx=1; for(let i=0;i<S.result.n;i++) mx=Math.max(mx,S.result.total[i]-S.result.base[i]);
+  S.result.maxSignal=mx;
+  S.t=0; S.phase='running';
+  S.view.t0=0; S.view.t1=S.run; S.view.y0=-5; S.view.y1=60;
+  setLeds(); updateRunNote(); syncButtons(); renderResults();
+  if(V.ok) drawStaticScreens();
+}
+function stopRun(){
+  if(S.phase!=='running') return;
+  S.phase='paused'; setLeds(); updateRunNote(); syncButtons();
+}
+function resetAll(){
+  S.phase='idle'; S.t=0; S.result=null;
+  S.view.t0=0; S.view.t1=S.run; S.view.y0=-5; S.view.y1=60;
+  S.eduMode=false; S.eduIdx=-1; S.selected=null;
+  $('btnEdu').classList.remove('active');
+  $('infoBody').innerHTML='<div class="info-empty">3D görünümde bir modüle tıklayın.<br>'+
+    'Modülün görevi, çalışma prensibi ve tipik teknik parametreleri burada görüntülenecektir.</div>';
+  renderEdu(); renderResults(); setLeds(); updateRunNote(); syncButtons();
+  if(V.ok){ applyHighlight(); camHome(); drawStaticScreens(); }
+}
+function finishRun(){
+  S.phase='done'; S.t=S.run;
+  setLeds(); updateRunNote(); syncButtons(); renderResults();
+}
+function syncButtons(){
+  $('btnStart').textContent=(S.phase==='paused')?'▶ Devam Et':'▶ Başlat';
+  $('btnStart').disabled=(S.phase==='running');
+  $('btnStop').disabled=(S.phase!=='running');
+  const lock=(S.phase==='running');
+  ['inFlow','inTemp','inInj','inWl','inRun','inMode','inB','inCol','inSolvA','inSolvB','btnAddRow']
+    .forEach(id=>{ const el=$(id); if(el) el.disabled=lock; });
+  $('gradTable').querySelectorAll('input,button').forEach(el=>el.disabled=lock);
+}
+function updateRunNote(){
+  const n=$('runNote'), g=colGeom();
+  if(S.phase==='running'){
+    n.innerHTML='<b>Analiz sürüyor.</b> Pompa aktif, mobil faz kolondan geçiyor. '+
+      'Anlık %B: '+Math.round(phiProgram(S.t)*100)+' · Basınç: '+Math.round(pressureBar(phiProgram(S.t)))+' bar · '+
+      't<sub>0</sub> = '+fmt(g.t0,2)+' dk';
+  } else if(S.phase==='paused'){
+    n.innerHTML='<b>Analiz duraklatıldı.</b> Devam etmek için <b>Devam Et</b>, baştan başlamak için <b>Reset</b>.';
+  } else if(S.phase==='done'){
+    const res=S.result;
+    const rss=res?res.eluting.filter(p=>p.Rs!=null).map(p=>p.Rs):[];
+    n.innerHTML='<b>Analiz tamamlandı.</b> '+(res?res.eluting.length:0)+' pik elüe oldu'+
+      (rss.length?(', en küçük çözünürlük R<sub>s</sub> = '+fmt(Math.min.apply(null,rss),2)):'')+
+      '. Ayrıntılar için <b>Sonuçlar</b> sekmesine bakın.';
+  } else {
+    n.innerHTML='Sistem hazır. Parametreleri ayarlayıp <b>Başlat</b>\'a basın; pompa devreye girecek, '+
+      'enjeksiyon gerçekleşecek ve kromatogram gerçek zamanlı oluşacaktır.';
+  }
+}
+
+/* ---------- Kaydırıcı bağlama ---------- */
+function bindRange(id,key,fmtFn,after){
+  const el=$(id);
+  const upd=()=>{
+    const v=parseFloat(el.value);
+    S[key]=v;
+    const lab=$('v'+id.slice(2));
+    if(lab) lab.innerHTML=fmtFn(v);
+    el.style.setProperty('--fill', ((v-el.min)/(el.max-el.min)*100)+'%');
+    if(after) after(v);
+  };
+  el.addEventListener('input',upd);
+  upd();
+}
+
+function initUI(){
+  bindRange('inFlow','flow',v=>fmt(v,2)+' <small>mL/dk</small>');
+  bindRange('inTemp','temp',v=>fmt(v,0)+' <small>°C</small>');
+  bindRange('inInj','inj', v=>fmt(v,0)+' <small>µL</small>');
+  bindRange('inWl','wl',   v=>fmt(v,0)+' <small>nm</small>');
+  bindRange('inRun','run', v=>fmt(v,0)+' <small>dk</small>', v=>{
+      if(S.phase==='idle'){ S.view.t0=0; S.view.t1=v; } drawGradPreview();
+  });
+  bindRange('inB','isoB',  v=>fmt(100-v,0)+' / '+fmt(v,0)+' <small>A/B</small>', ()=>drawGradPreview());
+  bindRange('inSpeed','speed',v=>'×'+fmt(v,0));
+
+  $('inMode').addEventListener('change',e=>{
+    S.mode=e.target.value;
+    $('isoWrap').hidden=(S.mode!=='iso');
+    $('gradWrap').hidden=(S.mode!=='grad');
+    drawGradPreview();
+  });
+  $('inCol').addEventListener('change',e=>{ S.col=e.target.value; if(V.ok) drawStaticScreens(); if(S.selected) renderInfo(S.selected); });
+  $('inSolvA').addEventListener('change',e=>{ S.solvA=e.target.value; if(V.ok) drawStaticScreens(); });
+  $('inSolvB').addEventListener('change',e=>{ S.solvB=e.target.value; if(V.ok) drawStaticScreens(); });
+  $('btnAddRow').addEventListener('click',()=>{
+    const last=S.grad[S.grad.length-1];
+    S.grad.push({t:+(last.t+2).toFixed(2), b:last.b});
+    renderGradTable();
+  });
+
+  $('btnStart').addEventListener('click',startRun);
+  $('btnStop').addEventListener('click',stopRun);
+  $('btnReset').addEventListener('click',resetAll);
+
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+
+  $('btnFlow').addEventListener('click',e=>{
+    S.flowMode=!S.flowMode;
+    e.currentTarget.classList.toggle('active',S.flowMode);
+    setLeds();
+  });
+  $('btnEdu').addEventListener('click',e=>{
+    S.eduMode=!S.eduMode;
+    e.currentTarget.classList.toggle('active',S.eduMode);
+    if(S.eduMode) gotoEdu(0);
+    else { S.eduIdx=-1; renderEdu(); if(V.ok) applyHighlight(); }
+  });
+  $('btnLabels').addEventListener('click',e=>{
+    S.showLabels=!S.showLabels;
+    e.currentTarget.classList.toggle('active',S.showLabels);
+  });
+  $('btnLabels').classList.add('active');
+  $('btnView').addEventListener('click',()=>{ if(V.ok) camHome(); });
+  $('btnEduPrev').addEventListener('click',()=>gotoEdu(S.eduIdx-1));
+  $('btnEduNext').addEventListener('click',()=>gotoEdu(S.eduIdx+1));
+
+  $('btnZoomIn').addEventListener('click',()=>{ const c=(S.view.t0+S.view.t1)/2,s=(S.view.t1-S.view.t0)*0.35;
+      S.view.t0=c-s; S.view.t1=c+s; clampView(); });
+  $('btnZoomOut').addEventListener('click',()=>{ const c=(S.view.t0+S.view.t1)/2,s=(S.view.t1-S.view.t0)*0.75;
+      S.view.t0=c-s; S.view.t1=c+s; clampView(); });
+  $('btnFit').addEventListener('click',()=>{ S.view.t0=0; S.view.t1=S.run; });
+  $('btnAuto').addEventListener('click',e=>{
+    S.view.autoY=!S.view.autoY;
+    e.currentTarget.classList.toggle('active',S.view.autoY);
+  });
+
+  $('isoWrap').hidden=true; $('gradWrap').hidden=false;
+  renderGradTable(); renderEdu(); setLeds(); syncButtons(); updateRunNote();
+  initChroma();
+}
+
+/* ---------- Simülasyon saati ---------- */
+let resTimer=0;
+function tickSim(dt){
+  if(S.phase==='running'){
+    S.t+=dt*S.speed/60;
+    if(S.t>=S.run){ S.t=S.run; finishRun(); }
+    setLeds();
+    resTimer+=dt;
+    if(resTimer>0.35){ resTimer=0; renderResults(); updateRunNote(); }
+  }
+}
+
+/* ---------- Ana döngü ---------- */
+let lastT=0;
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt=Math.min(0.1,(now-lastT)/1000||0); lastT=now;
+  tickSim(dt);
+  if(V.ok){
+    camUpdate(dt);
+    updateFlow3D(dt);
+    updateLabels();
+    V.renderer.render(V.scene,V.cam);
+  }
+  drawChroma();
+  updateGauges();
+}
+
+/* ---------- 3B başlatma ve boyutlandırma ---------- */
+function init3D(){
+  const canvas=$('glcanvas');
+  build3D(canvas);
+  bindCameraEvents(canvas);
+  buildLabels();
+  resize3D();
+  window.addEventListener('resize',resize3D);
+  camApply();
+  $('loadState').style.display='none';
+}
+const CAM_BASE_R=17.4;
+function resize3D(){
+  if(!V.ok) return;
+  const stage=$('stage');
+  const w=stage.clientWidth, h=stage.clientHeight;
+  V.renderer.setSize(w,h,false);
+  const aspect=w/Math.max(1,h);
+  V.cam.aspect=aspect;
+  V.cam.updateProjectionMatrix();
+  /* Dar/dikey ekranlarda sistemin tamamı kadrajda kalsın diye kamera geri çekilir */
+  const fit=clamp(1+(1.35-aspect)*0.75,1,2.1);
+  CAM.home.r=CAM_BASE_R*fit;
+  if(!CAM.userZoom) CAM.rGoal=CAM.home.r;
+}
+
+/* ---------- Three.js yükleyici (birden çok CDN denenir) ---------- */
+const THREE_CDNS=[
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+  'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js',
+  'https://unpkg.com/three@0.128.0/build/three.min.js'
+];
+function loadThree(i){
+  if(typeof THREE!=='undefined'){ boot3D(); return; }
+  if(i>=THREE_CDNS.length){ fail3D(); return; }
+  const s=document.createElement('script');
+  s.src=THREE_CDNS[i];
+  s.onload=()=>{ if(typeof THREE!=='undefined') boot3D(); else loadThree(i+1); };
+  s.onerror=()=>loadThree(i+1);
+  document.head.appendChild(s);
+}
+function boot3D(){
+  try{ init3D(); }
+  catch(err){ console.error(err); fail3D(err); }
+}
+function fail3D(err){
+  const el=$('loadState');
+  el.innerHTML='<p><b>3D görünüm yüklenemedi.</b><br>'+
+    'Three.js kütüphanesi CDN üzerinden alınamadı (çevrimdışı olabilirsiniz).<br>'+
+    'Kontrol paneli, gradient programı, analiz simülasyonu ve kromatogram tam olarak çalışmaya devam eder.'+
+    (err?('<br><code>'+String(err.message||err)+'</code>'):'')+'</p>';
+  el.style.background='rgba(5,8,12,.92)';
+}
+
+/* ---------- Başlangıç ---------- */
+initUI();
+requestAnimationFrame(frame);
+loadThree(0);
+</script>
+</body>
+</html>
