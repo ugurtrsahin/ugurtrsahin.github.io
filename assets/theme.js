@@ -3,7 +3,8 @@
         { label: "Ana Sayfa", href: "index.html" },
         { label: "HPLC Kılavuzu", href: "hplc-guide.html" },
         { label: "Kolon Seçimi", href: "hplc-column-selection.html" },
-        { label: "Validasyon", href: "hplc-guide/validation/acceptance-criteria.html" }
+        { label: "Validasyon", href: "hplc-guide/validation/acceptance-criteria.html" },
+        { label: "3D Simülatör", href: "hplc-simulator.html" }
     ];
 
     if (document.readyState === "loading") {
