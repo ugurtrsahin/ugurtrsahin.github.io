@@ -11,6 +11,8 @@
     --accent: #0f766e;
     --accent-hover: #115e59;
     --accent-soft: #e6f4f1;
+    --on-accent: #ffffff;
+    --shadow-hover: 0 6px 20px rgba(17, 24, 39, 0.06);
 
     --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
@@ -28,6 +30,97 @@
     /* İçerik sayfaları ~80 karakterlik satır; ana sayfa ızgarası daha geniş */
     --page-width: 46rem;
     --page-gutter: 20px;
+
+    color-scheme: light dark;
+}
+
+/* Koyu tema: işletim sistemi/tarayıcı tercihine (prefers-color-scheme) göre */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0e1315;
+        --surface: #151c1f;
+        --surface-hover: #1b2427;
+        --text: #e6eaec;
+        --muted: #a4afb4;
+        --border: #253033;
+        --border-strong: #364449;
+        --accent: #2dd4bf;
+        --accent-hover: #5eead4;
+        --accent-soft: #12302d;
+        --on-accent: #04201d;
+        --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Diyagramlar açık renk dolgularla (classDef) yazıldığı için açık zeminli panelde kalır */
+    .mermaid-diagram {
+        color-scheme: light;
+        background: #f4f6f6;
+        border-radius: var(--radius);
+        padding: var(--space-4);
+    }
+
+    /* Prism (açık tema) üzerine: beyaz gölge ve yarı saydam beyaz zeminleri kaldır */
+    :root code[class*="language-"],
+    :root pre[class*="language-"] {
+        color: var(--text);
+        text-shadow: none;
+    }
+
+    :root .token.comment,
+    :root .token.prolog,
+    :root .token.doctype,
+    :root .token.cdata {
+        color: #8b989e;
+    }
+
+    :root .token.punctuation {
+        color: #a4afb4;
+    }
+
+    :root .token.property,
+    :root .token.tag,
+    :root .token.boolean,
+    :root .token.number,
+    :root .token.constant,
+    :root .token.symbol,
+    :root .token.deleted {
+        color: #f39ac0;
+    }
+
+    :root .token.selector,
+    :root .token.attr-name,
+    :root .token.string,
+    :root .token.char,
+    :root .token.builtin,
+    :root .token.inserted {
+        color: #a6e3a1;
+    }
+
+    :root .token.operator,
+    :root .token.entity,
+    :root .token.url,
+    :root .language-css .token.string,
+    :root .style .token.string {
+        color: #e8c08a;
+        background: none;
+    }
+
+    :root .token.atrule,
+    :root .token.attr-value,
+    :root .token.keyword {
+        color: #7cc4fa;
+    }
+
+    :root .token.function,
+    :root .token.class-name {
+        color: #f5a3b1;
+    }
+
+    :root .token.regex,
+    :root .token.important,
+    :root .token.variable {
+        color: #f7c66b;
+    }
 }
 
 * {
@@ -223,6 +316,12 @@ pre code {
     font-size: inherit;
 }
 
+/* Prism temasının sabit zeminini site değişkenine bağla */
+:root pre[class*="language-"],
+:root :not(pre) > code[class*="language-"] {
+    background: var(--surface);
+}
+
 /* Tablolar */
 .table-scroll {
     overflow-x: auto;
@@ -407,13 +506,13 @@ img {
 .button-primary {
     background: var(--accent);
     border-color: var(--accent);
-    color: #ffffff;
+    color: var(--on-accent);
 }
 
 .button-primary:hover {
     background: var(--accent-hover);
     border-color: var(--accent-hover);
-    color: #ffffff;
+    color: var(--on-accent);
 }
 
 .home-section {
@@ -456,7 +555,7 @@ img {
 
 .card:hover {
     border-color: var(--border-strong);
-    box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
+    box-shadow: var(--shadow-hover);
     transform: translateY(-1px);
 }
 
