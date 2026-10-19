@@ -44,6 +44,8 @@ The nav bar is dynamically injected by `theme.js` using the `navLinks` array har
 `sfe-intelligence.html` and `hplc-simulator.html` are single-file applications that do not use the shared theme beyond the `site-base` meta tag. Both are linked from `index.html` (under "Projeler") and from the `navLinks` array in `assets/theme.js`.
 
 - `sfe-intelligence.html` — SFE Intelligence: a single-file (inline CSS + bundled JS, ~1 MB) platform for supercritical CO₂ (scCO₂) extraction literature, evidence traceability (provenance) and deterministic engineering calculations. Treat it as a build output: do not hand-edit the minified bundle; replace the whole file when a new build is exported. It must not contain preview-environment scripts such as `/_aistudio-iframe.js`.
+  - Backend: the app is wired to the `sfe-intelligence` Firebase project (Google Sign-In and the Cloud Firestore `(default)` database). The Firebase web config is embedded in the bundle as the `KS` object (`projectId: sfe-intelligence`); web API keys are public by design, access is enforced by Firestore rules and the Authorized domains list (`ugurtrsahin.github.io` must be listed under Authentication → Settings).
+  - Persistence: when signed out, data is kept in `localStorage`; when signed in with Google, data is synchronized in real time with Firestore (`projects`, `sources`, `evidences`, `experiments`, `calculations`; every document carries `ownerId` = the user's uid and is only readable/writable by its owner via Firestore rules). Local `local-user` records are migrated to the cloud on first sign-in.
 - `hplc-simulator.html` — interactive 3D HPLC instrument simulator.
 
 ### Notion-compatible CSS
