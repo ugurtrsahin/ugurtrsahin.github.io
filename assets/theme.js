@@ -4,7 +4,7 @@
         { label: "HPLC Kılavuzu", href: "hplc-guide.html" },
         { label: "Validasyon", href: "hplc-guide/validation/acceptance-criteria.html" },
         { label: "3D Simülatör", href: "hplc-simulator.html" },
-        { label: "SFE Intelligence", href: "sfe-intelligence.html" }
+        { label: "SFE Intelligence", href: "sfe-intelligence-web/" }
     ];
 
     if (document.readyState === "loading") {

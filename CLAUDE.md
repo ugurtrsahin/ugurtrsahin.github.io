@@ -41,18 +41,10 @@ The nav bar is dynamically injected by `theme.js` using the `navLinks` array har
 
 ### Standalone pages
 
-`sfe-intelligence.html` and `hplc-simulator.html` are single-file applications that do not use the shared theme beyond the `site-base` meta tag. Both are linked from `index.html` (under "Projeler") and from the `navLinks` array in `assets/theme.js`.
+`hplc-simulator.html` is a single-file application that does not use the shared theme beyond the `site-base` meta tag. It is linked from `index.html` (under "Projeler") and from the `navLinks` array in `assets/theme.js`.
 
-- `sfe-intelligence.html` — SFE Intelligence: a single-file (inline CSS + bundled JS, ~1 MB) platform for supercritical CO₂ (scCO₂) extraction literature, evidence traceability (provenance) and deterministic engineering calculations. Treat it as a build output: do not hand-edit the minified bundle; replace the whole file when a new build is exported. It must not contain preview-environment scripts such as `/_aistudio-iframe.js`.
-  - **Hand-patched bundle**: the owner-only auth gate below was added directly to the minified bundle (component `SfeAuthGate` wraps the app root `BC`, plus the `KS` Firebase config). If the file is replaced by a fresh export, these patches must be re-applied.
-  - Backend: the `sfe-intelligence` Firebase project (Google/GitHub Sign-In and the Cloud Firestore `(default)` database). The Firebase web config is embedded as the `KS` object; web API keys are public by design — access control is the auth gate (UI) plus `firestore.rules` (data).
-  - **Access model — owner-only (single user)**: the app is private to `ugur.tr.sahin@gmail.com` (GitHub: `ugurtrsahin`). Signed-out visitors see only a lock screen with "GitHub ile Giriş Yap" / "Google ile Giriş Yap" buttons; the app (`BC`) is not even mounted, so no tabs, tables, demo data or `localStorage` guest mode are reachable. `onAuthStateChanged` and every sign-in result run `sfeIsOwner(user)`: the Firebase account must have a **verified** email equal (case-insensitive) to the owner email; otherwise `signOut` is called immediately and "Erişim Reddedildi" is shown. Identity is decided by verified email only — a GitHub username match alone is not accepted, because Firestore rules cannot verify it (the UI would open but all data access would fail).
-  - Limits of the gate: it is client-side (static hosting). The HTML/JS bundle itself — including built-in demo/glossary data — stays publicly downloadable; real data protection comes from `firestore.rules`. Data already cached in the browser's `localStorage` from earlier sessions is not erased by the gate.
-  - Persistence: data lives in Firestore (`projects`, `sources`, `evidences`, `experiments`, `calculations`), each document carrying `ownerId` = the owner's uid, with real-time sync and a `localStorage` cache. Legacy `local-user` records are migrated to the cloud on first owner sign-in.
-  - Security rules: `firestore.rules` at the repository root is the versioned backup of the rules published in the Firebase Console (not deployed automatically). Rules require `isAuthorizedOwner()` (verified email = owner email) **and** `ownerId == request.auth.uid`, limited to the five collections. After changing the rules in the Console, update this file to match. It is served publicly with the site; the rules contain no secrets.
-  - Firebase Console prerequisites: Authentication → Sign-in method: Google and GitHub enabled (GitHub needs an OAuth App whose callback URL is `https://sfe-intelligence.firebaseapp.com/__/auth/handler`); Authorized domains includes `ugurtrsahin.github.io`. Keep "one account per email" (default) so Google and GitHub logins share one uid and therefore one `ownerId`.
-  - Navigation: the page has no shared theme nav; a static top bar (`← Ana Sayfa`, `href="index.html"`) above `#root` links back to the home page.
 - `hplc-simulator.html` — interactive 3D HPLC instrument simulator.
+- `sfe-intelligence.html` — **redirect stub only** (meta refresh + `location.replace`) to `/sfe-intelligence-web/`. The SFE Intelligence app is a separate project in the repository `ugurtrsahin/sfe-intelligence-web` (Vite/React/TypeScript; built and published by its own GitHub Actions workflow to the project-pages path `https://ugurtrsahin.github.io/sfe-intelligence-web/`). Do not add app code, Firebase configuration, or `firestore.rules` here; they live in that repository (see its `README.md` and `CLAUDE.md`). `index.html` and the `navLinks` entry point to `sfe-intelligence-web/`. Do not create a top-level `sfe-intelligence-web/` directory in this repository — it would shadow the project site. The app is private to its owner (verified-email gate + Firestore rules).
 
 ### Notion-compatible CSS
 
@@ -96,12 +88,10 @@ All page content, headings, navigation labels, and UI text are in Turkish. Maint
 
 ## Security notes
 
-- **No secrets in the repo.** Firebase web config/API keys are public by design; protection comes from the SFE auth gate and `firestore.rules`. Never commit service-account keys, OAuth client secrets, or `GEMINI_API_KEY`. Restrict the web API key to `https://ugurtrsahin.github.io/*` in Google Cloud Console.
+- **No secrets in the repo.** Never commit service-account keys, OAuth client secrets, or `GEMINI_API_KEY`. (The SFE app's Firebase web config is public by design and lives in its own repository, which also owns the auth gate and `firestore.rules`.)
 - **Third-party code.** `hplc-simulator.html` loads three.js r128 from CDNs with Subresource Integrity (`THREE_SRI`; all three CDNs serve the identical file). When changing the three.js version, recompute the `sha384` hash. `assets/vendor/mermaid.min.js` (10.9.5) is currently unused by any page; keep it unused or update/remove it. Prism is loaded only for pages with `<pre><code>` blocks.
 - **CI supply chain.** `.github/workflows/static.yml` pins every action to a commit SHA (tag in the trailing comment) and uses least-privilege `permissions`. When bumping an action, update both the SHA and the comment.
 - **No inline HTML from user input.** New code must use `textContent`/DOM APIs, not `innerHTML`, for any value that is not a number or a static string.
-- **Anti-framing.** GitHub Pages cannot send `X-Frame-Options`/`frame-ancestors`; `sfe-intelligence.html` hides itself when framed (inline script in `<head>`).
-- **Gemini backend (outside this repo).** `sfe-intelligence.html` sends `Authorization: Bearer <Firebase ID token>` to `/api/extract-sfe` on the Cloud Run/AI Studio server. That server (`server.ts` in the exported app) must verify the token (verified owner email), restrict CORS to `https://ugurtrsahin.github.io`, and rate-limit; the previously exported version did none of these. Treat the endpoint as unauthenticated until the server is patched.
 
 ## Deployment
 
