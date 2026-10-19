@@ -39,6 +39,13 @@ The nav bar is dynamically injected by `theme.js` using the `navLinks` array har
 - Regular code: Prism.js is lazy-loaded from `assets/vendor/prism.min.js` only when `<pre><code>` blocks are present.
 - Mermaid diagrams: use `<pre><code class="language-mermaid">` — `theme.js` converts these to `<div class="mermaid">` elements and loads `assets/vendor/mermaid.min.js` at runtime.
 
+### Standalone pages
+
+`sfe-intelligence.html` and `hplc-simulator.html` are single-file applications that do not use the shared theme beyond the `site-base` meta tag. Both are linked from `index.html` (under "Projeler") and from the `navLinks` array in `assets/theme.js`.
+
+- `sfe-intelligence.html` — SFE Intelligence: a single-file (inline CSS + bundled JS, ~1 MB) platform for supercritical CO₂ (scCO₂) extraction literature, evidence traceability (provenance) and deterministic engineering calculations. Treat it as a build output: do not hand-edit the minified bundle; replace the whole file when a new build is exported. It must not contain preview-environment scripts such as `/_aistudio-iframe.js`.
+- `hplc-simulator.html` — interactive 3D HPLC instrument simulator.
+
 ### Notion-compatible CSS
 
 Content was exported from Notion. `theme.css` defines classes matching Notion's output: `.page`, `.page-title`, `.page-description`, `.link-to-page`, `.bulleted-list`, `.toggle` (collapsible `<details>`), `.to-do-list`, `.checkbox`.
@@ -82,3 +89,6 @@ All page content, headings, navigation labels, and UI text are in Turkish. Maint
 ## Deployment
 
 Push to the `main` branch — GitHub Pages deploys automatically with no build step.
+
+- `.nojekyll` at the repository root disables Jekyll processing, so the large single-file pages are served as authored.
+- `.github/workflows/static.yml` deploys the repository root with `actions/deploy-pages`. It requires Settings → Pages → Source = "GitHub Actions"; with "Deploy from a branch" the built-in `pages-build-deployment` run is used instead.
