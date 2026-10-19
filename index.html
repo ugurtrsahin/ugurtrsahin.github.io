@@ -3,44 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
     <meta name="site-base" content="/">
-    <meta name="description" content="Uğur Sahin — analitik kimya, Süperkritik CO₂ Ekstraksiyonu (SFE) ve HPLC odaklı projeler, HPLC metod geliştirme ve validasyon içerikleri.">
+    <meta name="description" content="Uğur Şahin — analitik kimya, Süperkritik CO₂ Ekstraksiyonu (SFE) ve HPLC odaklı projeler, HPLC metod geliştirme ve validasyon içerikleri.">
     <meta name="theme-color" content="#ffffff">
     <link rel="canonical" href="https://ugurtrsahin.github.io/">
-    <meta property="og:title" content="Uğur Sahin">
+    <meta property="og:title" content="Uğur Şahin">
     <meta property="og:description" content="Analitik kimya, SFE Intelligence ve HPLC odaklı projeler, HPLC metod geliştirme ve validasyon içerikleri.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ugurtrsahin.github.io/">
-    <meta property="og:site_name" content="Uğur Sahin">
+    <meta property="og:site_name" content="Uğur Şahin">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Uğur Sahin">
+    <meta name="twitter:title" content="Uğur Şahin">
     <meta name="twitter:description" content="Analitik kimya, SFE Intelligence ve HPLC odaklı projeler, HPLC metod geliştirme ve validasyon içerikleri.">
     <link rel="stylesheet" href="/assets/theme.css">
     <script defer src="/assets/theme.js"></script>
-    <title>Uğur Sahin</title>
+    <title>Uğur Şahin</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
-<body data-base="/">
+<body class="home" data-base="/" data-toc="off">
     <a class="skip-link" href="#main-content">İçeriğe atla</a>
     <main id="main-content">
-        <h1>Uğur Sahin</h1>
-        <p>Analitik kimya geçmişi olan, HPLC, Süperkritik Akışkan Ekstraksiyonu (SFE) ve yazılım/AI araçları üzerine çalışan bir geliştiriciyim. Aşağıda güncel projelerim ve HPLC üzerine hazırladığım içerikler yer alıyor.</p>
-        <h2>Projeler</h2>
-        <figure class="link-to-page"><a href="sfe-intelligence-web/">SFE Intelligence — Bilimsel Araştırma ve Proses Geliştirme Platformu</a></figure>
-        <p>Süperkritik CO₂ (scCO₂) ekstraksiyon literatürünü organize eden, araştırma makalelerinden yapılandırılmış deneysel verileri kanıt izlenebilirliği (provenance) ile çıkaran, SFE deneylerini karşılaştıran ve tekrarlanabilir deterministik mühendislik hesaplamaları sunan bulut tabanlı (Google/GitHub oturumu &amp; Firestore) bilimsel araştırma uygulaması. Uygulama yalnızca sahibine açıktır ve giriş gerektirir.</p>
-        <figure class="link-to-page"><a href="hplc-simulator.html">3D İnteraktif HPLC Cihaz Simülatörü</a></figure>
-        <p>Modüler HPLC sistem mimarisini, akış yolu animasyonunu, gerçek zamanlı kromatogramı ve LSS tabanlı gradient elüsyon modelini gösteren etkileşimli 3D simülatör.</p>
-        <figure class="link-to-page"><a href="https://github.com/ugurtrsahin/OBB">OBB — scCO₂ Ekstraksiyon Araştırma Projesi</a></figure>
-        <p>Ordu Büyükşehir Belediyesi için hazırlanan, bölge bitkilerinin süperkritik CO₂ (scCO₂) ekstraksiyonu üzerine literatür taraması ve standart teknik monograf üretimini kapsayan bir Ar-Ge çalışması. Monografları otomatik üreten bir Node.js/Python yazılım hattı içeriyor.</p>
-        <h2>HPLC İçerikleri</h2>
-        <ul>
-            <li><a href="hplc-guide.html">HPLC Kılavuzu</a> - Temel kavramlar, dedektör rehberleri ve sorun giderme</li>
-            <li><a href="hplc-guide/validation/acceptance-criteria.html">Validasyon</a> - SOP taslakları ve kabul kriterleri</li>
-            <li><a href="hplc-guide/shimadzu/software-components.html">Shimadzu Yazılımları</a> - Veri işleme ve spektral benzerlik</li>
-            <li><a href="hplc-guide/detectors-guide.html">Dedektör Notları</a> - UV/Vis ve DAD dedektör bilgileri</li>
-        </ul>
+        <section class="hero" aria-labelledby="hero-title">
+            <h1 id="hero-title">Uğur Şahin</h1>
+            <p class="hero-tagline">Analitik kimya · HPLC · SFE · Bilimsel yazılım</p>
+            <p class="hero-lead">Analitik kimya geçmişiyle HPLC, süperkritik akışkan ekstraksiyonu (SFE) ve bilimsel yazılım/AI araçları üzerine çalışıyorum. Burada güncel projelerim ve HPLC üzerine hazırladığım teknik içerikler yer alıyor.</p>
+            <p class="hero-actions">
+                <a class="button button-primary" href="hplc-guide.html">HPLC Kılavuzu</a>
+                <a class="button" href="https://github.com/ugurtrsahin">GitHub <span aria-hidden="true">↗</span><span class="visually-hidden"> (dış bağlantı)</span></a>
+            </p>
+        </section>
+
+        <section class="home-section" aria-labelledby="projeler">
+            <h2 id="projeler" class="section-title">Projeler</h2>
+            <ul class="card-grid">
+                <li>
+                    <article class="card">
+                        <p class="card-kicker">Web uygulaması</p>
+                        <h3 class="card-title"><a href="sfe-intelligence-web/">SFE Intelligence<span class="visually-hidden"> (giriş gerekli)</span></a></h3>
+                        <p class="card-text">Süperkritik CO₂ (scCO₂) ekstraksiyon literatürünü düzenleyen; makalelerden deneysel verileri kaynak izlenebilirliğiyle (provenance) çıkaran ve deterministik mühendislik hesaplamaları sunan araştırma platformu.</p>
+                        <div class="card-footer">
+                            <ul class="tag-list" aria-label="Teknolojiler">
+                                <li>scCO₂</li>
+                                <li>React</li>
+                                <li>Firestore</li>
+                            </ul>
+                            <span class="badge" aria-hidden="true">Giriş gerekli</span>
+                        </div>
+                    </article>
+                </li>
+                <li>
+                    <article class="card">
+                        <p class="card-kicker">İnteraktif araç</p>
+                        <h3 class="card-title"><a href="hplc-simulator.html">3D HPLC Cihaz Simülatörü</a></h3>
+                        <p class="card-text">Modüler HPLC sistem mimarisi, akış yolu animasyonu, gerçek zamanlı kromatogram ve LSS tabanlı gradient elüsyon modeli içeren etkileşimli 3D simülatör.</p>
+                        <div class="card-footer">
+                            <ul class="tag-list" aria-label="Teknolojiler">
+                                <li>Three.js</li>
+                                <li>LSS modeli</li>
+                                <li>Kromatogram</li>
+                            </ul>
+                        </div>
+                    </article>
+                </li>
+                <li>
+                    <article class="card">
+                        <p class="card-kicker">Ar-Ge projesi</p>
+                        <h3 class="card-title"><a href="https://github.com/ugurtrsahin/OBB">OBB — scCO₂ Ekstraksiyon Araştırması<span class="visually-hidden"> (GitHub, dış bağlantı)</span></a></h3>
+                        <p class="card-text">Ordu Büyükşehir Belediyesi için bölge bitkilerinin scCO₂ ekstraksiyonu üzerine literatür taraması ve standart teknik monograf üretimi; monografları otomatik üreten bir yazılım hattı içerir.</p>
+                        <div class="card-footer">
+                            <ul class="tag-list" aria-label="Teknolojiler">
+                                <li>scCO₂</li>
+                                <li>Node.js</li>
+                                <li>Python</li>
+                            </ul>
+                            <span class="badge" aria-hidden="true">GitHub ↗</span>
+                        </div>
+                    </article>
+                </li>
+            </ul>
+        </section>
+
+        <section class="home-section" aria-labelledby="hplc-icerikleri">
+            <h2 id="hplc-icerikleri" class="section-title">HPLC İçerikleri</h2>
+            <ul class="card-grid card-grid-compact">
+                <li>
+                    <article class="card card-compact">
+                        <h3 class="card-title"><a href="hplc-guide.html">HPLC Kılavuzu</a></h3>
+                        <p class="card-text">Temel kavramlar, sistem bileşenleri ve tüm rehberlerin dizini</p>
+                    </article>
+                </li>
+                <li>
+                    <article class="card card-compact">
+                        <h3 class="card-title"><a href="hplc-guide/method-development-guide.html">Metod Geliştirme</a></h3>
+                        <p class="card-text">Mobil faz, gradient, akış hızı ve kolon sıcaklığı optimizasyonu</p>
+                    </article>
+                </li>
+                <li>
+                    <article class="card card-compact">
+                        <h3 class="card-title"><a href="hplc-guide/validation-guide.html">Validasyon</a></h3>
+                        <p class="card-text">Validasyon parametreleri, SOP taslakları ve kabul kriterleri</p>
+                    </article>
+                </li>
+                <li>
+                    <article class="card card-compact">
+                        <h3 class="card-title"><a href="hplc-guide/troubleshooting-guide.html">Sorun Çözme</a></h3>
+                        <p class="card-text">Basınç, alıkonma süresi, pik şekli ve temel çizgi sorunları</p>
+                    </article>
+                </li>
+                <li>
+                    <article class="card card-compact">
+                        <h3 class="card-title"><a href="hplc-guide/detectors-guide.html">Dedektörler</a></h3>
+                        <p class="card-text">UV/Vis, DAD ve diğer dedektörlerin bilimsel temelleri</p>
+                    </article>
+                </li>
+                <li>
+                    <article class="card card-compact">
+                        <h3 class="card-title"><a href="hplc-guide/shimadzu-software-guide.html">Shimadzu LabSolutions</a></h3>
+                        <p class="card-text">Yazılım bileşenleri, veri işleme, pik saflığı ve spektral benzerlik</p>
+                    </article>
+                </li>
+            </ul>
+        </section>
     </main>
-    <footer>
-        <p>Kaynaklar GitHub'da: <a href="https://github.com/ugurtrsahin/ugurtrsahin.github.io">github.com/ugurtrsahin/ugurtrsahin.github.io</a></p>
+    <footer class="site-footer">
+        <p>Kaynak kodu GitHub'da: <a href="https://github.com/ugurtrsahin/ugurtrsahin.github.io">ugurtrsahin/ugurtrsahin.github.io</a></p>
     </footer>
 </body>
 </html>

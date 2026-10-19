@@ -1,8 +1,8 @@
 (function () {
+    const siteName = "Uğur Şahin";
     const navLinks = [
-        { label: "Ana Sayfa", href: "index.html" },
         { label: "HPLC Kılavuzu", href: "hplc-guide.html" },
-        { label: "Validasyon", href: "hplc-guide/validation/acceptance-criteria.html" },
+        { label: "Validasyon", href: "hplc-guide/validation-guide.html" },
         { label: "3D Simülatör", href: "hplc-simulator.html" },
         { label: "SFE Intelligence", href: "sfe-intelligence-web/" }
     ];
@@ -16,13 +16,28 @@
     function init() {
         addNavigation();
         addTableOfContents();
+        wrapTables();
         loadCodeHighlighting();
     }
 
     function addNavigation() {
-        const nav = document.createElement("nav");
+        const header = document.createElement("header");
+        header.className = "site-header";
         const basePath = getBasePath();
         const currentPath = normalizePath(window.location.pathname);
+
+        const brand = document.createElement("a");
+        brand.className = "site-brand";
+        brand.href = basePath;
+        brand.textContent = siteName;
+        if (normalizePath(basePath) === currentPath) {
+            brand.setAttribute("aria-current", "page");
+        }
+        header.appendChild(brand);
+
+        const nav = document.createElement("nav");
+        nav.className = "site-nav";
+        nav.setAttribute("aria-label", "Ana menü");
 
         navLinks.forEach(function (link) {
             const a = document.createElement("a");
@@ -31,16 +46,23 @@
 
             const linkPath = normalizePath(new URL(a.href, window.location.origin).pathname);
             if (linkPath === currentPath) {
-                a.classList.add("is-active");
+                a.setAttribute("aria-current", "page");
             }
 
             nav.appendChild(a);
         });
 
-        document.body.insertBefore(nav, document.body.firstChild);
+        header.appendChild(nav);
+
+        // Atlama bağlantısı klavye sırasında ilk öğe kalmalı
+        const skipLink = document.querySelector("body > .skip-link");
+        const anchor = skipLink ? skipLink.nextSibling : document.body.firstChild;
+        document.body.insertBefore(header, anchor);
     }
 
     function addTableOfContents() {
+        if (document.body.dataset.toc === "off") return;
+
         const headings = Array.from(document.querySelectorAll("h2, h3"));
         if (headings.length < 3) return;
 
@@ -72,6 +94,16 @@
         if (firstHeading && firstHeading.nextElementSibling) {
             firstHeading.parentNode.insertBefore(toc, firstHeading.nextElementSibling);
         }
+    }
+
+    function wrapTables() {
+        document.querySelectorAll("table").forEach(function (table) {
+            if (table.parentElement.classList.contains("table-scroll")) return;
+            const wrapper = document.createElement("div");
+            wrapper.className = "table-scroll";
+            table.parentNode.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+        });
     }
 
     function loadCodeHighlighting() {
@@ -137,7 +169,7 @@
         if (!path) return "/";
         let normalized = path;
         if (!normalized.startsWith("/")) normalized = "/" + normalized;
-        normalized = normalized.replace(/index\.html$/, "/");
+        normalized = normalized.replace(/\/index\.html$/, "/");
         return normalized;
     }
 

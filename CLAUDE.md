@@ -21,18 +21,22 @@ There is no build, no bundler, no package manager. Pages are served directly as 
 
 All pages load exactly two shared files:
 
-- `assets/theme.css` — single stylesheet with all styles including Notion-compatible CSS classes
-- `assets/theme.js` — single IIFE that injects navigation, generates table of contents, and lazy-loads vendor libs
+- `assets/theme.css` — single stylesheet with all styles including Notion-compatible CSS classes. Colors, spacing, radii and widths are CSS custom properties on `:root` (`--accent` is teal `#0f766e`; `--page-width` is `46rem` for content pages, overridden to `64rem` by `body.home`). Use the variables instead of hard-coded values.
+- `assets/theme.js` — single IIFE that injects the site header, generates table of contents, wraps tables in a scroll container, and lazy-loads vendor libs
 
 Both are referenced with absolute paths (`/assets/...`) and require the `<meta name="site-base" content="/">` tag in `<head>` plus `data-base="/"` on `<body>` to resolve paths correctly regardless of page nesting depth.
 
 ### Navigation
 
-The nav bar is dynamically injected by `theme.js` using the `navLinks` array hardcoded at the top of that file. To add a nav item, edit the array in `assets/theme.js`. Active link detection compares normalized `window.location.pathname` against each link's resolved href.
+The header (`.site-header`: a `.site-brand` home link showing `siteName`, plus `nav.site-nav`) is dynamically injected by `theme.js` right after the `.skip-link`, using the `siteName` constant and `navLinks` array at the top of that file. The brand link is the home link, so `navLinks` has no "Ana Sayfa" entry. To add a nav item, edit the array in `assets/theme.js`. Active link detection compares normalized `window.location.pathname` against each link's resolved href and marks the match with `aria-current="page"`.
 
 ### Table of contents
 
-`theme.js` auto-generates a `.toc-panel` and inserts it after the first heading when a page has 3 or more `h2`/`h3` elements. IDs are auto-assigned via a `slugify()` function that handles Turkish characters (ç, ğ, ı, ö, ş, ü).
+`theme.js` auto-generates a `.toc-panel` and inserts it after the first heading when a page has 3 or more `h2`/`h3` elements. IDs are auto-assigned via a `slugify()` function that handles Turkish characters (ç, ğ, ı, ö, ş, ü). Set `data-toc="off"` on `<body>` to suppress it (the home page does this because its cards use `h3`).
+
+### Home page
+
+`index.html` uses `<body class="home" data-toc="off">` and home-only components defined under the "Ana sayfa (body.home)" section of `theme.css`: `.hero`, `.button`, `.home-section`, `.section-title`, `.card-grid`, `.card` (plus `.card-compact`), `.tag-list`, `.badge`. A card is one link: the `<a>` in `.card-title` stretches over the whole card via `::after`, so put no other links inside a card. For external or restricted links, add the context in a `.visually-hidden` span inside the link and mark the visible `.badge` `aria-hidden="true"`.
 
 ### Code blocks and diagrams
 
@@ -67,6 +71,7 @@ Every page follows this pattern:
     <link rel="stylesheet" href="/assets/theme.css">
     <script defer src="/assets/theme.js"></script>
     <title>...</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body data-base="/">
 <a class="skip-link" href="#main-content">İçeriğe atla</a>
