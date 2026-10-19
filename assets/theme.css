@@ -1,4 +1,34 @@
-/* Minimal HPLC Site Theme */
+/* Site teması — tüm sayfalarda ortak */
+
+:root {
+    --bg: #ffffff;
+    --surface: #f7f9f9;
+    --surface-hover: #eef4f3;
+    --text: #111827;
+    --muted: #4b5563;
+    --border: #e2e8e7;
+    --border-strong: #c8d3d1;
+    --accent: #0f766e;
+    --accent-hover: #115e59;
+    --accent-soft: #e6f4f1;
+
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+    --radius: 10px;
+    --radius-sm: 6px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+
+    /* İçerik sayfaları ~80 karakterlik satır; ana sayfa ızgarası daha geniş */
+    --page-width: 46rem;
+    --page-gutter: 20px;
+}
 
 * {
     margin: 0;
@@ -8,27 +38,30 @@
 
 html {
     font-size: 16px;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.6;
-    color: #111;
-    background: #fff;
-    max-width: 900px;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--text);
+    background: var(--bg);
+    max-width: calc(var(--page-width) + 2 * var(--page-gutter));
     margin: 0 auto;
-    padding: 20px;
+    padding: 0 var(--page-gutter) var(--space-7);
+    overflow-wrap: break-word;
 }
 
 .skip-link {
     position: absolute;
     left: -999px;
     top: 10px;
-    background: #fff;
-    color: #111;
+    background: var(--bg);
+    color: var(--text);
     padding: 8px 12px;
-    border: 1px solid #111;
-    border-radius: 4px;
+    border: 1px solid var(--text);
+    border-radius: var(--radius-sm);
     z-index: 1000;
 }
 
@@ -36,78 +69,112 @@ body {
     left: 20px;
 }
 
-/* Simple navigation */
-nav {
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 15px;
-    margin-bottom: 30px;
+/* Üst bar (theme.js tarafından eklenir) */
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-5);
+    padding: var(--space-4) 0;
+    margin-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border);
 }
 
-nav a {
-    color: #111;
+.site-brand {
+    color: var(--text);
+    font-weight: 650;
+    font-size: 1.0625rem;
+    letter-spacing: -0.01em;
     text-decoration: none;
-    margin-right: 20px;
-    font-size: 15px;
 }
 
-nav a:hover {
-    text-decoration: underline;
+.site-brand:hover {
+    color: var(--accent);
+    text-decoration: none;
 }
 
-nav a.is-active {
-    font-weight: 600;
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-5);
 }
 
-/* Typography */
+.site-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    padding: var(--space-1) 0;
+    border-bottom: 2px solid transparent;
+}
+
+.site-nav a:hover {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.site-nav a[aria-current="page"] {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+}
+
+/* Tipografi */
 h1 {
-    font-size: 28px;
-    font-weight: 600;
-    margin: 20px 0 15px;
-    line-height: 1.3;
+    font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    margin: var(--space-5) 0 var(--space-4);
+    line-height: 1.25;
 }
 
 h2 {
-    font-size: 22px;
-    font-weight: 600;
-    margin: 25px 0 12px;
+    font-size: 1.375rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: var(--space-6) 0 var(--space-3);
     line-height: 1.3;
 }
 
 h3 {
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: 600;
-    margin: 20px 0 10px;
-    line-height: 1.3;
+    margin: var(--space-5) 0 var(--space-2);
+    line-height: 1.35;
 }
 
 h4 {
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 600;
-    margin: 15px 0 8px;
+    margin: var(--space-4) 0 var(--space-2);
 }
 
 p {
-    margin: 0 0 15px;
+    margin: 0 0 var(--space-4);
 }
 
 a {
-    color: #0066cc;
+    color: var(--accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
 }
 
 a:hover {
-    text-decoration: underline;
+    color: var(--accent-hover);
+    text-decoration-thickness: 2px;
 }
 
 a:focus-visible,
 button:focus-visible,
+summary:focus-visible,
 [tabindex]:focus-visible {
-    outline: 2px solid #111;
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
+    border-radius: 2px;
 }
 
-/* Lists */
+/* Listeler */
 ul, ol {
-    margin: 0 0 15px 25px;
+    margin: 0 0 var(--space-4) 25px;
 }
 
 li {
@@ -124,72 +191,91 @@ ul.toggle {
 }
 
 ul.toggle > li {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin: 10px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+    margin: var(--space-3) 0;
 }
 
-/* Code blocks */
+/* Kod blokları */
 pre {
-    background: #f5f5f5;
-    border: 1px solid #ddd;
-    padding: 15px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
     overflow-x: auto;
-    margin: 15px 0;
-    font-size: 14px;
-    line-height: 1.5;
+    margin: var(--space-4) 0;
+    font-size: 0.875rem;
+    line-height: 1.55;
 }
 
 code {
-    font-family: "Courier New", Courier, monospace;
-    background: #f5f5f5;
+    font-family: var(--font-mono);
+    background: var(--surface);
+    border-radius: 4px;
     padding: 2px 5px;
-    font-size: 14px;
+    font-size: 0.875em;
 }
 
 pre code {
     padding: 0;
     background: transparent;
+    font-size: inherit;
 }
 
-/* Tables */
+/* Tablolar */
+.table-scroll {
+    overflow-x: auto;
+    margin: var(--space-4) 0;
+}
+
+.table-scroll > table {
+    margin: 0;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 15px 0;
+    margin: var(--space-4) 0;
+    font-size: 0.9375rem;
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    border: 1px solid var(--border);
+    padding: var(--space-2) var(--space-3);
     text-align: left;
+    vertical-align: top;
 }
 
 th {
-    background: #f5f5f5;
+    background: var(--surface);
     font-weight: 600;
 }
 
-/* Images */
+/* Görseller */
 img {
     max-width: 100%;
     height: auto;
     display: block;
-    margin: 15px 0;
+    margin: var(--space-4) 0;
 }
 
-/* Table of contents */
+/* İçindekiler */
 .toc-panel {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin: 25px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-4) var(--space-5);
+    margin: var(--space-5) 0;
 }
 
 .toc-panel h4 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 16px;
+    margin: 0 0 var(--space-2);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
 }
 
 .toc-list {
@@ -198,76 +284,328 @@ img {
 }
 
 .toc-list li {
-    margin: 5px 0;
+    margin: 3px 0;
 }
 
 .toc-list a {
-    color: #0066cc;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 0.9375rem;
 }
 
 .toc-list a:hover {
     text-decoration: underline;
 }
 
-/* Notion classes compatibility */
-.page {
-    /* wrapper for content, no special styling */
-}
-
+/* Notion sınıfları */
 .page-title {
-    font-size: 28px;
-    font-weight: 600;
-    margin: 20px 0 15px;
+    font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2rem);
+    font-weight: 650;
+    margin: var(--space-5) 0 var(--space-4);
 }
 
 .page-description {
-    color: #666;
-    margin-bottom: 20px;
+    color: var(--muted);
+    margin-bottom: var(--space-5);
 }
 
 .link-to-page {
     display: block;
-    margin: 10px 0;
+    margin: var(--space-2) 0;
 }
 
 .link-to-page a {
     display: block;
-    padding: 10px;
-    border: 1px solid #ddd;
-    background: #f9f9f9;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
     text-decoration: none;
-    color: #111;
+    color: var(--text);
     font-weight: 500;
 }
 
 .link-to-page a:hover {
-    background: #f0f0f0;
+    background: var(--surface-hover);
+    border-color: var(--border-strong);
+    color: var(--text);
 }
 
-/* Mermaid diagrams */
+/* Mermaid diyagramları */
 .mermaid-diagram {
     margin: 20px 0;
     text-align: center;
 }
 
+/* Alt bilgi */
+.site-footer {
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.875rem;
+}
+
+.site-footer p {
+    margin: 0;
+}
+
+/* ---------- Ana sayfa (body.home) ---------- */
+.home {
+    --page-width: 64rem;
+}
+
+.hero {
+    padding: var(--space-5) 0 var(--space-6);
+}
+
+.hero h1 {
+    margin: 0 0 var(--space-2);
+    font-size: clamp(2rem, 1.5rem + 2.4vw, 2.75rem);
+    letter-spacing: -0.025em;
+}
+
+.hero-tagline {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: var(--space-4);
+}
+
+.hero-lead {
+    max-width: 40rem;
+    color: var(--muted);
+    font-size: 1.0625rem;
+    margin-bottom: var(--space-5);
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    color: var(--text);
+    background: var(--bg);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.button:hover {
+    color: var(--text);
+    background: var(--surface);
+    text-decoration: none;
+}
+
+.button-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
+.button-primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: #ffffff;
+}
+
+.home-section {
+    margin-top: var(--space-6);
+}
+
+.section-title {
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-4);
+    list-style: none;
+    margin: 0;
+}
+
+.card-grid > li {
+    margin: 0;
+}
+
+/* Kartın tamamı tek bağlantı: başlıktaki <a>, ::after ile kartı kaplar */
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--space-5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.card:hover {
+    border-color: var(--border-strong);
+    box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
+    transform: translateY(-1px);
+}
+
+.card-kicker {
+    margin: 0 0 var(--space-1);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.card-title {
+    margin: 0 0 var(--space-2);
+    font-size: 1.125rem;
+}
+
+.card-title a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.card-title a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+}
+
+.card-title a:focus-visible {
+    outline: none;
+}
+
+.card-title a:focus-visible::after {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.card:hover .card-title a {
+    color: var(--accent);
+}
+
+.card-text {
+    color: var(--muted);
+    font-size: 0.9375rem;
+    margin-bottom: var(--space-4);
+}
+
+.card-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: auto;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+}
+
+.tag-list li {
+    margin: 0;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-hover);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.card-grid-compact {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-3);
+}
+
+.card-compact {
+    padding: var(--space-4);
+    background: var(--surface);
+}
+
+.card-compact:hover {
+    background: var(--bg);
+}
+
+.card-compact .card-title {
+    font-size: 1rem;
+    margin-bottom: var(--space-1);
+}
+
+.card-compact .card-text {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
-    body {
-        padding: 15px;
-    }
-
-    h1 {
-        font-size: 24px;
+    :root {
+        --page-gutter: 16px;
     }
 
     h2 {
-        font-size: 20px;
+        font-size: 1.25rem;
     }
 
-    nav a {
-        display: block;
-        margin: 5px 0;
+    .site-header {
+        margin-bottom: var(--space-5);
+    }
+
+    .site-nav {
+        gap: var(--space-1) var(--space-4);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card {
+        transition: none;
+    }
+
+    .card:hover {
+        transform: none;
     }
 }
