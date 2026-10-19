@@ -94,6 +94,15 @@ Every page follows this pattern:
 
 All page content, headings, navigation labels, and UI text are in Turkish. Maintain Turkish throughout when editing or adding content.
 
+## Security notes
+
+- **No secrets in the repo.** Firebase web config/API keys are public by design; protection comes from the SFE auth gate and `firestore.rules`. Never commit service-account keys, OAuth client secrets, or `GEMINI_API_KEY`. Restrict the web API key to `https://ugurtrsahin.github.io/*` in Google Cloud Console.
+- **Third-party code.** `hplc-simulator.html` loads three.js r128 from CDNs with Subresource Integrity (`THREE_SRI`; all three CDNs serve the identical file). When changing the three.js version, recompute the `sha384` hash. `assets/vendor/mermaid.min.js` (10.9.5) is currently unused by any page; keep it unused or update/remove it. Prism is loaded only for pages with `<pre><code>` blocks.
+- **CI supply chain.** `.github/workflows/static.yml` pins every action to a commit SHA (tag in the trailing comment) and uses least-privilege `permissions`. When bumping an action, update both the SHA and the comment.
+- **No inline HTML from user input.** New code must use `textContent`/DOM APIs, not `innerHTML`, for any value that is not a number or a static string.
+- **Anti-framing.** GitHub Pages cannot send `X-Frame-Options`/`frame-ancestors`; `sfe-intelligence.html` hides itself when framed (inline script in `<head>`).
+- **Gemini backend (outside this repo).** `sfe-intelligence.html` sends `Authorization: Bearer <Firebase ID token>` to `/api/extract-sfe` on the Cloud Run/AI Studio server. That server (`server.ts` in the exported app) must verify the token (verified owner email), restrict CORS to `https://ugurtrsahin.github.io`, and rate-limit; the previously exported version did none of these. Treat the endpoint as unauthenticated until the server is patched.
+
 ## Deployment
 
 Push to the `main` branch — GitHub Pages deploys automatically with no build step.

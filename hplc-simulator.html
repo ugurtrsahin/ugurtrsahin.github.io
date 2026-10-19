@@ -2612,11 +2612,14 @@ const THREE_CDNS=[
   'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js',
   'https://unpkg.com/three@0.128.0/build/three.min.js'
 ];
+/* SRI: üç CDN de bayt bayt aynı dosyayı sunar; hash uyuşmazsa tarayıcı betiği çalıştırmaz. */
+const THREE_SRI='sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu';
 function loadThree(i){
   if(typeof THREE!=='undefined'){ boot3D(); return; }
   if(i>=THREE_CDNS.length){ fail3D(); return; }
   const s=document.createElement('script');
   s.src=THREE_CDNS[i];
+  s.integrity=THREE_SRI; s.crossOrigin='anonymous';
   s.onload=()=>{ if(typeof THREE!=='undefined') boot3D(); else loadThree(i+1); };
   s.onerror=()=>loadThree(i+1);
   document.head.appendChild(s);
