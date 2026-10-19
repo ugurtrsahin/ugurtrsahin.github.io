@@ -4,7 +4,8 @@
         { label: "HPLC Kılavuzu", href: "hplc-guide.html" },
         { label: "Kolon Seçimi", href: "hplc-column-selection.html" },
         { label: "Validasyon", href: "hplc-guide/validation/acceptance-criteria.html" },
-        { label: "3D Simülatör", href: "hplc-simulator.html" }
+        { label: "3D Simülatör", href: "hplc-simulator.html" },
+        { label: "SFE Intelligence", href: "sfe-intelligence.html" }
     ];
 
     if (document.readyState === "loading") {
@@ -58,7 +59,6 @@
             if (!heading.id) {
                 heading.id = slugify(heading.textContent);
             }
-
             const item = document.createElement("li");
             const link = document.createElement("a");
             link.href = "#" + heading.id;
@@ -82,7 +82,6 @@
         const hasMermaid = Array.from(codeBlocks).some(function (block) {
             return /language-mermaid/i.test(block.className);
         });
-
         const hasRegularCode = Array.from(codeBlocks).some(function (block) {
             return !/language-mermaid/i.test(block.className);
         });
@@ -125,10 +124,8 @@
         const meta = document.querySelector('meta[name="site-base"]');
         const bodyBase = document.body.dataset.base;
         let base = (meta && meta.content) || bodyBase || "/";
-
         if (!base.startsWith("/")) base = "/" + base;
         if (!base.endsWith("/")) base += "/";
-
         return base;
     }
 
@@ -161,7 +158,6 @@
                 resolve();
                 return;
             }
-
             const script = document.createElement("script");
             script.src = src;
             script.async = true;
@@ -174,7 +170,6 @@
     function loadStyle(href) {
         const existing = document.querySelector('link[href="' + href + '"]');
         if (existing) return;
-
         const link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = href;
