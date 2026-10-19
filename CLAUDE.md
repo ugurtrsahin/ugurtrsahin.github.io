@@ -22,6 +22,10 @@ There is no build, no bundler, no package manager. Pages are served directly as 
 All pages load exactly two shared files:
 
 - `assets/theme.css` — single stylesheet with all styles including Notion-compatible CSS classes. Colors, spacing, radii and widths are CSS custom properties on `:root` (`--accent` is teal `#0f766e`; `--page-width` is `46rem` for content pages, overridden to `64rem` by `body.home`). Use the variables instead of hard-coded values.
+
+### Dark mode
+
+Dark mode follows the OS/browser preference only (`@media (prefers-color-scheme: dark)` redefines the `:root` variables; there is no manual toggle, so no storage and no flash on load). New colors must be added as variables with both a light and a dark value. Prism's light theme is neutralized in dark mode by `:root`-prefixed overrides in `theme.css` (higher specificity than the lazily loaded `prism.min.css`). Mermaid diagrams keep Mermaid's default (light) theme because their sources use light `classDef` fills; in dark mode `.mermaid-diagram` is shown on a light panel.
 - `assets/theme.js` — single IIFE that injects the site header, generates table of contents, wraps tables in a scroll container, and lazy-loads vendor libs
 
 Both are referenced with absolute paths (`/assets/...`) and require the `<meta name="site-base" content="/">` tag in `<head>` plus `data-base="/"` on `<body>` to resolve paths correctly regardless of page nesting depth.
@@ -41,7 +45,7 @@ The header (`.site-header`: a `.site-brand` home link showing `siteName`, plus `
 ### Code blocks and diagrams
 
 - Regular code: Prism.js is lazy-loaded from `assets/vendor/prism.min.js` only when `<pre><code>` blocks are present.
-- Mermaid diagrams: use `<pre><code class="language-mermaid">` — `theme.js` converts these to `<div class="mermaid">` elements and loads `assets/vendor/mermaid.min.js` at runtime.
+- Mermaid diagrams: use `<pre><code class="language-mermaid">` (matched case-insensitively; `hplc-guide/troubleshooting-guide.html` uses `language-Mermaid`) — `theme.js` converts these to `<div class="mermaid">` elements and loads `assets/vendor/mermaid.min.js` at runtime.
 
 ### Standalone pages
 
@@ -64,7 +68,7 @@ Every page follows this pattern:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light">
+    <meta name="color-scheme" content="light dark">
     <meta name="site-base" content="/">
     <!-- SEO: description, og:*, twitter:* -->
     <link rel="canonical" href="https://ugurtrsahin.github.io/...">
@@ -94,7 +98,7 @@ All page content, headings, navigation labels, and UI text are in Turkish. Maint
 ## Security notes
 
 - **No secrets in the repo.** Never commit service-account keys, OAuth client secrets, or `GEMINI_API_KEY`. (The SFE app's Firebase web config is public by design and lives in its own repository, which also owns the auth gate and `firestore.rules`.)
-- **Third-party code.** `hplc-simulator.html` loads three.js r128 from CDNs with Subresource Integrity (`THREE_SRI`; all three CDNs serve the identical file). When changing the three.js version, recompute the `sha384` hash. `assets/vendor/mermaid.min.js` (10.9.5) is currently unused by any page; keep it unused or update/remove it. Prism is loaded only for pages with `<pre><code>` blocks.
+- **Third-party code.** `hplc-simulator.html` loads three.js r128 from CDNs with Subresource Integrity (`THREE_SRI`; all three CDNs serve the identical file). When changing the three.js version, recompute the `sha384` hash. `assets/vendor/mermaid.min.js` (10.9.5) is loaded by `hplc-guide/troubleshooting-guide.html`; keep it updated or convert that diagram to a static image and remove it. Prism is loaded only for pages with `<pre><code>` blocks.
 - **CI supply chain.** `.github/workflows/static.yml` pins every action to a commit SHA (tag in the trailing comment) and uses least-privilege `permissions`. When bumping an action, update both the SHA and the comment.
 - **No inline HTML from user input.** New code must use `textContent`/DOM APIs, not `innerHTML`, for any value that is not a number or a static string.
 
