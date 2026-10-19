@@ -1,0 +1,26 @@
+// SFE Intelligence — Cloud Firestore güvenlik kuralları (yedek kopya).
+// Firebase projesi: sfe-intelligence, veritabanı: (default).
+// Bu dosya Firebase'e otomatik yüklenmez; kuralları değiştirdiğinizde
+// Firebase Console → Firestore Database → Rules sekmesinden yayımlayın
+// ve bu dosyayı aynı içerikle güncelleyin.
+//
+// Model: her belge `ownerId` alanında sahibinin uid'sini taşır; yalnızca
+// oturum açmış sahibi okuyabilir, oluşturabilir, güncelleyebilir, silebilir.
+// Yalnızca uygulamanın kullandığı beş koleksiyona izin verilir.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{col}/{docId} {
+      allow read, delete: if request.auth != null
+        && col in ['projects','sources','evidences','experiments','calculations']
+        && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null
+        && col in ['projects','sources','evidences','experiments','calculations']
+        && request.resource.data.ownerId == request.auth.uid;
+      allow update: if request.auth != null
+        && col in ['projects','sources','evidences','experiments','calculations']
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == request.auth.uid;
+    }
+  }
+}
