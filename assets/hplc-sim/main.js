@@ -79,7 +79,7 @@ function resize3D(){
   V.cam.aspect=aspect;
   V.cam.updateProjectionMatrix();
   /* Dar/dikey ekranlarda sistemin tamamı kadrajda kalsın diye kamera geri çekilir */
-  const fit=clamp(1+(1.35-aspect)*0.75,1,2.1);
+  const fit=clamp(1+(1.35-aspect)*1.1,1,2.4);
   CAM.home.r=CAM_BASE_R*fit;
   if(!CAM.userZoom) CAM.rGoal=CAM.home.r;
 }

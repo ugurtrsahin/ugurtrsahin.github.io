@@ -47,6 +47,10 @@ function createStage(canvas){
   renderer.toneMappingExposure=1.0;
   renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=THREE.PCFShadowMap;   // r18x: yumuşak PCF, shadow.radius ile
+  /* Cihaz statiktir: gölge haritası her karede değil, yalnızca sahne kurulunca / kalite
+     değişince çizilir (kare başına gölge geçişi ~100 çizim çağrısı tasarruf ettirir).
+     Hareketli küçük parçaların (piston, iğne) gölgesi bu nedenle güncellenmez. */
+  renderer.shadowMap.autoUpdate=false;
 
   /* Ortam aydınlatması (IBL): metalik yüzeyler rengini yansıttıkları çevreden alır.
      Ortam haritası olmadan %85–100 metalik yüzeyler neredeyse siyah görünür. */
@@ -213,7 +217,7 @@ function focusFor(box, scale){
 function makeTube(pts,radius,color,opacity){
   const curve=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p[0],p[1],p[2])));
   curve.curveType='catmullrom'; curve.tension=0.45;
-  const geo=new THREE.TubeGeometry(curve, Math.max(32,pts.length*18), radius, 10, false);
+  const geo=new THREE.TubeGeometry(curve, Math.max(32,pts.length*12), radius, 8, false);
   const mat=new THREE.MeshStandardMaterial({color:color,roughness:0.3,metalness:0.6,
       transparent:opacity!==undefined&&opacity<1,opacity:opacity===undefined?1:opacity});
   const mesh=new THREE.Mesh(geo,mat);
@@ -313,4 +317,5 @@ function finalizeRig(){
   CAM.home={r, theta:0.60, phi:1.36, target:c.clone().add(new THREE.Vector3(0,-sz.y*0.05,0))};
   CAM_BASE_R=r;
   camInit();
+  V.renderer.shadowMap.needsUpdate=true;
 }

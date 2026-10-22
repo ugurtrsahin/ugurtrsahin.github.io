@@ -186,8 +186,10 @@ function buildLabels(){
   const layer=document.getElementById('labelLayer');
   layer.replaceChildren();
   V.labels=V.labelAnchors.map(a=>{
-    const el=document.createElement('div');
-    el.className='mlabel'; el.textContent=a.text;
+    /* Etiketler düğmedir: klavyeyle (Tab + Enter) modül seçimi mümkün olur */
+    const el=document.createElement('button');
+    el.type='button'; el.className='mlabel'; el.textContent=a.text;
+    el.setAttribute('aria-label',a.text+' modülünü seç ve bilgi kartını aç');
     el.style.pointerEvents='auto'; el.style.cursor='pointer';
     el.addEventListener('click',()=>selectModule(a.id,true));
     layer.appendChild(el);
