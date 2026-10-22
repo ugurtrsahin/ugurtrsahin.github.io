@@ -55,7 +55,7 @@ function updateGauges(){
   const f=(running||S.flowMode)?S.flow:0;
   $('gFlow').innerHTML=fmt(f,2)+'<small>mL/dk</small>';
   $('gFlowBar').style.width=(f/3*100)+'%';
-  const p=(running||S.flowMode)?pressureBar(phi):0;
+  const p=(running||S.flowMode)?systemPressure():0;
   $('gPress').innerHTML=Math.round(p)+'<small>bar</small>';
   const pmax=(COLUMNS[S.col].dp<2)?1000:400;
   $('gPressBar').style.width=clamp(p/pmax*100,0,100)+'%';
@@ -154,6 +154,69 @@ function renderResults(){
   const rss=res.eluting.filter(p=>p.Rs!=null).map(p=>p.Rs);
   $('suRs').textContent=rss.length?fmt(Math.min.apply(null,rss),2):'—';
   $('suP').textContent=Math.round(res.pMax)+' bar';
+  const eq=reequilibrationCV();
+  $('suEq').textContent=!eq?'— (izokratik)':(eq.returned?fmt(eq.cv,1)+' kolon hacmi':'başlangıca dönmüyor');
+
+  /* Tespit ve sağlamlık tablosu (DOM API: değerler sayı veya statik analit adı) */
+  const dt=$('detTable').querySelector('tbody');
+  dt.replaceChildren();
+  const cell=(tr,txt)=>{ const td=document.createElement('td'); td.textContent=txt; tr.appendChild(td); return td; };
+  const sens=res.dtRdpH||null;
+  for(const p of res.eluting){
+    if(p.tR>tNow) continue;
+    const tr=document.createElement('tr');
+    const td0=document.createElement('td');
+    const sw=document.createElement('span'); sw.className='swatch'; sw.style.background=p.a.color;
+    td0.append(sw, p.a.name); tr.appendChild(td0);
+    const sn=cell(tr, p.SN>=1000?Math.round(p.SN).toLocaleString('tr-TR'):fmt(p.SN,p.SN<10?1:0));
+    if(p.SN<10) sn.style.color=p.SN<3?'#ff6b6b':'#ffb347';
+    cell(tr, sigFig(p.lod)); cell(tr, sigFig(p.loq));
+    cell(tr, fmt(p.fn,2));
+    cell(tr, sens&&sens[p.a.id]!=null?fmt(sens[p.a.id],2):'…');
+    dt.appendChild(tr);
+  }
+  if(!dt.children.length){
+    const tr=document.createElement('tr'); const td=document.createElement('td');
+    td.colSpan=6; td.style.textAlign='center'; td.style.color='#5f7185'; td.textContent='Henüz pik elüe olmadı';
+    tr.appendChild(td); dt.appendChild(tr);
+  }
+}
+/* Anlamlı basamakla kısa gösterim (LOD/LOQ, µg/mL) */
+function sigFig(v){
+  if(!isFinite(v)) return '—';
+  if(v>=100) return fmt(v,0);
+  if(v>=1) return fmt(v,1);
+  if(v>=0.01) return fmt(v,3);
+  return v.toExponential(1).replace('.',',');
+}
+
+/* ---------- Yöntem uyarıları (çalışma notu) ---------- */
+function methodWarnings(res){
+  const w=[];
+  const bp=bufferPrecipitationRisk();
+  if(bp) w.push('Fosfat tamponu %'+Math.round(bp.pmax*100)+' '+(S.solvB==='acn'?'ACN':'MeOH')+
+    ' ile karışıyor: yaklaşık %'+Math.round(bp.lim*100)+' üzerinde tampon çökelmesi riski (derişime bağlı).');
+  const eq=reequilibrationCV();
+  if(eq && eq.returned && eq.cv<10) w.push('Gradient sonrası yeniden dengelenme ≈ '+fmt(eq.cv,1)+
+    ' kolon hacmi (öneri ≥ 10). Simülasyon tek enjeksiyonu modeller; ardışık enjeksiyonlarda alıkonma kayabilir.');
+  if(eq && !eq.returned) w.push('Gradient programı başlangıç bileşimine dönmüyor; ardışık enjeksiyonlar için dengelenme basamağı ekleyin.');
+  const pmax=(COLUMNS[S.col].dp<2)?1000:400;
+  let pk=res?res.pMax:0;
+  if(!res){                                 // programdaki bileşim aralığında en yüksek (viskozite maksimumu dahil)
+    const bs=(S.mode==='iso')?[S.isoB]:S.grad.map(r=>r.b), lo=Math.min.apply(null,bs)/100, hi=Math.max.apply(null,bs)/100;
+    for(let i=0;i<=20;i++) pk=Math.max(pk,pressureBar(lo+(hi-lo)*i/20));
+  }
+  if(pk>pmax*0.9) w.push('Basınç ≈ '+Math.round(pk)+' bar: sistem sınırına ('+pmax+' bar) yakın veya üzerinde.');
+  if(res){
+    const sat=res.eluting.filter(p=>p.saturated);
+    if(sat.length) w.push(sat.map(p=>p.a.name).join(', ')+': pik yüksekliği > 1,5 AU — dedektör doğrusallık sınırına yaklaşılıyor (kaçak ışık).');
+    const low=res.eluting.filter(p=>p.SN<10);
+    if(low.length) w.push(low.map(p=>p.a.name).join(', ')+': S/N < 10 (tayin sınırının altında).');
+  }
+  return w;
+}
+function warningsHTML(w){
+  return w.length?'<br><b style="color:#ffb347">Uyarılar:</b><br>• '+w.join('<br>• '):'';
 }
 
 /* ---------- Eğitim modu ---------- */
@@ -188,6 +251,9 @@ function startRun(){
   S.result=computeRun();
   let mx=1; for(let i=0;i<S.result.n;i++) mx=Math.max(mx,S.result.total[i]-S.result.base[i]);
   S.result.maxSignal=mx;
+  /* pH sağlamlığı iki ek hesap gerektirir; arayüzü bekletmemek için ertelenir */
+  const res=S.result;
+  setTimeout(()=>{ if(S.result!==res) return; res.dtRdpH=pHSensitivity(); renderResults(); },40);
   S.t=0; S.phase='running';
   S.view.t0=0; S.view.t1=S.run; S.view.y0=-5; S.view.y1=60;
   setLeds(); updateRunNote(); syncButtons(); renderResults();
@@ -216,7 +282,8 @@ function syncButtons(){
   $('btnStart').disabled=(S.phase==='running');
   $('btnStop').disabled=(S.phase!=='running');
   const lock=(S.phase==='running');
-  ['inFlow','inTemp','inInj','inWl','inRun','inMode','inB','inCol','inSolvA','inSolvB','btnAddRow']
+  ['inFlow','inTemp','inInj','inWl','inRun','inMode','inB','inCol','inSolvA','inSolvB','btnAddRow',
+   'inDwell','inDil','inSeed','btnSeed']
     .forEach(id=>{ const el=$(id); if(el) el.disabled=lock; });
   $('gradTable').querySelectorAll('input,button').forEach(el=>el.disabled=lock);
 }
@@ -224,7 +291,7 @@ function updateRunNote(){
   const n=$('runNote'), g=colGeom();
   if(S.phase==='running'){
     n.innerHTML='<b>Analiz sürüyor.</b> Pompa aktif, mobil faz kolondan geçiyor. '+
-      'Anlık %B: '+Math.round(phiProgram(S.t)*100)+' · Basınç: '+Math.round(pressureBar(phiProgram(S.t)))+' bar · '+
+      'Anlık %B: '+Math.round(phiProgram(S.t)*100)+' · Basınç: '+Math.round(systemPressure())+' bar · '+
       't<sub>0</sub> = '+fmt(g.t0,2)+' dk';
   } else if(S.phase==='paused'){
     n.innerHTML='<b>Analiz duraklatıldı.</b> Devam etmek için <b>Devam Et</b>, baştan başlamak için <b>Reset</b>.';
@@ -233,11 +300,37 @@ function updateRunNote(){
     const rss=res?res.eluting.filter(p=>p.Rs!=null).map(p=>p.Rs):[];
     n.innerHTML='<b>Analiz tamamlandı.</b> '+(res?res.eluting.length:0)+' pik elüe oldu'+
       (rss.length?(', en küçük çözünürlük R<sub>s</sub> = '+fmt(Math.min.apply(null,rss),2)):'')+
-      '. Ayrıntılar için <b>Sonuçlar</b> sekmesine bakın.';
+      '. Ayrıntılar için <b>Sonuçlar</b> sekmesine bakın.'+warningsHTML(methodWarnings(res));
   } else {
     n.innerHTML='Sistem hazır. Parametreleri ayarlayıp <b>Başlat</b>\'a basın; pompa devreye girecek, '+
-      'enjeksiyon gerçekleşecek ve kromatogram gerçek zamanlı oluşacaktır.';
+      'enjeksiyon gerçekleşecek ve kromatogram gerçek zamanlı oluşacaktır.'+warningsHTML(methodWarnings(null));
   }
+}
+
+/* Sulu fazın pH'ı ve organik oranla s_s pH kayması hakkında bilgi */
+function updatePHHint(){
+  const a=AQUEOUS[S.solvA], d=0.85*SOLVENTS[S.solvB].dpKa;
+  $('phHint').textContent='Sulu faz pH '+fmt(a.pH,1)+'; '+(S.solvB==='acn'?'ACN':'MeOH')+
+    ' oranı arttıkça tamponun s_s pH değeri yaklaşık '+fmt(d*0.5,1)+' birim (φ = 0,5) yükselir; '+
+    'zayıf asitlerin pKa değeri ise daha fazla yükselir (model katsayıları yaklaşıktır).';
+}
+
+/* İki gradient çalışmasından LSS parametreleri (physics.js: fitLSS2) */
+function runLSSFit(){
+  const v=id=>parseFloat($(id).value);
+  const b0=v('fitB0')/100, b1=v('fitB1')/100, g1=v('fitG1'), r1=v('fitR1'), g2=v('fitG2'), r2=v('fitR2');
+  const out=$('fitOut'); out.replaceChildren();
+  const g=colGeom(), tD=dwellTime();
+  if(![b0,b1,g1,r1,g2,r2].every(isFinite) || b1<=b0 || g1<=0 || g2<=0 || g1===g2){
+    out.textContent='Geçersiz giriş: %B bitiş > başlangıç ve iki farklı gradient süresi gerekir.'; return; }
+  if(Math.min(r1,r2)<=g.t0+tD){ out.textContent='t_R değerleri t0 + t_D ('+fmt(g.t0+tD,2)+' dk) değerinden büyük olmalı.'; return; }
+  const f=fitLSS2(g1,r1,g2,r2,b0,b1,g.t0,tD);
+  if(!isFinite(f.S)||!isFinite(f.logkw)||f.S<=0.55||f.S>=11.9){
+    out.textContent='Çözüm bulunamadı: girilen t_R çifti tek bir LSS doğrusuyla tutarlı değil (veya S aralık dışında).'; return; }
+  const b=document.createElement('b'); b.textContent='S = '+fmt(f.S,2)+' · log k_w = '+fmt(f.logkw,2);
+  out.append(b, document.createElement('br'),
+    'k₀ (%B '+fmt(b0*100,0)+') = '+fmt(f.k0,1)+' · kullanılan t0 = '+fmt(g.t0,2)+' dk, t_D = '+fmt(tD,2)+
+    ' dk. İyonlaşabilen analitlerde sonuç pH\'a bağlı "görünür" parametrelerdir.');
 }
 
 /* ---------- Kaydırıcı bağlama ---------- */
@@ -273,8 +366,18 @@ function initUI(){
     drawGradPreview();
   });
   $('inCol').addEventListener('change',e=>{ S.col=e.target.value; if(V.ok) drawStaticScreens(); if(S.selected) renderInfo(S.selected); });
-  $('inSolvA').addEventListener('change',e=>{ S.solvA=e.target.value; if(V.ok) drawStaticScreens(); });
-  $('inSolvB').addEventListener('change',e=>{ S.solvB=e.target.value; if(V.ok) drawStaticScreens(); });
+  $('inSolvA').addEventListener('change',e=>{ S.solvA=e.target.value; if(V.ok) drawStaticScreens(); updatePHHint(); updateRunNote(); });
+  $('inSolvB').addEventListener('change',e=>{ S.solvB=e.target.value; if(V.ok) drawStaticScreens(); updatePHHint(); updateRunNote(); });
+  $('inDwell').addEventListener('change',e=>{ S.dwell=parseFloat(e.target.value); updateRunNote(); });
+  $('inDil').addEventListener('change',e=>{ S.dil=parseFloat(e.target.value); });
+  $('inSeed').addEventListener('change',e=>{
+    const v=Math.round(clamp(parseFloat(e.target.value)||1,1,999999)); S.seed=v; e.target.value=v; });
+  $('btnSeed').addEventListener('click',()=>{
+    S.seed=1+Math.floor(Math.random()*999998); $('inSeed').value=S.seed; });
+  $('btnFit2').addEventListener('click',runLSSFit);
+  /* Boşta iken her parametre değişikliğinde uyarıları tazele */
+  ['change','input'].forEach(ev=>$('pane-ctrl').addEventListener(ev,()=>{ if(S.phase==='idle') updateRunNote(); }));
+  updatePHHint();
   $('btnAddRow').addEventListener('click',()=>{
     const last=S.grad[S.grad.length-1];
     S.grad.push({t:+(last.t+2).toFixed(2), b:last.b});

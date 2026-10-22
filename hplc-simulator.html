@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
 <meta name="site-base" content="/">
-<meta name="description" content="Etkileşimli 3D HPLC cihaz simülatörü: modüler sistem mimarisi, akış yolu animasyonu, gerçek zamanlı kromatogram ve LSS tabanlı gradient elüsyon modeli.">
+<meta name="description" content="Etkileşimli 3D HPLC cihaz simülatörü: gerçek ölçekli modüler cihaz modeli, akış yolu animasyonu, gerçek zamanlı kromatogram; LSS + pH/pKa alıkonma, Knox verim ve Poppe gradient modeli, S/N ve LOD/LOQ tahmini.">
+<link rel="canonical" href="https://ugurtrsahin.github.io/hplc-simulator.html">
 <title>İnteraktif HPLC Sistemi — 3D Simülasyon</title>
 <link rel="stylesheet" href="/assets/hplc-sim/sim.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -162,9 +163,9 @@
               <div>
                 <div class="hint" style="margin:0 0 4px">A — Sulu faz</div>
                 <select id="inSolvA">
-                  <option value="water">Su (0,1% Formik asit)</option>
-                  <option value="buffer">20 mM Fosfat tamponu pH 3,0</option>
-                  <option value="ammonium">10 mM Amonyum asetat pH 4,7</option>
+                  <option value="water">Su + %0,1 formik asit (pH ≈ 2,7)</option>
+                  <option value="buffer">20 mM fosfat tamponu, pH 3,0</option>
+                  <option value="ammonium">10 mM amonyum asetat, pH 4,7</option>
                 </select>
               </div>
               <div>
@@ -200,8 +201,17 @@
                 <tbody></tbody>
               </table>
               <canvas id="gradPreview" width="700" height="200"></canvas>
-              <div class="hint">Gecikme (dwell) hacmi 0,60 mL kabul edilir; gradient kolona bu hacim kadar gecikmeyle ulaşır.</div>
             </div>
+            <div class="ctrl" style="margin-top:10px">
+              <div class="ctrl-head"><label for="inDwell">Gecikme (dwell) hacmi</label></div>
+              <select id="inDwell">
+                <option value="0.2">0,20 mL — yüksek basınç karıştırma (HPG/UHPLC)</option>
+                <option value="0.6" selected>0,60 mL — düşük basınç karıştırma (LPG)</option>
+                <option value="1.0">1,00 mL — LPG + büyük karıştırıcı</option>
+              </select>
+              <div class="hint" id="dwellHint">Gradient kolon girişine bu hacim kadar gecikmeyle ulaşır; yöntem transferinde alıkonma kaymasının başlıca nedenidir.</div>
+            </div>
+            <div class="hint" id="phHint" style="margin-top:6px"></div>
           </div>
 
           <div class="section">
@@ -214,6 +224,26 @@
                 <option value="c18_50">C18, 50 × 2,1 mm, 1,8 µm (UHPLC)</option>
                 <option value="c8_150">C8, 150 × 4,6 mm, 5 µm</option>
               </select>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="inDil">Numune seyreltmesi</label></div>
+              <select id="inDil">
+                <option value="1" selected>Stok (1×)</option>
+                <option value="0.1">1/10</option>
+                <option value="0.01">1/100</option>
+                <option value="0.001">1/1 000</option>
+                <option value="0.0002">1/5 000</option>
+                <option value="0.0001">1/10 000</option>
+              </select>
+              <div class="hint">Düşük derişimlerde S/N ve tespit/tayin sınırı (LOD/LOQ) davranışını incelemek için.</div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="inSeed">Gürültü tohumu</label></div>
+              <div class="grid2">
+                <input type="number" id="inSeed" min="1" max="999999" step="1" value="12345">
+                <button class="btn" id="btnSeed" type="button">Yeni tohum</button>
+              </div>
+              <div class="hint">Aynı tohum ve koşullar aynı kromatogramı üretir (tekrarlanabilir karşılaştırma).</div>
             </div>
             <div class="ctrl">
               <div class="ctrl-head"><label for="inSpeed">Simülasyon Hızı</label>
@@ -282,6 +312,21 @@
             </div>
           </div>
           <div class="section">
+            <h3>Tespit ve Sağlamlık</h3>
+            <table class="res" id="detTable">
+              <thead><tr>
+                <th>Analit</th><th>S/N</th><th>LOD*</th><th>LOQ*</th><th>f<sub>n</sub></th><th>∂t<sub>R</sub>/∂pH</th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="hint" style="margin-top:8px">
+              S/N = 2H/h (Ph. Eur. 2.2.46 / USP &lt;621&gt;); h pikin çevresindeki 20·w<sub>50</sub> aralığındaki
+              tepeden tepeye gürültüdür. *LOD/LOQ (µg/mL): S/N = 3 ve 10'a doğrusal ölçeklemeyle tahmin —
+              ICH Q2(R2) uyarınca deneysel doğrulama gerektirir. f<sub>n</sub>: elüsyondaki nötr tür oranı.
+              ∂t<sub>R</sub>/∂pH: sulu faz pH'ı ±0,1 değiştirildiğinde alıkonma duyarlılığı (dk/pH).
+            </div>
+          </div>
+          <div class="section">
             <h3>Sistem Uygunluğu (özet)</h3>
             <dl class="speclist" id="suitList">
               <dt>Ölü zaman t<sub>0</sub></dt><dd id="suT0">—</dd>
@@ -290,11 +335,31 @@
               <dt>Teorik tabaka N (ortalama)</dt><dd id="suN">—</dd>
               <dt>En küçük çözünürlük R<sub>s,min</sub></dt><dd id="suRs">—</dd>
               <dt>Maksimum basınç</dt><dd id="suP">—</dd>
+              <dt>Yeniden dengelenme</dt><dd id="suEq">—</dd>
             </dl>
             <div class="note">
-              Değerler LSS (lineer çözücü gücü) alıkonma modeli, van Deemter verim modeli ve
-              Darcy basınç modelinin birleştirilmesiyle hesaplanır — ölçüm verisi değil, model çıktısıdır.
+              Değerler çözücüye özel LSS + iyonlaşma (pKa, s<sub>s</sub>pH) alıkonma modeli, Knox verim modeli,
+              Poppe gradient sıkışma faktörü ve Darcy + Hagen–Poiseuille basınç modelinin birleştirilmesiyle hesaplanır —
+              ölçüm verisi değil, model çıktısıdır. Analit parametreleri örnek değerlerdir.
             </div>
+          </div>
+          <div class="section">
+            <h3>Kendi Verinizle: LSS Parametreleri</h3>
+            <p class="hint" style="margin:0 0 8px">
+              Aynı kolon ve debide, farklı sürelerde iki doğrusal gradient (φ<sub>0</sub> → φ<sub>1</sub>) ile ölçülen
+              alıkonma zamanlarından log k<sub>w</sub> ve S hesaplanır (Snyder iki-çalışma yöntemi). t<sub>0</sub> ve
+              dwell zamanı seçili kolon, debi ve gecikme hacminden alınır. Nötr analit ve k<sub>0</sub> ≫ t<sub>D</sub>/t<sub>0</sub> varsayılır.
+            </p>
+            <div class="grid2">
+              <label class="hint">%B başlangıç<input type="number" id="fitB0" value="5" min="0" max="100" step="1"></label>
+              <label class="hint">%B bitiş<input type="number" id="fitB1" value="95" min="0" max="100" step="1"></label>
+              <label class="hint">t<sub>G1</sub> (dk)<input type="number" id="fitG1" value="10" min="0.5" step="0.5"></label>
+              <label class="hint">t<sub>R1</sub> (dk)<input type="number" id="fitR1" value="5.61" min="0" step="0.01"></label>
+              <label class="hint">t<sub>G2</sub> (dk)<input type="number" id="fitG2" value="30" min="0.5" step="0.5"></label>
+              <label class="hint">t<sub>R2</sub> (dk)<input type="number" id="fitR2" value="8.48" min="0" step="0.01"></label>
+            </div>
+            <div class="btnrow" style="margin-top:8px"><button class="btn" id="btnFit2" type="button">Hesapla</button></div>
+            <div class="note" id="fitOut">Değerleri girip <b>Hesapla</b>'ya basın.</div>
           </div>
         </div>
 

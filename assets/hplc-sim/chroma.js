@@ -162,10 +162,10 @@ function drawChroma(){
       const x=timeToPx(p.tR);
       if(x<CH.pad.l-30||x>CH.pad.l+plotW()+30) continue;
       const apex=p.height+res.base[clamp(Math.round(p.tR/res.dtGrid),0,res.n-1)];
-      const yTop=Math.max(CH.pad.t+48, valToPy(apex));
+      const yTop=Math.max(CH.pad.t+44, valToPy(apex));
       let yLab=yTop-16;
       if(x-lastX<62) yLab=Math.min(yLab,lastY-23);      // komşu etiketin üstüne kaydır
-      yLab=Math.max(yLab,CH.pad.t+14);
+      yLab=Math.max(yLab,CH.pad.t+26);                 // iki satırlık etiket çizim alanında kalsın
       lastX=x; lastY=yLab;
       c.strokeStyle=p.a.color; c.globalAlpha=.55; c.lineWidth=1;
       c.beginPath(); c.moveTo(x,yTop-4); c.lineTo(x,yLab+3); c.stroke(); c.globalAlpha=1;
@@ -213,6 +213,7 @@ function updateTooltip(tip,px,py,t){
       '<span>Yükseklik</span> '+fmt(best.height,1)+' mAU<br>'+
       '<span>k</span> '+fmt(best.kObs,2)+' &nbsp; <span>N</span> '+Math.round(best.Nobs)+'<br>'+
       '<span>w<sub>50</sub></span> '+fmt(best.w50*60,1)+' s &nbsp; <span>A<sub>s</sub></span> '+fmt(best.As,2)+
+      '<br><span>S/N</span> '+Math.round(best.SN)+' &nbsp; <span>f<sub>n</sub></span> '+fmt(best.fn,2)+
       (best.Rs?('<br><span>R<sub>s</sub></span> '+fmt(best.Rs,2)+' (önceki pike göre)'):'');
   }else{
     const i=clamp(Math.round(t/res.dtGrid),0,revealedIndex());

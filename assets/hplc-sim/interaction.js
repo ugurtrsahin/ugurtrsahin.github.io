@@ -390,7 +390,7 @@ function updateInstrumentScreens(phi){
     c.fillStyle='#6f8f8b'; c.font='16px ui-monospace,monospace';
     c.fillText('mL/min',150,44);
     c.fillStyle='#7fd6ff'; c.font='bold 22px ui-monospace,monospace';
-    c.fillText(Math.round((running||S.flowMode?pressureBar(phi):0))+' bar',14,84);
+    c.fillText(Math.round((running||S.flowMode?systemPressure():0))+' bar',14,84);
     c.fillStyle='#b08cff'; c.fillText('%B '+Math.round(phi*100),150,84);
     c.fillStyle=running?'#59d97a':'#3a4450';
     c.fillRect(p.w-26,12,14,14);

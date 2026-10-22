@@ -1,14 +1,18 @@
 /* =====================================================================================
    İNTERAKTİF HPLC SİSTEMİ — 3D SİMÜLASYON
-   Tek dosyalık, backend gerektirmeyen uygulama.
+   Backend gerektirmeyen statik uygulama; betikler hplc-simulator.html'den sırayla yüklenir
+   ve ortak global kapsamı paylaşır.
 
-   Bölümler:
-     1) Veri katmanı  : modül bilgileri, analit özellikleri, kolon tanımları, eğitim adımları
-     2) Fizik/kimya   : LSS alıkonma modeli, van Deemter verim modeli, Darcy basınç modeli
-     3) 3B sahne      : Three.js ile modüler cihaz geometrisi, kapiler bağlantılar, akış partikülleri
-     4) Etkileşim     : orbit/pan/zoom kamera, raycast ile modül seçimi, eğitim modu kamera geçişleri
-     5) Kromatogram   : Canvas 2D üzerinde gerçek zamanlı sinyal, zoom/pan, pik etiketleme, tooltip
-     6) UI bağlama    : kontrol paneli, sistem durumu LED'leri, sonuç tabloları
+   Dosyalar:
+     data.js             : modül bilgileri, analit özellikleri, kolon tanımları, eğitim adımları
+     physics.js          : LSS + iyonlaşma alıkonma, Knox verim, Poppe G, Darcy/Poiseuille basınç,
+                           dedektör (kaçak ışık, tohumlu gürültü, S/N) — DOM'dan bağımsız, test edilir
+     scene-core.js       : renderer, IBL, GTAO, ortak 3B yapı taşları ve "rig" sözleşmesi
+     scene-gltf.js       : Blender modeli (assets/models/hplc-system.glb) yükleyici
+     scene-procedural.js : yedek prosedürel cihaz modeli
+     interaction.js      : kamera, seçim, etiketler, 3B animasyon ve cihaz ekranları
+     chroma.js           : Canvas 2D kromatogram, zoom/pan, pik etiketleme, tooltip
+     ui.js / main.js     : kontrol paneli, tablolar, ana döngü ve 3B başlatma
    ===================================================================================== */
 'use strict';
 
@@ -156,20 +160,32 @@ const MODULES = {
 };
 
 /* --- Analit kütüphanesi ---
-   logkw : saf sulu fazda log k (LSS kesişimi)
-   S     : LSS eğimi (log k = log kw - S*phi)
+   lss   : çözücüye özel LSS parametreleri (nötr tür): log k = logkw − S·φ
+   pKa   : sulu ortamdaki pKa (asit: HA ⇌ A⁻ + H⁺; baz: BH⁺ ⇌ B + H⁺); type: 'acid' | 'base'
+   ion   : iyonik türün nötr türe göre farkı {dlogkw, dS} (iyonik tür daha az tutunur)
    dH    : transfer entalpisi (kJ/mol, negatif = ekzotermik)
-   conc  : numune derişimi (mg/mL)
+   conc  : stok numune derişimi (mg/mL)
    uv    : UV spektrumu, gauss bantlarının toplamı {lm: merkez nm, e: bağıl absorptivite, w: yarı genişlik}
-   tau   : kuyruklanma zaman sabiti (dk cinsinden, birinci mertebe gecikme)               */
+   tau   : kuyruklanma zaman sabiti (dk cinsinden, birinci mertebe gecikme)
+   pKa değerleri literatürdeki tipik sulu değerlerdir (ibuprofen için 4,4–4,9 aralığı bildirilir).
+   LSS ve iyonik tür parametreleri ÖRNEK değerlerdir: ölçüme uydurulmamıştır; çözücüler arası
+   seçicilik farkını göstermek üzere makul büyüklükte seçilmiştir.                         */
 const ANALYTES = [
-  { id:1, name:'Parasetamol', color:'#4aa3ff', logkw:0.85, S:3.20, dH:-16, conc:0.10, tau:0.010,
+  { id:1, name:'Parasetamol', color:'#4aa3ff', dH:-16, conc:0.10, tau:0.010,
+    lss:{acn:{logkw:0.85,S:3.20}, meoh:{logkw:1.00,S:2.75}},
+    pKa:9.5, type:'acid', ion:{dlogkw:-1.5, dS:-0.8},
     uv:[{lm:243,e:1.00,w:16},{lm:210,e:0.72,w:14}] },
-  { id:2, name:'Kafein',      color:'#25d0c4', logkw:1.15, S:3.50, dH:-17, conc:0.08, tau:0.011,
+  { id:2, name:'Kafein',      color:'#25d0c4', dH:-17, conc:0.08, tau:0.011,
+    lss:{acn:{logkw:1.15,S:3.50}, meoh:{logkw:1.45,S:3.25}},
+    pKa:0.6, type:'base', ion:{dlogkw:-1.5, dS:-0.8},
     uv:[{lm:273,e:0.95,w:18},{lm:205,e:0.80,w:12}] },
-  { id:3, name:'Naproksen',   color:'#ffb347', logkw:3.00, S:4.50, dH:-19, conc:0.06, tau:0.014,
+  { id:3, name:'Naproksen',   color:'#ffb347', dH:-19, conc:0.06, tau:0.014,
+    lss:{acn:{logkw:3.00,S:4.50}, meoh:{logkw:3.30,S:4.05}},
+    pKa:4.15, type:'acid', ion:{dlogkw:-1.6, dS:-0.9},
     uv:[{lm:230,e:1.20,w:12},{lm:262,e:0.45,w:14},{lm:331,e:0.18,w:16}] },
-  { id:4, name:'İbuprofen',   color:'#ff6b6b', logkw:3.90, S:4.90, dH:-20, conc:0.20, tau:0.016,
+  { id:4, name:'İbuprofen',   color:'#ff6b6b', dH:-20, conc:0.20, tau:0.016,
+    lss:{acn:{logkw:3.90,S:4.90}, meoh:{logkw:4.05,S:4.35}},
+    pKa:4.45, type:'acid', ion:{dlogkw:-1.6, dS:-0.9},
     uv:[{lm:222,e:0.65,w:11},{lm:264,e:0.06,w:12}] }
 ];
 
@@ -181,15 +197,20 @@ const COLUMNS = {
   c8_150: { label:'C8 150×4,6 mm 5 µm',   L:15.0, id:0.46, dp:5.0, eT:0.65, dOff:-0.45, sEC:7.0 }
 };
 
-/* --- Çözücü özellikleri (25 °C viskozite, cP; eluotropik güç katsayısı) --- */
+/* --- Çözücü özellikleri (25 °C viskozite, cP; UV kesme dalga boyu, nm) ---
+   dpKa: nötr asitlerin (HA) pKa'sının organik oranla artışı, φ başına (yaklaşık; ACN'de
+   %50'de ≈ +1,5, MeOH'ta ≈ +0,9 — Rosés ve Bosch'un hidro-organik pH çalışmalarındaki
+   karboksilik asit eğilimleriyle uyumlu büyüklük). Tamponların (formik, fosforik, asetik
+   asit — hepsi nötr asit tipi) s_s pH'ı 0,85·dpKa·φ kadar artar kabul edilir. */
 const SOLVENTS = {
-  acn : { label:'Asetonitril', eta:0.34, curv:0.60, strength:1.00, cutoff:190 },
-  meoh: { label:'Metanol',     eta:0.55, curv:3.60, strength:0.82, cutoff:205 }
+  acn : { label:'Asetonitril', eta:0.34, curv:0.60, cutoff:190, dpKa:3.0 },
+  meoh: { label:'Metanol',     eta:0.55, curv:3.60, cutoff:205, dpKa:1.8 }
 };
+/* Sulu faz: pH = sulu (w_w) pH; uvbase: gradientte taban çizgisi kayma katsayısı */
 const AQUEOUS = {
-  water:    { label:'Su (0,1% FA)',      eta:0.89, uvbase:0.6 },
-  buffer:   { label:'Fosfat pH 3,0',     eta:0.95, uvbase:1.6 },
-  ammonium: { label:'Amonyum asetat',    eta:0.92, uvbase:2.4 }
+  water:    { label:'Su + %0,1 FA',          eta:0.89, uvbase:0.6, pH:2.7 },
+  buffer:   { label:'Fosfat pH 3,0',         eta:0.95, uvbase:1.6, pH:3.0 },
+  ammonium: { label:'NH₄OAc pH 4,7',         eta:0.92, uvbase:2.4, pH:4.7 }
 };
 
 /* --- Eğitim modu adımları --- */
