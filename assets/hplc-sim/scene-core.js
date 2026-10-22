@@ -289,7 +289,7 @@ function buildLabelAnchors(){
     const m=V.modules[id]; if(!m) continue;
     const c=m.box.getCenter(new THREE.Vector3());
     let p;
-    if(ids.includes(id))      p=new THREE.Vector3(stack.max.x+0.75, c.y, stack.max.z-0.4);
+    if(ids.includes(id)||id==='bottles') p=new THREE.Vector3(stack.max.x+0.75, c.y, stack.max.z-0.4);
     else if(id==='column')    p=new THREE.Vector3(stack.min.x-0.75, c.y, stack.max.z-0.4);
     else                      p=new THREE.Vector3(c.x, m.box.max.y+0.35, c.z);
     V.labelAnchors.push({id, text:text[id], p});
@@ -309,8 +309,8 @@ function finalizeRig(){
   const all=new THREE.Box3();
   for(const id in V.modules) if(V.modules[id].group) all.union(V.modules[id].box);
   const c=all.getCenter(new THREE.Vector3()), sz=all.getSize(new THREE.Vector3());
-  const r=Math.max(sz.y*1.05, sz.x*0.95)/Math.tan((V.cam.fov*Math.PI/180)/2)*0.62;
-  CAM.home={r, theta:0.60, phi:1.33, target:c.clone()};
+  const r=Math.max(sz.y*1.05, sz.x*0.95)/Math.tan((V.cam.fov*Math.PI/180)/2)*0.6;
+  CAM.home={r, theta:0.60, phi:1.36, target:c.clone().add(new THREE.Vector3(0,-sz.y*0.05,0))};
   CAM_BASE_R=r;
   camInit();
 }

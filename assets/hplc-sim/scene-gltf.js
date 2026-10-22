@@ -44,6 +44,9 @@ function buildGLTFRig(root){
     const mn=(o.material&&o.material.name)||'';
     if(/^Glass/.test(mn)){
       o.material.transparent=true; o.material.depthWrite=false; o.renderOrder=2;
+      /* Ortam yansıması camda zayıflatılır: aksi halde parlak IBL camı sütlü gösterir ve
+         iç bölme (kolon, vialler, lamba) seçilemez hale gelir. */
+      o.material.envMapIntensity=0.3;
       o.castShadow=false; o.receiveShadow=false;
     } else if(/^Liquid/.test(mn)){
       o.material.transparent=true; o.material.depthWrite=false; o.renderOrder=1;
@@ -104,6 +107,12 @@ function buildGLTFRig(root){
     id:p.id, phase:p.phase, kind:p.kind, r:(p.r||0)*GLTF_SCALE, color:p.color,
     pts:(p.pts||[]).map(q=>{ tmp.set(q[0],q[1],q[2]).applyMatrix4(m); return [tmp.x,tmp.y,tmp.z]; })
   }));
+
+  /* --- İç bölme aydınlatması: cam kapakların arkası karanlık kalmasın --- */
+  for(const [n,col,int] of [['Lamp_as',0xdfeaff,0.9],['Lamp_oven',0xffd2a8,0.8],['Lamp_det',0xd8c8ff,0.7]]){
+    const l=new THREE.PointLight(col,int,2.6,1.6);
+    l.position.copy(wp(n)); V.scene.add(l);
+  }
 
   /* --- Modül kaydı --- */
   const mods=['degasser','pump','autosampler','oven','column','detector','bottles','waste'];

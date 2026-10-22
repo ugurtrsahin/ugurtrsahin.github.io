@@ -164,7 +164,7 @@ function applyHighlight(){
     m.group.traverse(o=>{
       if(o.isMesh && o.userData.hl && !o.userData.noHL && o.material && o.material.emissive){
         o.material.emissive.setHex(st===2?0x0a3a3c:(st===1?0x06222a:(o.userData.baseEmissive||0)));
-        if(st) o.material.emissiveIntensity=0.6;
+        o.material.emissiveIntensity=st?0.35:1.0;
       }
     });
   }
