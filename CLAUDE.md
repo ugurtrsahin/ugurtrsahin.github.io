@@ -49,10 +49,24 @@ The header (`.site-header`: a `.site-brand` home link showing `siteName`, plus `
 
 ### Standalone pages
 
-`hplc-simulator.html` is a single-file application that does not use the shared theme beyond the `site-base` meta tag. It is linked from `index.html` (under "Projeler") and from the `navLinks` array in `assets/theme.js`.
+`hplc-simulator.html` is a standalone application that does not use the shared theme (`theme.css`/`theme.js`) beyond the `site-base` meta tag. It is linked from `index.html` (under "Projeler") and from the `navLinks` array in `assets/theme.js`.
 
-- `hplc-simulator.html` — interactive 3D HPLC instrument simulator.
+- `hplc-simulator.html` — interactive 3D HPLC instrument simulator (markup only; code and styles in `assets/hplc-sim/`, see below).
 - `sfe-intelligence.html` — **redirect stub only** (meta refresh + `location.replace`) to `/sfe-intelligence-web/`. The SFE Intelligence app is a separate project in the repository `ugurtrsahin/sfe-intelligence-web` (Vite/React/TypeScript; built and published by its own GitHub Actions workflow to the project-pages path `https://ugurtrsahin.github.io/sfe-intelligence-web/`). Do not add app code, Firebase configuration, or `firestore.rules` here; they live in that repository (see its `README.md` and `CLAUDE.md`). `index.html` and the `navLinks` entry point to `sfe-intelligence-web/`. Do not create a top-level `sfe-intelligence-web/` directory in this repository — it would shadow the project site. The app is private to its owner (verified-email gate + Firestore rules).
+
+### HPLC simulator (`assets/hplc-sim/`)
+
+Classic scripts loaded in order by `hplc-simulator.html`; they share one global scope (top-level `const`s such as `S`, `V`, `CAM` are not `window` properties). Order: `data.js` → `physics.js` → `scene-core.js` → `scene-procedural.js` → `scene-gltf.js` → `interaction.js` → `chroma.js` → `ui.js` → `main.js`, then the ES module `three-boot.mjs`.
+
+- `physics.js` is DOM-free (chemistry/physics model v2: per-solvent LSS + ionisation with s_s pH shift, Knox with k-dependent C, Poppe G, Darcy + Hagen–Poiseuille pressure, stray-light detector, seeded noise, EP S/N, two-run LSS fit). Keep it DOM-free so `tests/` can load it in Node.
+- three.js is **vendored** in `assets/vendor/three/` (version in `VERSION`, regenerated from the npm package with `tools/vendor-three.sh <version>`). An import map in `hplc-simulator.html` maps `three` and `three/addons/`; `three-boot.mjs` dynamically imports the library and addons into `window.THREE` and fires `three-ready` / `three-failed`. Do not add a `modulepreload` before the import map.
+- 3D "rig" contract (`scene-core.js` header): a rig builder fills `V.modules`, `V.segDefs`, `V.colAxis`, `V.screens`, pivots etc.; animation/interaction code only uses these fields. Two rigs exist: `scene-gltf.js` (Blender model, default) and `scene-procedural.js` (fallback if the model fails to load; force with `?model=prosedurel`). Camera focus, labels and outlines are derived from module bounding boxes, so the rigs need not share a scale.
+- The model `assets/models/hplc-system.glb` is generated, not hand-edited: `tools/blender/build_hplc.py` (bpy, real scale in metres, generic design without any vendor branding) + `tools/blender/build-model.sh` (gltf-transform meshopt compression). The script header documents the node naming contract (`Mod_*`, `Screen_*`/`Label_*`, `LED_*`, `Pivot_*`, `Column_In/Out`, `Det_Cell`, `Lamp_*`, `FlowPaths` extras) that `scene-gltf.js` relies on; change both together.
+- `tools/screenshots.mjs` takes fixed-angle screenshots with Playwright (SwiftShader without a GPU) for before/after checks.
+
+### Tests
+
+`node --test tests/*.test.mjs` — verification tests of `physics.js` against closed-form solutions (see `tests/README.md`). CI: `.github/workflows/test.yml` (syntax check of every `assets/hplc-sim/*.js` + tests). Run them after any change to `data.js` or `physics.js`.
 
 ### Notion-compatible CSS
 
@@ -98,8 +112,8 @@ All page content, headings, navigation labels, and UI text are in Turkish. Maint
 ## Security notes
 
 - **No secrets in the repo.** Never commit service-account keys, OAuth client secrets, or `GEMINI_API_KEY`. (The SFE app's Firebase web config is public by design and lives in its own repository, which also owns the auth gate and `firestore.rules`.)
-- **Third-party code.** `hplc-simulator.html` loads three.js r128 from CDNs with Subresource Integrity (`THREE_SRI`; all three CDNs serve the identical file). When changing the three.js version, recompute the `sha384` hash. `assets/vendor/mermaid.min.js` (10.9.5) is loaded by `hplc-guide/troubleshooting-guide.html`; keep it updated or convert that diagram to a static image and remove it. Prism is loaded only for pages with `<pre><code>` blocks.
-- **CI supply chain.** `.github/workflows/static.yml` pins every action to a commit SHA (tag in the trailing comment) and uses least-privilege `permissions`. When bumping an action, update both the SHA and the comment.
+- **Third-party code.** three.js (r186) is served from `assets/vendor/three/` (no CDN); update it only with `tools/vendor-three.sh`, which takes the files from the official npm package, and keep `LICENSE`/`VERSION`. `assets/vendor/mermaid.min.js` (10.9.5) is loaded by `hplc-guide/troubleshooting-guide.html`; keep it updated or convert that diagram to a static image and remove it. Prism is loaded only for pages with `<pre><code>` blocks.
+- **CI supply chain.** `.github/workflows/static.yml` and `test.yml` pin every action to a commit SHA (tag in the trailing comment) and uses least-privilege `permissions`. When bumping an action, update both the SHA and the comment.
 - **No inline HTML from user input.** New code must use `textContent`/DOM APIs, not `innerHTML`, for any value that is not a number or a static string.
 
 ## Deployment

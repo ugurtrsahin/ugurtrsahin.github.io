@@ -1,0 +1,23 @@
+# Simülatörün fizik modeli için doğrulama testleri ve JS sözdizimi denetimi.
+# Bağımlılık kurulmaz: yalnızca runner'daki Node.js (node:test) kullanılır.
+name: Simulator tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Node.js version
+        run: node --version
+      - name: Syntax check (classic scripts)
+        run: for f in assets/hplc-sim/*.js; do node --check "$f"; done
+      - name: Physics verification tests
+        run: node --test tests/*.test.mjs
